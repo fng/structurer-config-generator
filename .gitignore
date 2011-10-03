@@ -1,0 +1,9 @@
+target
+workspace.xml
+lib_managed
+src_managed
+project/boot
+local-repo
+*.ncb
+*.suo
+*.obj
