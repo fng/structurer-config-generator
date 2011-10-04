@@ -49,25 +49,26 @@ class PayoffSegmentListBuilder {
     private var _slope: Double = 0;
 
     def payoffAtLowerBound = _payoffAtLowerBound
+
     def slope = _slope
 
     def addToPayoffAtLowerBound(valueAtLowerBound: Double) {
-      if(_payoffAtLowerBound == 0){
+      if (_payoffAtLowerBound == 0) {
         _payoffAtLowerBound = valueAtLowerBound
-      }else if(valueAtLowerBound != 0){
+      } else if (valueAtLowerBound != 0) {
         _payoffAtLowerBound = _payoffAtLowerBound + valueAtLowerBound
       }
     }
 
-    def updateQuantity(slope: Double){
-      if(this._slope == 0){
+    def updateQuantity(slope: Double) {
+      if (this._slope == 0) {
         this._slope = slope
-      }else{
+      } else {
         this._slope = this._slope + slope
       }
     }
 
-    def addPayoffSegment(segment: PayoffSegment){
+    def addPayoffSegment(segment: PayoffSegment) {
       payoffSegmentList += segment
     }
 
@@ -80,13 +81,15 @@ class PayoffSegmentListBuilder {
 
     val accumulator = new BuilderAccumulator
 
-    for(component <- sorted){
+    for (component <- sorted) {
       currentState = currentState.addComponent(component, accumulator)
     }
 
-    val openEndSegment = new PayoffSegment(accumulator.slope, accumulator.payoffAtLowerBound, accumulator.currentStrike, None)
-    accumulator.addPayoffSegment(openEndSegment)
-    
+    if (!accumulator.getPayoffSegments.isEmpty) {
+      val openEndSegment = new PayoffSegment(accumulator.slope, accumulator.payoffAtLowerBound, accumulator.currentStrike, None)
+      accumulator.addPayoffSegment(openEndSegment)
+    }
+
     accumulator.getPayoffSegments
   }
 
@@ -108,10 +111,10 @@ class PayoffSegmentListBuilder {
     case object AtSegmentStart extends SegmentBuilderState {
       def addComponent(component: PayoffComponent, accumulator: BuilderAccumulator): SegmentBuilderState = {
         accumulator.addToPayoffAtLowerBound(component.valueAtLowerBound)
-        if(accumulator.currentStrike == component.lowerBound){
+        if (accumulator.currentStrike == component.lowerBound) {
           accumulator.updateQuantity(component.slope)
           AtSegmentStart
-        }else{
+        } else {
           AtSegmentEnd.addComponent(PayoffComponent(component.lowerBound, component.valueAtLowerBound, component.slope), accumulator)
         }
       }
@@ -128,7 +131,7 @@ class PayoffSegmentListBuilder {
         val currentSlope = accumulator.slope
         accumulator.updateQuantity(component.slope)
 
-        if(currentSlope != 0){
+        if (currentSlope != 0) {
           val extra = (component.lowerBound - currentStrike) * currentSlope
           accumulator.addToPayoffAtLowerBound(extra)
         }
@@ -148,10 +151,10 @@ class PayoffBuilder {
 
   def build(options: List[OptionInstrument], bonds: List[BondInstrument]): List[PayoffSegment] = {
     val componentListGenerator = new PayoffComponentListGenerator
-    for(option <- options){
+    for (option <- options) {
       componentListGenerator.addOption(option.optionType, option.quantity, option.strike)
     }
-    for(bond <- bonds){
+    for (bond <- bonds) {
       componentListGenerator.addBond(bond.notional, bond.quantity)
     }
     val components = componentListGenerator.getComponents

@@ -1,21 +1,27 @@
 package com.github.fng.structurer.view
 
-import swing.{BoxPanel, Orientation}
 import javax.swing.BorderFactory
 import com.github.fng.structurer.payoff.BondInstrument
+import swing.{Button, Action, BoxPanel, Orientation}
 
-class BondPanel extends BoxPanel(Orientation.Vertical) {
+class BondPanel(default: BondInstrument = BondInstrument(1000, 1)) extends InstrumentPanel {
   border = BorderFactory.createTitledBorder("Bond")
 
 
-  val notionalField = new DoubleField("Notional", 1000.0)
-  val quantityField = new DoubleField("Quantity", 1)
+  val notionalField = new DoubleField("Notional", default.notional)
+  val quantityField = new DoubleField("Quantity", default.quantity)
+
+  val removeButton = new Button(Action("Remove") {
+    publish(InstrumentPanel.PanelEvent.RemovePanelEvent(BondPanel.this))
+  })
 
   contents += notionalField
   contents += quantityField
+  contents += removeButton
 
 
   def notional = notionalField.getValue
+
   def quantity = quantityField.getValue
 
 
