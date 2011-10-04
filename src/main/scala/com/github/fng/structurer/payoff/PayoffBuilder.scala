@@ -2,6 +2,7 @@ package com.github.fng.structurer
 package payoff
 
 import payoff.Payoff.{UnconditionalPayoff, BarrierPayoff}
+import instrument._
 
 class PayoffBuilder {
 

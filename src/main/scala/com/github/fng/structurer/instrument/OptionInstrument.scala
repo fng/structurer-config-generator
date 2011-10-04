@@ -1,5 +1,5 @@
 package com.github.fng.structurer
-package payoff
+package instrument
 
 case class OptionInstrument(optionType: OptionType, strike: Double, quantity: Double,
                             optionBarrierType: OptionBarrierType) extends Instrument

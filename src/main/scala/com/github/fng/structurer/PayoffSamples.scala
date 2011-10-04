@@ -1,6 +1,6 @@
 package com.github.fng.structurer
 
-import payoff.{BondInstrument, OptionInstrument, OptionType, OptionBarrierType}
+import instrument.{BondInstrument, OptionInstrument, OptionType, OptionBarrierType}
 import view.SampleMenuItem
 
 trait PayoffSamples {

@@ -2,6 +2,7 @@ package com.github.fng.structurer
 package payoff
 
 import collection.mutable.ListBuffer
+import instrument.OptionType
 
 case class PayoffComponent(lowerBound: Double, valueAtLowerBound: Double, slope: Double)
 

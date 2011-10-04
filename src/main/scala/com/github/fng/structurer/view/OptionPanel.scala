@@ -3,7 +3,7 @@ package view
 
 import javax.swing.BorderFactory
 import swing._
-import payoff.{OptionBarrierType, OptionType, OptionInstrument}
+import instrument.{OptionBarrierType, OptionType, OptionInstrument}
 
 class OptionPanel(default: OptionInstrument = OptionInstrument(OptionType.Call, 0.0, 1000, OptionBarrierType.NoBarrier)) extends InstrumentPanel{
   border = BorderFactory.createTitledBorder("Option")

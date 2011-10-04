@@ -7,6 +7,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
 import org.jfree.data.xy.{XYDataset, XYSeries, XYSeriesCollection}
 import java.awt.BasicStroke
 import payoff._
+import instrument._
 
 class PayoffChartCreator {
 

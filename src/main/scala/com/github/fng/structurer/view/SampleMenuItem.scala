@@ -1,7 +1,7 @@
 package com.github.fng.structurer.view
 
 import swing.MenuItem
-import com.github.fng.structurer.payoff.{BondInstrument, OptionInstrument, Instrument}
+import com.github.fng.structurer.instrument.{BondInstrument, OptionInstrument, Instrument}
 
 class SampleMenuItem(title: String, instruments: Instrument*) extends MenuItem(title){
 

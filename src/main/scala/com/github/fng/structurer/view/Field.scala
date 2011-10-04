@@ -3,7 +3,7 @@ package view
 
 import java.awt.{Color}
 import swing._
-import payoff.{OptionBarrierType, OptionType}
+import instrument.{OptionBarrierType, OptionType}
 
 abstract class Field[T](val label: String, val valueField: TextField) extends BoxPanel(Orientation.Horizontal) {
 
