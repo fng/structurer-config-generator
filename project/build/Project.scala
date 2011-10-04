@@ -1,6 +1,7 @@
 import sbt._
+import com.efgfp.simplebuildtool._
 
-class Project(info: ProjectInfo) extends DefaultProject(info) {
+class Project(info: ProjectInfo) extends EfgDefaultProject(info) {
 
   val mavenLocal = "Local Maven Repository" at "file://"+Path.userHome+"/.m2/repository"
   val junitXmlRepo = "Christoph's Maven Repo" at "http://maven.henkelmann.eu/"
