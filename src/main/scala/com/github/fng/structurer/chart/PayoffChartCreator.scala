@@ -5,6 +5,7 @@ import org.jfree.chart.{ChartFactory, ChartPanel}
 import org.jfree.chart.plot.{XYPlot, PlotOrientation}
 import org.jfree.data.xy.{XYSeries, XYSeriesCollection}
 import payoff.{PayoffSegment, PayoffBuilder, BondInstrument, OptionInstrument}
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
 
 class PayoffChartCreator {
   def createPayoffChart(options: List[OptionInstrument], bonds: List[BondInstrument]): ChartPanel = {
@@ -26,6 +27,10 @@ class PayoffChartCreator {
     //        plot.getDomainAxis.asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
     //        plot.getDomainAxis.asInstanceOf[NumberAxis].setUpperBound(2)
     //        plot.getDomainAxis.asInstanceOf[NumberAxis].setLowerBound(-2)
+
+    val renderer = new XYLineAndShapeRenderer()
+
+    plot.setRenderer(renderer)
 
     new ChartPanel(chart)
   }
