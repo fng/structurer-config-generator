@@ -3,7 +3,7 @@ package instrument
 
 import java.awt.{Color}
 import swing._
-import com.github.fng.structurer.instrument.{QuotationType, OptionBarrierType, OptionType}
+import com.github.fng.structurer.instrument.{PayoffType, QuotationType, OptionBarrierType, OptionType}
 
 abstract class Field[T](val label: String, val valueField: TextField) extends BoxPanel(Orientation.Horizontal) {
 
@@ -93,6 +93,40 @@ class QuotationTypeField(label: String, defaultValue: QuotationType) extends Box
     quotationType match {
       case QuotationType.Unit => unitRadio.selected = true
       case QuotationType.Notional => notionalRadio.selected = true
+      case _ => {}
+    }
+  }
+}
+
+
+class PayoffTypeField(label: String, defaultValue: PayoffType) extends BoxPanel(Orientation.Horizontal) {
+
+  private val bullishRadio = new RadioButton("Bullish")
+  private val bearishRadio = new RadioButton("Bearish")
+  private val group = new ButtonGroup(bullishRadio, bearishRadio)
+
+  setValue(defaultValue)
+
+  contents += new Label {
+    text = label
+  }
+  contents += new FlowPanel {
+    contents += bullishRadio
+    contents += bearishRadio
+  }
+
+  def getValue: PayoffType = {
+    group.selected match {
+      case Some(`bullishRadio`) => PayoffType.Bullish
+      case Some(`bearishRadio`) => PayoffType.Bearish
+      case _ => error("Choose Payoff Type!")
+    }
+  }
+
+  def setValue(payoffType: PayoffType) {
+    payoffType match {
+      case PayoffType.Bullish => bullishRadio.selected = true
+      case PayoffType.Bearish => bearishRadio.selected = true
       case _ => {}
     }
   }
