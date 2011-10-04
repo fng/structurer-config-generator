@@ -27,7 +27,7 @@ case class RichExpression(val expression: Expression) {
 
   def describe: String = expression.describe
 
-  def evaluate(values: Map[Expression, Expression]): Number = expression.evaluate(values).asConstant.getNumber
+  def evaluate(values: Map[Expression, Expression] = Map()): Number = expression.evaluate(values).asConstant.getNumber
 
   //  @Test def unaryOperation() {
   //    var expression = ExpressionParser.parse("((-Participation)*10)")

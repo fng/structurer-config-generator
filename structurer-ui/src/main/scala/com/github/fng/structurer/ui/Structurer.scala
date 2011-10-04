@@ -6,9 +6,13 @@ import org.jfree.chart.ChartPanel
 import swing._
 import event.ButtonClicked
 import javax.swing.JPanel
-import com.github.fng.structurer.instrument.{BondInstrument, OptionInstrument, PackageInstrument}
+import com.efgfp.commons.spring.resource.ResourceLoader
+import com.github.fng.structurer.config.ProductConfig
+import com.github.fng.structurer.instrument._
+import org.springframework.core.io.support.{ResourcePatternResolver, ResourcePatternUtils}
+import org.springframework.core.io.{Resource, DefaultResourceLoader, ClassPathResource}
 
-object Structurer extends SimpleSwingApplication with PayoffSamples {
+object Structurer extends SimpleSwingApplication with PayoffSamples with LoadableConfigurations {
 
   val payoffChartCreator = new PayoffChartCreator
 
@@ -22,6 +26,8 @@ object Structurer extends SimpleSwingApplication with PayoffSamples {
     val screenSize = java.awt.Toolkit.getDefaultToolkit.getScreenSize
     location = new java.awt.Point((screenSize.width - framewidth) / 2, (screenSize.height - frameheight) / 2)
     minimumSize = new java.awt.Dimension(framewidth, frameheight)
+
+
 
 
     val addOptionMenu = new MenuItem("Option")
@@ -44,6 +50,10 @@ object Structurer extends SimpleSwingApplication with PayoffSamples {
         contents ++= payoffSamples
       }
 
+      contents += new Menu("Config") {
+        contents ++= loadableConfigurations
+      }
+
 
     }
 
@@ -56,6 +66,8 @@ object Structurer extends SimpleSwingApplication with PayoffSamples {
     }
 
     payoffSamples.foreach(listenTo(_))
+
+    loadableConfigurations.foreach(listenTo(_))
 
     packagePanel.instrumentPanel.contents.collect({
       case p: Publisher => p
@@ -83,6 +95,10 @@ object Structurer extends SimpleSwingApplication with PayoffSamples {
         packagePanel.instrumentPanel.revalidate()
         splitPane.revalidate()
         listenTo(newBondPanel)
+      case ButtonClicked(config) if config.isInstanceOf[LoadableConfigMenuItem] =>
+        dialogSave {
+          loadFromConfig(config.asInstanceOf[LoadableConfigMenuItem].resource)
+        }
       case ButtonClicked(sample) if sample.isInstanceOf[SampleMenuItem] =>
         dialogSave {
           refreshPackagePanelWithNew(sample.asInstanceOf[SampleMenuItem].packageInstrument)
@@ -91,7 +107,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples {
     }
 
     def dialogSave(ifOkFunction: => Unit) {
-      val result = Dialog.showOptions(message = "Show sample and loose all data?", optionType = Dialog.Options.YesNo, initial = 0,
+      val result = Dialog.showOptions(message = "Show sample / load config and loose all data?", optionType = Dialog.Options.YesNo, initial = 0,
         entries = Seq("do it", "no Way"))
       if (result == Dialog.Result.Ok) {
         ifOkFunction
@@ -123,6 +139,50 @@ object Structurer extends SimpleSwingApplication with PayoffSamples {
       oneTouchExpandable = true
     }
     contents = splitPane
+
+    def loadFromConfig(resource: Resource) {
+
+      val productConfig = ProductConfig(ResourceLoader.loadStringResourceUtf8(resource))
+
+      val productTypeId = productConfig.productTypeId
+      val payoffType = productConfig.payoffType match {
+        case "Bullish" => PayoffType.Bullish
+        case "Bearish" => PayoffType.Bearish
+      }
+      val denomination = 1000
+      val quotationType = productConfig.quotationType match {
+        case "Notional" => QuotationType.Notional
+        case "Unit" => QuotationType.Unit
+      }
+
+      val options = productConfig.options.map {
+        option => {
+          val optionType = option.optionType match {
+            case "Call" => OptionType.Call
+            case "Put" => OptionType.Put
+          }
+          val strike = option.strike.evaluate().doubleValue()
+          val quantity = option.quantity.evaluate().doubleValue()
+          val notional = option.notional.evaluate().doubleValue()
+          val barrierType = Option(option.barrier).map(_.barrierType) match {
+            case Some("DownIn") => OptionBarrierType.KnockInBarrier
+            case None => OptionBarrierType.NoBarrier
+          }
+          OptionInstrument(optionType, strike, quantity, notional, barrierType)
+        }
+      }
+
+      val bonds = productConfig.bonds.map {
+        bond => {
+          val notional = bond.notional.toDouble
+          val quantity = bond.quantity.toDouble
+          BondInstrument(notional, quantity)
+        }
+      }
+
+      val packageInstrument = PackageInstrument(productTypeId, payoffType, denomination, quotationType, bonds ::: options)
+      refreshPackagePanelWithNew(packageInstrument)
+    }
 
 
   }

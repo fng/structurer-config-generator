@@ -8,7 +8,7 @@ final class Project(info: ProjectInfo) extends EfgParentProject(info) {
   lazy val config = project("config", "config", new Config(_))
   lazy val instrument = project("instrument", "instrument", new Instrument(_))
   lazy val payoff = project("payoff", "payoff", new Payoff(_), instrument)
-  lazy val structurerUI = project("structurer-ui", "structurer-ui", new StructurerUI(_), instrument, payoff)
+  lazy val structurerUI = project("structurer-ui", "structurer-ui", new StructurerUI(_), instrument, payoff, config)
 
 
   class Config(info: ProjectInfo) extends ProjectDefaults(info)

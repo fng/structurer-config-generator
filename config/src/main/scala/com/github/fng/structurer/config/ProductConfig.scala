@@ -3,32 +3,30 @@ package config
 
 import _root_.scala.util.parsing.json.JSON
 import com.efgfp.commons.expression.Expression
+import expression.{RichExpression, ExpressionParser}
 import java.io.Serializable
 import json.Json._
-import expression.ExpressionParser
-
-
 case class FieldConfig(name: String, direction: String, value: String)
 
-case class BarrierConfig(barrierType: String, level: Expression)
+case class BarrierConfig(barrierType: String, level: RichExpression)
 object BarrierConfig{
   def apply(barrierType: String, level: String): BarrierConfig = {
-    BarrierConfig(barrierType, ExpressionParser.parse(level).expression)
+    BarrierConfig(barrierType, ExpressionParser.parse(level))
   }
 }
 
-case class OptionConfig(quantity: Expression, optionType: String, setup: String, strike: Expression, basis: Expression, notional: Expression, barrier: BarrierConfig)
+case class OptionConfig(quantity: RichExpression, optionType: String, setup: String, strike: RichExpression, basis: RichExpression, notional: RichExpression, barrier: BarrierConfig)
 
 object OptionConfig{
  def apply(quantity: String, optionType: String, setup: String, strike: String, basis: String, notional: String, barrier: BarrierConfig): OptionConfig = {
-   OptionConfig(ExpressionParser.parse(quantity).expression, optionType, setup, ExpressionParser.parse(strike).expression, ExpressionParser.parse(basis).expression, ExpressionParser.parse(notional).expression, barrier)
+   OptionConfig(ExpressionParser.parse(quantity), optionType, setup, ExpressionParser.parse(strike), ExpressionParser.parse(basis), ExpressionParser.parse(notional), barrier)
  }
 }
 
-case class BondConfig(quantity: String, notional: String, frequency: Expression, fixedRate: Expression )
+case class BondConfig(quantity: String, notional: String, frequency: RichExpression, fixedRate: RichExpression )
 object BondConfig{
   def apply(quantity: String, notional: String, frequency: String, fixedRate: String): BondConfig = {
-    BondConfig(quantity, notional, ExpressionParser.parse(frequency).expression, ExpressionParser.parse(fixedRate).expression)
+    BondConfig(quantity, notional, ExpressionParser.parse(frequency), ExpressionParser.parse(fixedRate))
   }
 }
 

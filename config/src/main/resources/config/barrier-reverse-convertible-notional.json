@@ -28,7 +28,7 @@
                 "quantity": "(-10)",
                 "type": "Put",
                 "setup" : "ForwardPerformancePayoff",
-                "strike": "100",
+                "strike": "1",
                 "basis": "$$SINGLE_UNDERLYING_FIXING$$",
                 "notional": "100",
                 "barrier": {
