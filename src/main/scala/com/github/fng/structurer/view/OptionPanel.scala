@@ -1,11 +1,15 @@
 package com.github.fng.structurer
 package view
 
-import swing.{BoxPanel, Orientation}
 import payoff.{OptionType, OptionInstrument}
+import swing.{RadioButton, ButtonGroup, BoxPanel, Orientation}
+import javax.swing.BorderFactory
 
 class OptionPanel extends BoxPanel(Orientation.Vertical) {
-  val optionTypeField = new StringField("OptionType", "Call")
+  border = BorderFactory.createTitledBorder("Option")
+
+
+  val optionTypeField = new OptionTypeField("OptionType", OptionType.Put)
   val strikeField = new DoubleField("Strike", 1.0)
   val quantityField = new DoubleField("Quantity", -1000.0)
 
@@ -14,10 +18,7 @@ class OptionPanel extends BoxPanel(Orientation.Vertical) {
   contents += quantityField
 
 
-  def optionType = optionTypeField.getValue match {
-    case call if call.equalsIgnoreCase("Call") => OptionType.Call
-    case put if put.equalsIgnoreCase("Put") => OptionType.Put
-  }
+  def optionType = optionTypeField.getValue
   def strike = strikeField.getValue
   def quantity = quantityField.getValue
 

@@ -2,13 +2,15 @@ package com.github.fng.structurer
 
 import payoff._
 import swing._
+import event.ButtonClicked
 import org.jfree.chart.{ChartFactory, ChartPanel}
 import org.jfree.data.general.DefaultPieDataset
 import org.jfree.util.Rotation
 import org.jfree.data.xy.{XYSeriesCollection, XYSeries}
 import org.jfree.chart.plot.{XYPlot, PlotOrientation, PiePlot3D}
 import org.jfree.chart.axis.NumberAxis
-import view.{OptionPanel, DoubleField, StringField}
+import javax.swing.JPanel
+import view.{BondPanel, OptionPanel, DoubleField, StringField}
 
 object SwingTest extends SimpleSwingApplication {
   def top = new MainFrame {
@@ -35,33 +37,46 @@ object SwingTest extends SimpleSwingApplication {
       }
     }
 
+    val optionPanel1 = new OptionPanel
+    val optionPanel2 = new OptionPanel
+    val bondPanel1 = new BondPanel
+
+    val drawButton = new Button("Draw")
+
 
     val instrumentPanel = new BorderPanel {
-      val optionPanel1 = new OptionPanel
-      val optionPanel2 = new OptionPanel
 
       add(new BoxPanel(Orientation.Horizontal) {
         contents += optionPanel1
-        contents += optionPanel2
+//        contents += optionPanel2
+        contents += bondPanel1
       }, BorderPanel.Position.North)
 
-      add(new Button(Action("Press me") {
-        Dialog.showMessage(message = "Option 1: " + optionPanel1.optionInstrument + " Option 2: " + optionPanel2.optionInstrument)
-      }), BorderPanel.Position.South)
+      add(drawButton, BorderPanel.Position.South)
 
     }
 
 
     val chartPanel = new Panel {
-      override lazy val peer = createXYChartPanel()
+      override lazy val peer = createPayoffChart(Nil, Nil)
     }
 
 
-    contents = new SplitPane(Orientation.Vertical, instrumentPanel, chartPanel) {
-      dividerLocation = 250
+    listenTo(drawButton)
+    reactions += {
+      case ButtonClicked(`drawButton`) =>
+      splitPane.contents_=(splitPane.leftComponent, new Panel {
+        override lazy val peer: JPanel = createPayoffChart(List(optionPanel1.optionInstrument),
+          List(bondPanel1.bondInstrument))
+      })
+    }
+
+    val splitPane = new SplitPane(Orientation.Vertical, instrumentPanel, chartPanel) {
+      dividerLocation = 450
       dividerSize = 8
       oneTouchExpandable = true
     }
+    contents = splitPane
     //    contents = chartPanel
 
 
@@ -83,66 +98,33 @@ object SwingTest extends SimpleSwingApplication {
     new ChartPanel(chart)
   }
 
-  def createXYChartPanel(): ChartPanel = {
-    //val series = new XYSeries("Random Data")
-    //for((x, y) <- List((0, 0), (100, 1000), (200, 2000))){
-    //  series.add(x, y)
-    //}
-
-    val defaultUnderlyingSeries = {
-      val series = new XYSeries("Underlying")
-      series.add(0, 0)
-      series.add(1, 1000)
-      series.add(2, 2000)
-      series
-    }
+  def createPayoffChart(options: List[OptionInstrument], bonds: List[BondInstrument]): ChartPanel = {
 
     val dataSet = new XYSeriesCollection
-    //dataSet.addSeries(defaultUnderlyingSeries)
-    //dataSet.addSeries(seriesFromOption(Option(OptionType.Call, 0.0, 10)))
-    //    dataSet.addSeries(seriesFromOption(Option(OptionType.Call, 1.2, -10)))
-    //    dataSet.addSeries(seriesFromOption(OptionInstrument(OptionType.Put, 1, -10)))
-
-    //    dataSet.addSeries(seriesFromPayoffSegment(PayoffSegment(1000, -1000, 0, 1.0), "short put"))
-    //    dataSet.addSeries(seriesFromPayoffSegment(PayoffSegment(-1000, 1000, 0, 1.0), "long put"))
-    //    dataSet.addSeries(seriesFromPayoffSegment(PayoffSegment(1000, 0, 1.0, 2.0), "long call"))
-    //    dataSet.addSeries(seriesFromPayoffSegment(PayoffSegment(-1000, 0, 1.0, 2.0), "short call"))
-
     for (series <- seriesForOptionsAndBonds("RC",
-      options = List(OptionInstrument(OptionType.Put, 1.0, -1000)),
-      bonds = List(BondInstrument(1000, 1)))) {
+      options = options,
+      bonds = bonds)) {
       dataSet.addSeries(series)
     }
-
-    for (series <- seriesForOptionsAndBonds("OC",
-      options = List(
-        OptionInstrument(OptionType.Call, 0.0, 1000),
-        OptionInstrument(OptionType.Call, 1.0, 1200)
-      ),
-      bonds = Nil
-    )) {
-      dataSet.addSeries(series)
-    }
-
 
 
     val chart = ChartFactory.createXYLineChart("XY Chart", "Underlying", "Product", dataSet, PlotOrientation.VERTICAL,
       true, true, false)
 
     val plot = chart.getPlot.asInstanceOf[XYPlot]
-    //    plot.getRangeAxis().asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
-    //    plot.getRangeAxis().asInstanceOf[NumberAxis].setUpperBound(2000)
-    //    plot.getRangeAxis().asInstanceOf[NumberAxis].setLowerBound(-2000)
-    //    plot.getDomainAxis.asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
-    //    plot.getDomainAxis.asInstanceOf[NumberAxis].setUpperBound(2)
-    //    plot.getDomainAxis.asInstanceOf[NumberAxis].setLowerBound(-2)
-
-    plot.getRangeAxis().asInstanceOf[NumberAxis].centerRange(1000)
-    plot.getDomainAxis.asInstanceOf[NumberAxis].centerRange(1)
+//    plot.getRangeAxis().asInstanceOf[NumberAxis].centerRange(1000)
+//    plot.getDomainAxis.asInstanceOf[NumberAxis].centerRange(1)
+//        plot.getRangeAxis().asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
+//        plot.getRangeAxis().asInstanceOf[NumberAxis].setUpperBound(2000)
+//        plot.getRangeAxis().asInstanceOf[NumberAxis].setLowerBound(-2000)
+//        plot.getDomainAxis.asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
+//        plot.getDomainAxis.asInstanceOf[NumberAxis].setUpperBound(2)
+//        plot.getDomainAxis.asInstanceOf[NumberAxis].setLowerBound(-2)
 
     new ChartPanel(chart)
-
   }
+
+
 
 
   def seriesForOptionsAndBonds(prefix: String, options: List[OptionInstrument], bonds: List[BondInstrument]): List[XYSeries] = {
@@ -186,38 +168,5 @@ object SwingTest extends SimpleSwingApplication {
 
   }
 
-  var optionCounter = 0
-
-  def seriesFromOption(option: OptionInstrument): XYSeries = {
-    optionCounter = optionCounter + 1
-    val series = new XYSeries("Option-" + optionCounter)
-
-    val strikeEnd = 2
-
-
-    option.optionType match {
-      case OptionType.Call =>
-        val strike = option.strike
-        val notional = option.notional
-        val quantity = option.quantity
-
-        val productAtStrike = strike * notional * quantity
-
-        series.add(strike, productAtStrike)
-        series.add(strikeEnd, strikeEnd * notional * quantity)
-
-      case OptionType.Put =>
-        val strike = option.strike
-        val notional = option.notional
-        val quantity = option.quantity
-
-        val productAtStrike = -1 * strike * notional * quantity
-
-        series.add(0, 0)
-        series.add(strike, productAtStrike)
-    }
-
-    series
-  }
 
 }
