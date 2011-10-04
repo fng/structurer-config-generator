@@ -9,14 +9,14 @@ import view._
 import swing._
 import event.ButtonClicked
 
-object SwingTest extends SimpleSwingApplication {
+object Structurer extends SimpleSwingApplication {
 
   val payoffChartCreator = new PayoffChartCreator
 
 
   def top = new MainFrame {
 
-    title = "Test"
+    title = "Structurer"
 
     val framewidth = 600
     val frameheight = 600
@@ -30,14 +30,14 @@ object SwingTest extends SimpleSwingApplication {
 
     val samples = List(new SampleMenuItem("Reverse Convertible",
       BondInstrument(1000, 1),
-      OptionInstrument(OptionType.Put, 1.0, -1000)),
+      OptionInstrument(OptionType.Put, 1.0, -1000, OptionBarrierType.NoBarrier)),
       new SampleMenuItem("Outperformance Certificate",
-        OptionInstrument(OptionType.Call, 0, 100),
-        OptionInstrument(OptionType.Call, 1.0, 50)),
+        OptionInstrument(OptionType.Call, 0, 100, OptionBarrierType.NoBarrier),
+        OptionInstrument(OptionType.Call, 1.0, 50, OptionBarrierType.NoBarrier)),
       new SampleMenuItem("Capped Outperformance Certificate",
-        OptionInstrument(OptionType.Call, 0, 100),
-        OptionInstrument(OptionType.Call, 1.0, 50),
-        OptionInstrument(OptionType.Call, 1.5, -150))
+        OptionInstrument(OptionType.Call, 0, 100, OptionBarrierType.NoBarrier),
+        OptionInstrument(OptionType.Call, 1.0, 50, OptionBarrierType.NoBarrier),
+        OptionInstrument(OptionType.Call, 1.5, -150, OptionBarrierType.NoBarrier))
     )
 
     menuBar = new MenuBar {
@@ -112,7 +112,7 @@ object SwingTest extends SimpleSwingApplication {
       }
     }
 
-    def reDrawChart {
+    def reDrawChart() {
       splitPane.contents_=(splitPane.leftComponent, new Panel {
         override lazy val peer: JPanel = payoffChartFormInstrumentPanel(instrumentPanel)
       })
@@ -132,7 +132,7 @@ object SwingTest extends SimpleSwingApplication {
       instrumentPanel.revalidate()
       splitPane.revalidate()
 
-      reDrawChart
+      reDrawChart()
     }
 
 
@@ -142,7 +142,7 @@ object SwingTest extends SimpleSwingApplication {
         add(drawButton, BorderPanel.Position.South)
       }
       , chartPanel) {
-      dividerLocation = 160
+      dividerLocation = 200
       dividerSize = 8
       oneTouchExpandable = true
     }
@@ -163,12 +163,6 @@ object SwingTest extends SimpleSwingApplication {
     val payoffChart = payoffChartCreator.createPayoffChart(options, bonds)
     payoffChart
   }
-
-
-
-
-
-
 
 
 }

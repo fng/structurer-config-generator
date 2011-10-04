@@ -2,8 +2,8 @@ package com.github.fng.structurer
 package view
 
 import java.awt.{Color}
-import payoff.OptionType
 import swing._
+import payoff.{OptionBarrierType, OptionType}
 
 abstract class Field[T](val label: String, val valueField: TextField) extends BoxPanel(Orientation.Horizontal) {
 
@@ -54,6 +54,41 @@ class OptionTypeField(label: String, defaultValue: OptionType) extends BoxPanel(
     }
   }
 }
+
+
+class OptionBarrierTypeField(label: String, defaultValue: OptionBarrierType) extends BoxPanel(Orientation.Horizontal) {
+
+  private val noBarrierRadio = new RadioButton("Call")
+  private val knockInRadio = new RadioButton("Put")
+  private val knockOutRadio = new RadioButton("Put")
+  private val group = new ButtonGroup(noBarrierRadio, knockInRadio, knockOutRadio)
+
+  defaultValue match {
+    case OptionBarrierType.NoBarrier => noBarrierRadio.selected = true
+    case OptionBarrierType.KnockInBarrier => knockInRadio.selected = true
+    case OptionBarrierType.KnockOutBarrier => knockOutRadio.selected = true
+    case _ => {}
+  }
+
+  contents += new Label {
+    text = label
+  }
+  contents += new FlowPanel {
+    contents += noBarrierRadio
+    contents += knockInRadio
+    contents += knockOutRadio
+  }
+
+  def getValue: OptionBarrierType = {
+    group.selected match {
+      case Some(`noBarrierRadio`) => OptionBarrierType.NoBarrier
+      case Some(`knockInRadio`) => OptionBarrierType.KnockInBarrier
+      case Some(`knockOutRadio`) => OptionBarrierType.KnockOutBarrier
+      case _ => error("Choose Option Barrier Type!")
+    }
+  }
+}
+
 
 class VerifiedTextField(defaultValue: String, textFieldType: TextFieldType) extends TextField(defaultValue, 10) {
   val myVerifier = new TextFieldVerifier(this, textFieldType)
