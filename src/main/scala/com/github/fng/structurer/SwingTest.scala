@@ -11,6 +11,7 @@ import org.jfree.chart.plot.{XYPlot, PlotOrientation, PiePlot3D}
 import org.jfree.chart.axis.NumberAxis
 import javax.swing.JPanel
 import view.{BondPanel, OptionPanel, DoubleField, StringField}
+import collection.mutable.ListBuffer
 
 object SwingTest extends SimpleSwingApplication {
   def top = new MainFrame {
@@ -37,9 +38,14 @@ object SwingTest extends SimpleSwingApplication {
       }
     }
 
+
+
+
     val optionPanel1 = new OptionPanel
     val optionPanel2 = new OptionPanel
     val bondPanel1 = new BondPanel
+
+    val instrumentPanels = ListBuffer[Panel](optionPanel1, optionPanel2, bondPanel1)
 
     val drawButton = new Button("Draw")
 
@@ -47,9 +53,10 @@ object SwingTest extends SimpleSwingApplication {
     val instrumentPanel = new BorderPanel {
 
       add(new BoxPanel(Orientation.Horizontal) {
-        contents += optionPanel1
+        contents ++= instrumentPanels
+//        contents += optionPanel1
 //        contents += optionPanel2
-        contents += bondPanel1
+//        contents += bondPanel1
       }, BorderPanel.Position.North)
 
       add(drawButton, BorderPanel.Position.South)
