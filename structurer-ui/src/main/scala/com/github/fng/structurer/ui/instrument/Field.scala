@@ -3,7 +3,7 @@ package instrument
 
 import java.awt.{Color}
 import swing._
-import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType}
+import com.github.fng.structurer.instrument.{QuotationType, OptionBarrierType, OptionType}
 
 abstract class Field[T](val label: String, val valueField: TextField) extends BoxPanel(Orientation.Horizontal) {
 
@@ -14,16 +14,26 @@ abstract class Field[T](val label: String, val valueField: TextField) extends Bo
 
   def getValue: T
 
+  def setValue(value: T)
+
 }
 
 class StringField(label: String, defaultValue: String)
-        extends Field[String](label, new TextField(defaultValue, 10)) {
+  extends Field[String](label, new TextField(defaultValue, 10)) {
   def getValue: String = valueField.text
+
+  def setValue(value: String) {
+    valueField.text = value
+  }
 }
 
 class DoubleField(label: String, defaultValue: Double)
-        extends Field[Double](label, new VerifiedTextField(defaultValue.toString, TextFieldType.DoubleField)) {
+  extends Field[Double](label, new VerifiedTextField(defaultValue.toString, TextFieldType.DoubleField)) {
   def getValue: Double = java.lang.Double.valueOf(valueField.text).doubleValue()
+
+  def setValue(value: Double) {
+    valueField.text = value.toString
+  }
 }
 
 class OptionTypeField(label: String, defaultValue: OptionType) extends BoxPanel(Orientation.Horizontal) {
@@ -51,6 +61,39 @@ class OptionTypeField(label: String, defaultValue: OptionType) extends BoxPanel(
       case Some(`optionTypeCallRadio`) => OptionType.Call
       case Some(`optionTypePutRadio`) => OptionType.Put
       case _ => error("Choose Option Type!")
+    }
+  }
+}
+
+class QuotationTypeField(label: String, defaultValue: QuotationType) extends BoxPanel(Orientation.Horizontal) {
+
+  private val unitRadio = new RadioButton("Unit")
+  private val percentRadio = new RadioButton("Percent")
+  private val group = new ButtonGroup(unitRadio, percentRadio)
+
+  setValue(defaultValue)
+
+  contents += new Label {
+    text = label
+  }
+  contents += new FlowPanel {
+    contents += unitRadio
+    contents += percentRadio
+  }
+
+  def getValue: QuotationType = {
+    group.selected match {
+      case Some(`unitRadio`) => QuotationType.Unit
+      case Some(`percentRadio`) => QuotationType.Percent
+      case _ => error("Choose Quotation Type!")
+    }
+  }
+
+  def setValue(quotationType: QuotationType) {
+    quotationType match {
+      case QuotationType.Unit => unitRadio.selected = true
+      case QuotationType.Percent => percentRadio.selected = true
+      case _ => {}
     }
   }
 }

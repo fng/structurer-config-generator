@@ -3,10 +3,10 @@ package com.github.fng.structurer.ui
 import chart.PayoffChartCreator
 import instrument._
 import org.jfree.chart.ChartPanel
-import javax.swing.JPanel
-import collection.mutable.ListBuffer
 import swing._
 import event.ButtonClicked
+import javax.swing.JPanel
+import com.github.fng.structurer.instrument.{BondInstrument, OptionInstrument, PackageInstrument}
 
 object Structurer extends SimpleSwingApplication with PayoffSamples {
 
@@ -49,17 +49,15 @@ object Structurer extends SimpleSwingApplication with PayoffSamples {
 
     val drawButton = new Button("Draw")
 
-    val instrumentPanel = new BoxPanel(Orientation.Horizontal) {
-      contents ++= ListBuffer[InstrumentPanel](new OptionPanel)
-    }
+    val packagePanel = new PackagePanel
 
     val chartPanel = new Panel {
-      override lazy val peer = payoffChartFormInstrumentPanel(instrumentPanel)
+      override lazy val peer = payoffChartFormInstrumentPanel(packagePanel.instrumentPanel)
     }
 
     payoffSamples.foreach(listenTo(_))
 
-    instrumentPanel.contents.collect({
+    packagePanel.instrumentPanel.contents.collect({
       case p: Publisher => p
     }).foreach(listenTo(_))
 
@@ -70,24 +68,24 @@ object Structurer extends SimpleSwingApplication with PayoffSamples {
       case ButtonClicked(`drawButton`) =>
         reDrawChart()
       case InstrumentPanel.PanelEvent.RemovePanelEvent(panel) =>
-        instrumentPanel.contents -= panel
-        instrumentPanel.revalidate()
+        packagePanel.instrumentPanel.contents -= panel
+        packagePanel.instrumentPanel.revalidate()
         splitPane.revalidate()
       case ButtonClicked(`addOptionMenu`) =>
         val newOptionPanel = new OptionPanel
-        instrumentPanel.contents += newOptionPanel
-        instrumentPanel.revalidate()
+        packagePanel.instrumentPanel.contents += newOptionPanel
+        packagePanel.instrumentPanel.revalidate()
         splitPane.revalidate()
         listenTo(newOptionPanel)
       case ButtonClicked(`addBondMenu`) =>
         val newBondPanel = new BondPanel
-        instrumentPanel.contents += newBondPanel
-        instrumentPanel.revalidate()
+        packagePanel.instrumentPanel.contents += newBondPanel
+        packagePanel.instrumentPanel.revalidate()
         splitPane.revalidate()
         listenTo(newBondPanel)
       case ButtonClicked(sample) if sample.isInstanceOf[SampleMenuItem] =>
         dialogSave {
-          refreshInstrumentPanelWithNew(sample.asInstanceOf[SampleMenuItem].asInstrumentPanels: _*)
+          refreshPackagePanelWithNew(sample.asInstanceOf[SampleMenuItem].packageInstrument)
         }
 
     }
@@ -102,35 +100,25 @@ object Structurer extends SimpleSwingApplication with PayoffSamples {
 
     def reDrawChart() {
       splitPane.contents_=(splitPane.leftComponent, new Panel {
-        override lazy val peer: JPanel = payoffChartFormInstrumentPanel(instrumentPanel)
+        override lazy val peer: JPanel = payoffChartFormInstrumentPanel(packagePanel.instrumentPanel)
       })
     }
 
 
-    def refreshInstrumentPanelWithNew(instrumentPanels: InstrumentPanel*) {
-      instrumentPanel.contents.clear()
-
-      instrumentPanel.contents ++= instrumentPanels
-
-      instrumentPanel.contents.collect({
-        case p: Publisher => p
-      }).foreach(listenTo(_))
-
-
-      instrumentPanel.revalidate()
+    def refreshPackagePanelWithNew(packageInstrument: PackageInstrument) {
+      packagePanel.update(packageInstrument)
       splitPane.revalidate()
-
       reDrawChart()
     }
 
 
     val splitPane = new SplitPane(Orientation.Horizontal,
       new BorderPanel {
-        add(instrumentPanel, BorderPanel.Position.North)
+        add(packagePanel, BorderPanel.Position.North)
         add(drawButton, BorderPanel.Position.South)
       }
       , chartPanel) {
-      dividerLocation = 200
+      //dividerLocation = 230
       dividerSize = 8
       oneTouchExpandable = true
     }
