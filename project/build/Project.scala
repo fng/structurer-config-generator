@@ -5,12 +5,14 @@ import com.efgfp.simplebuildtool._
 final class Project(info: ProjectInfo) extends EfgParentProject(info) {
 
 
-  lazy val structurerUI = project("structurer-ui", "structurer-ui", new StructurerUI(_))
-  
+  lazy val instrument = project("instrument", "instrument", new Instrument(_))
+  lazy val payoff = project("payoff", "payoff", new Payoff(_), instrument)
+  lazy val structurerUI = project("structurer-ui", "structurer-ui", new StructurerUI(_), instrument, payoff)
 
-  class StructurerUI(info: ProjectInfo) extends ProjectDefaults(info){
-    
-  }
+
+  class Instrument(info: ProjectInfo) extends ProjectDefaults(info)
+  class Payoff(info: ProjectInfo) extends ProjectDefaults(info)
+  class StructurerUI(info: ProjectInfo) extends ProjectDefaults(info)
 
 }
 

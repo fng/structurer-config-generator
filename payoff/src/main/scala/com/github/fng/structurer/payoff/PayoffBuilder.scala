@@ -1,8 +1,7 @@
-package com.github.fng.structurer
-package payoff
+package com.github.fng.structurer.payoff
 
-import payoff.Payoff.{UnconditionalPayoff, BarrierPayoff}
-import instrument._
+import com.github.fng.structurer.instrument.{OptionBarrierType, BondInstrument, OptionInstrument}
+import com.github.fng.structurer.payoff.Payoff.{BarrierPayoff, UnconditionalPayoff}
 
 class PayoffBuilder {
 

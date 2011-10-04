@@ -1,5 +1,4 @@
-package com.github.fng.structurer
-package instrument
+package com.github.fng.structurer.instrument
 
 case class OptionInstrument(optionType: OptionType, strike: Double, quantity: Double,
                             optionBarrierType: OptionBarrierType) extends Instrument

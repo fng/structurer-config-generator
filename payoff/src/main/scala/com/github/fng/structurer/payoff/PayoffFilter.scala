@@ -1,7 +1,6 @@
-package com.github.fng.structurer
-package payoff
+package com.github.fng.structurer.payoff
 
-import instrument.{OptionBarrierType, OptionInstrument}
+import com.github.fng.structurer.instrument.{OptionBarrierType, OptionInstrument}
 
 sealed abstract class PayoffFilter {
   def optionBelongsToPayoff(option: OptionInstrument): Boolean

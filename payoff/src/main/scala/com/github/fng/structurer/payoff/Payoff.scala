@@ -1,5 +1,4 @@
-package com.github.fng.structurer
-package payoff
+package com.github.fng.structurer.payoff
 
 sealed abstract class Payoff
 
