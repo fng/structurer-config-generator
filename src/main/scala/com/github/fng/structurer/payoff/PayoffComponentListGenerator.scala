@@ -1,4 +1,5 @@
 package com.github.fng.structurer
+package payoff
 
 import collection.mutable.ListBuffer
 

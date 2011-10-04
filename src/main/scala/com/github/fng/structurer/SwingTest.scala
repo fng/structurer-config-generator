@@ -1,5 +1,6 @@
 package com.github.fng.structurer
 
+import payoff._
 import swing._
 import org.jfree.chart.{ChartFactory, ChartPanel}
 import org.jfree.data.general.DefaultPieDataset

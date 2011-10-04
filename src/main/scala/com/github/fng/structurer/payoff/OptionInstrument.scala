@@ -1,5 +1,5 @@
 package com.github.fng.structurer
-
+package payoff
 
 case class OptionInstrument(optionType: OptionType, strike: Double, quantity: Double) {
   val notional = 100.0
