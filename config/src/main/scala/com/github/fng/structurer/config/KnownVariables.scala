@@ -1,9 +1,9 @@
 package com.github.fng.structurer.config
 
 import com.efgfp.commons.expression.{Constant, Expression, Variable}
+import expression.StringConstant
 import java.lang.String
 import org.apache.commons.lang.builder.{HashCodeBuilder, EqualsBuilder}
-import com.github.fng.structurer.expression.StringConstant
 
 object KnownVariables {
   def forName(name: String): KnownVariable = name match {

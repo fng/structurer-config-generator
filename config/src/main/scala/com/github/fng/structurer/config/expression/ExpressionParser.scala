@@ -1,4 +1,5 @@
-package com.github.fng.structurer.expression
+package com.github.fng.structurer.config
+package expression
 
 import _root_.scala.util.parsing.combinator.syntactical.StandardTokenParsers
 import com.efgfp.commons.expression._

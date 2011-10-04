@@ -1,6 +1,5 @@
-package com.github.fng.structurer
+package com.github.fng.structurer.config
 
-import config.ProductConfig
 import org.springframework.core.io.ClassPathResource
 import com.efgfp.commons.spring.resource.ResourceLoader
 

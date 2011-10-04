@@ -1,4 +1,5 @@
-package com.github.fng.structurer.expression
+package com.github.fng.structurer.config
+package expression
 
 import com.efgfp.commons.expression.{Precedence, Expression, ExpressionDescribeContext, BaseExpression}
 import java.util.{Arrays, Map}

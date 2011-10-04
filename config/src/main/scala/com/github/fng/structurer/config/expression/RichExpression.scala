@@ -1,4 +1,5 @@
-package com.github.fng.structurer.expression
+package com.github.fng.structurer.config
+package expression
 
 
 import java.util.HashMap

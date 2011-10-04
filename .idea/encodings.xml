@@ -4,11 +4,11 @@
     <file url="file://$PROJECT_DIR$/structurer-ui/src/main/resources/config/barrier-reverse-convertible-notional.json" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/config/KnownVariables.scala" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/config/ProductConfig.scala" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/expression/ExprLexical.scala" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/expression/ExpressionParser.scala" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/expression/RichExpression.scala" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/expression/StringConstant.scala" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/json/Json.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/config/expression/ExprLexical.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/config/expression/ExpressionParser.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/config/expression/RichExpression.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/config/expression/StringConstant.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/structurer-ui/src/main/scala/com/github/fng/structurer/config/json/Json.scala" charset="UTF-8" />
   </component>
 </project>
 

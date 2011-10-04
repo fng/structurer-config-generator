@@ -1,0 +1,49 @@
+{
+    "product-config":{
+        "productTypeId": "340.001",
+        "payoffType": "Bullish",
+        "quotationType": "Notional",
+        "underlyingType": "Single",
+        "autocallable": "false",
+        "allotment": "EFGFP Reverse Convertibles (330)",
+        "field": [
+            {
+                "name": "BARRIER",
+                "direction": "LT",
+                "value": "100"
+            },
+            {
+                "name": "COUPONRATE",
+                "direction": "GT",
+                "value": "0"
+            },
+            {
+                "name": "COUPONFREQUENCY",
+                "direction": "OneOf",
+                "value": "annually, semi-annually, quarterly, monthly"
+            }
+        ],
+        "option": [
+            {
+                "quantity": "(-10)",
+                "type": "Put",
+                "setup" : "ForwardPerformancePayoff",
+                "strike": "100",
+                "basis": "$$SINGLE_UNDERLYING_FIXING$$",
+                "notional": "1000",
+                "barrier": {
+                    "type": "DownIn",
+                    "level": "$$BARRIER$$"
+                }
+            }
+        ],
+        "bond": [
+            {
+                "quantity": "1",
+                "notional": "1000",
+                "frequency": "$$COUPONFREQUENCY$$",
+                "fixedRate": "$$COUPONRATE$$"
+            }
+        ]
+    }
+}

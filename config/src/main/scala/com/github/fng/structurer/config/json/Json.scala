@@ -1,7 +1,8 @@
-package com.github.fng.structurer.json
+package com.github.fng.structurer.config
+package json
 
 import com.efgfp.commons.expression.Expression
-import com.github.fng.structurer.expression.ExpressionParser
+import expression.ExpressionParser
 
 
 object Json {
