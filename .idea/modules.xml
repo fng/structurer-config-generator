@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/project/project.iml" filepath="$PROJECT_DIR$/project/project.iml" />
       <module fileurl="file://$PROJECT_DIR$//structurer-config-generator.iml" filepath="$PROJECT_DIR$//structurer-config-generator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/structurer-ui/structurer-ui.iml" filepath="$PROJECT_DIR$/structurer-ui/structurer-ui.iml" />
     </modules>
   </component>
 </project>

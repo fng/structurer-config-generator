@@ -1,8 +1,20 @@
 import sbt._
 import com.efgfp.simplebuildtool._
 
-class Project(info: ProjectInfo) extends EfgDefaultProject(info) {
 
+final class Project(info: ProjectInfo) extends EfgParentProject(info) {
+
+
+  lazy val structurerUI = project("structurer-ui", "structurer-ui", new StructurerUI(_))
+  
+
+  class StructurerUI(info: ProjectInfo) extends ProjectDefaults(info){
+    
+  }
+
+}
+
+abstract class ProjectDefaults(info: ProjectInfo) extends EfgDefaultProject(info){
   val mavenLocal = "Local Maven Repository" at "file://"+Path.userHome+"/.m2/repository"
   val junitXmlRepo = "Christoph's Maven Repo" at "http://maven.henkelmann.eu/"
 
@@ -12,5 +24,4 @@ class Project(info: ProjectInfo) extends EfgDefaultProject(info) {
   val jfreechart = "jfree" % "jfreechart" % "1.0.13"
   val EfgMeasuresAndUnits = "com.efgfp.commons" % "efg-measures-and-units" % "0.10"
   val SpringWrapper = "com.efgfp.commons" % "spring-wrapper" % "0.15"
-
 }
