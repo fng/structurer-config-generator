@@ -30,7 +30,7 @@
                 "setup" : "ForwardPerformancePayoff",
                 "strike": "100",
                 "basis": "$$SINGLE_UNDERLYING_FIXING$$",
-                "notional": "1000",
+                "notional": "100",
                 "barrier": {
                     "type": "DownIn",
                     "level": "$$BARRIER$$"

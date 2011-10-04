@@ -7,7 +7,7 @@ import collection.mutable.ListBuffer
 import com.github.fng.structurer.instrument._
 
 class PackagePanel(default: PackageInstrument = PackageInstrument("xxx.xxx", PayoffType.Bullish, 1000, QuotationType.Notional,
-  OptionInstrument(OptionType.Call, 0.0, 1000, OptionBarrierType.NoBarrier))) extends BorderPanel {
+  OptionInstrument(OptionType.Call, 0.0, 10, 100, OptionBarrierType.NoBarrier))) extends BorderPanel {
   border = BorderFactory.createTitledBorder("Package")
 
   val instrumentPanel = new BoxPanel(Orientation.Horizontal) {

@@ -1,6 +1,7 @@
 package com.github.fng.structurer.instrument
 
 case class OptionInstrument(optionType: OptionType, strike: Double, quantity: Double,
+                            notional: Double,
                             optionBarrierType: OptionBarrierType) extends Instrument
 
 sealed abstract class OptionType
