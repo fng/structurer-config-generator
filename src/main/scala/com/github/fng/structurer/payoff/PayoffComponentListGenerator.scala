@@ -147,20 +147,3 @@ class PayoffSegmentListBuilder {
 
 }
 
-class PayoffBuilder {
-
-  def build(options: List[OptionInstrument], bonds: List[BondInstrument]): List[PayoffSegment] = {
-    val componentListGenerator = new PayoffComponentListGenerator
-    for (option <- options) {
-      componentListGenerator.addOption(option.optionType, option.quantity, option.strike)
-    }
-    for (bond <- bonds) {
-      componentListGenerator.addBond(bond.notional, bond.quantity)
-    }
-    val components = componentListGenerator.getComponents
-
-    val segmentListBuilder = new PayoffSegmentListBuilder
-    segmentListBuilder.build(components)
-  }
-
-}

@@ -37,7 +37,10 @@ object Structurer extends SimpleSwingApplication {
       new SampleMenuItem("Capped Outperformance Certificate",
         OptionInstrument(OptionType.Call, 0, 100, OptionBarrierType.NoBarrier),
         OptionInstrument(OptionType.Call, 1.0, 50, OptionBarrierType.NoBarrier),
-        OptionInstrument(OptionType.Call, 1.5, -150, OptionBarrierType.NoBarrier))
+        OptionInstrument(OptionType.Call, 1.5, -150, OptionBarrierType.NoBarrier)),
+    new SampleMenuItem("Barrier Reverse Convertible",
+      BondInstrument(1000, 1),
+      OptionInstrument(OptionType.Put, 1.0, -1000, OptionBarrierType.KnockInBarrier))
     )
 
     menuBar = new MenuBar {

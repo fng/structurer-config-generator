@@ -3,19 +3,21 @@ package chart
 
 import org.jfree.chart.{ChartFactory, ChartPanel}
 import org.jfree.chart.plot.{XYPlot, PlotOrientation}
-import org.jfree.data.xy.{XYSeries, XYSeriesCollection}
-import payoff.{PayoffSegment, PayoffBuilder, BondInstrument, OptionInstrument}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
+import org.jfree.data.xy.{XYDataset, XYSeries, XYSeriesCollection}
+import java.awt.BasicStroke
+import payoff._
 
 class PayoffChartCreator {
+
+  case class SeriesDataSet(dataSet: XYDataset, isBarrierPayoff: Boolean)
+
   def createPayoffChart(options: List[OptionInstrument], bonds: List[BondInstrument]): ChartPanel = {
 
-    val dataSet = new XYSeriesCollection
-    val series = seriesForOptionsAndBonds(options, bonds)
-    dataSet.addSeries(series)
+    val dataSet = dataSetForOptionsAndBonds(options, bonds)
 
 
-    val chart = ChartFactory.createXYLineChart("XY Chart", "Underlying", "Product", dataSet, PlotOrientation.VERTICAL,
+    val chart = ChartFactory.createXYLineChart("XY Chart", "Underlying", "Product", dataSet.dataSet, PlotOrientation.VERTICAL,
       true, true, false)
 
     val plot = chart.getPlot.asInstanceOf[XYPlot]
@@ -30,25 +32,47 @@ class PayoffChartCreator {
 
     val renderer = new XYLineAndShapeRenderer()
 
+    if (dataSet.isBarrierPayoff) {
+      renderer.setSeriesStroke(0, new BasicStroke(2.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND,
+        1.0f, Array(2.0f, 6.0f), 0.0f))
+    }
+
     plot.setRenderer(renderer)
 
     new ChartPanel(chart)
   }
 
 
-  def seriesForOptionsAndBonds(options: List[OptionInstrument], bonds: List[BondInstrument]): XYSeries = {
+  def dataSetForOptionsAndBonds(options: List[OptionInstrument], bonds: List[BondInstrument]): SeriesDataSet = {
 
-    var segmentCounter = 0
-    val segments = new PayoffBuilder().build(options, bonds)
+    val payoff = new PayoffBuilder().buildPayoff(options, bonds)
 
-    val series = new XYSeries("series")
+    val dataSet = new XYSeriesCollection
 
-    segments.foreach {
-      segment =>
-        segmentCounter = segmentCounter + 1
-        addSeriesFromPayoffSegment(series, segment)
+    val isBarrierPayoff = payoff match {
+      case Payoff.UnconditionalPayoff(segments) =>
+        val series = new XYSeries("Product")
+        segments.foreach {
+          segment => addSeriesFromPayoffSegment(series, segment)
+        }
+        dataSet.addSeries(series)
+        false
+      case Payoff.BarrierPayoff(barrierEventSegments, noBarrierEventSegments) =>
+        val barrierEventSeries = new XYSeries("Barrier Event")
+        barrierEventSegments.foreach {
+          segment => addSeriesFromPayoffSegment(barrierEventSeries, segment)
+        }
+        dataSet.addSeries(barrierEventSeries)
+
+        val noBarrierEventSeries = new XYSeries("No Barrier Event")
+        noBarrierEventSegments.foreach {
+          segment => addSeriesFromPayoffSegment(noBarrierEventSeries, segment)
+        }
+        dataSet.addSeries(noBarrierEventSeries)
+        true
     }
-    series
+
+    SeriesDataSet(dataSet, isBarrierPayoff)
   }
 
 
