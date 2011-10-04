@@ -85,7 +85,7 @@ class PayoffSegmentListBuilder {
       currentState = currentState.addComponent(component, accumulator)
     }
 
-    if (!accumulator.getPayoffSegments.isEmpty) {
+    if (!payoffComponents.isEmpty) {
       val openEndSegment = new PayoffSegment(accumulator.slope, accumulator.payoffAtLowerBound, accumulator.currentStrike, None)
       accumulator.addPayoffSegment(openEndSegment)
     }

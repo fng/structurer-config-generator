@@ -1,9 +1,8 @@
 package com.github.fng.structurer
 
+import chart.PayoffChartCreator
 import payoff._
-import org.jfree.chart.{ChartFactory, ChartPanel}
-import org.jfree.data.xy.{XYSeriesCollection, XYSeries}
-import org.jfree.chart.plot.{XYPlot, PlotOrientation}
+import org.jfree.chart.ChartPanel
 import javax.swing.JPanel
 import collection.mutable.ListBuffer
 import view._
@@ -12,13 +11,16 @@ import event.ButtonClicked
 
 object SwingTest extends SimpleSwingApplication {
 
+  val payoffChartCreator = new PayoffChartCreator
+
+
   def top = new MainFrame {
 
     title = "Test"
 
     val framewidth = 600
     val frameheight = 600
-    val screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize()
+    val screenSize = java.awt.Toolkit.getDefaultToolkit.getScreenSize
     location = new java.awt.Point((screenSize.width - framewidth) / 2, (screenSize.height - frameheight) / 2)
     minimumSize = new java.awt.Dimension(framewidth, frameheight)
 
@@ -158,75 +160,15 @@ object SwingTest extends SimpleSwingApplication {
       case o: BondPanel => o
     }).map(_.bondInstrument).toList
 
-    val payoffChart = createPayoffChart(options, bonds)
+    val payoffChart = payoffChartCreator.createPayoffChart(options, bonds)
     payoffChart
   }
 
 
-  def createPayoffChart(options: List[OptionInstrument], bonds: List[BondInstrument]): ChartPanel = {
-
-    val dataSet = new XYSeriesCollection
-    val series = seriesForOptionsAndBonds(options, bonds)
-    dataSet.addSeries(series)
 
 
-    val chart = ChartFactory.createXYLineChart("XY Chart", "Underlying", "Product", dataSet, PlotOrientation.VERTICAL,
-      true, true, false)
-
-    val plot = chart.getPlot.asInstanceOf[XYPlot]
-    //    plot.getRangeAxis().asInstanceOf[NumberAxis].centerRange(1000)
-    //    plot.getDomainAxis.asInstanceOf[NumberAxis].centerRange(1)
-    //        plot.getRangeAxis().asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
-    //        plot.getRangeAxis().asInstanceOf[NumberAxis].setUpperBound(2000)
-    //        plot.getRangeAxis().asInstanceOf[NumberAxis].setLowerBound(-2000)
-    //        plot.getDomainAxis.asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
-    //        plot.getDomainAxis.asInstanceOf[NumberAxis].setUpperBound(2)
-    //        plot.getDomainAxis.asInstanceOf[NumberAxis].setLowerBound(-2)
-
-    new ChartPanel(chart)
-  }
 
 
-  def seriesForOptionsAndBonds(options: List[OptionInstrument], bonds: List[BondInstrument]): XYSeries = {
-
-    var segmentCounter = 0
-    val segments = new PayoffBuilder().build(options, bonds)
-
-    val series = new XYSeries("series")
-
-    segments.foreach {
-      segment =>
-        segmentCounter = segmentCounter + 1
-        addSeriesFromPayoffSegment(series, segment)
-    }
-    series
-  }
-
-
-  def addSeriesFromPayoffSegment(series: XYSeries, segment: PayoffSegment): XYSeries = {
-
-    segment.upperStrike match {
-      case Some(x2) =>
-        val x1 = segment.lowerStrike
-        val y1 = segment.payoffAtLowerBound
-        val y2 = (x2 - x1) * segment.slope + y1
-
-        series.add(x1, y1)
-        series.add(x2, y2)
-        series
-      case None =>
-        val x1 = segment.lowerStrike
-        val y1 = segment.payoffAtLowerBound
-        val x2 = 2
-        val xDistance = x2 - x1
-        val y2 = (xDistance * segment.slope) + y1
-        series.add(x1, y1)
-        series.add(x2, y2)
-        series
-    }
-
-
-  }
 
 
 }
