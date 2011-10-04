@@ -68,8 +68,8 @@ class OptionTypeField(label: String, defaultValue: OptionType) extends BoxPanel(
 class QuotationTypeField(label: String, defaultValue: QuotationType) extends BoxPanel(Orientation.Horizontal) {
 
   private val unitRadio = new RadioButton("Unit")
-  private val percentRadio = new RadioButton("Percent")
-  private val group = new ButtonGroup(unitRadio, percentRadio)
+  private val notionalRadio = new RadioButton("Notional")
+  private val group = new ButtonGroup(unitRadio, notionalRadio)
 
   setValue(defaultValue)
 
@@ -78,13 +78,13 @@ class QuotationTypeField(label: String, defaultValue: QuotationType) extends Box
   }
   contents += new FlowPanel {
     contents += unitRadio
-    contents += percentRadio
+    contents += notionalRadio
   }
 
   def getValue: QuotationType = {
     group.selected match {
       case Some(`unitRadio`) => QuotationType.Unit
-      case Some(`percentRadio`) => QuotationType.Percent
+      case Some(`notionalRadio`) => QuotationType.Notional
       case _ => error("Choose Quotation Type!")
     }
   }
@@ -92,7 +92,7 @@ class QuotationTypeField(label: String, defaultValue: QuotationType) extends Box
   def setValue(quotationType: QuotationType) {
     quotationType match {
       case QuotationType.Unit => unitRadio.selected = true
-      case QuotationType.Percent => percentRadio.selected = true
+      case QuotationType.Notional => notionalRadio.selected = true
       case _ => {}
     }
   }

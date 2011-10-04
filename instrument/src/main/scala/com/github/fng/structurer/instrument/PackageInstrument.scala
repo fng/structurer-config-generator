@@ -14,6 +14,6 @@ object QuotationType {
 
   case object Unit extends QuotationType
 
-  case object Percent extends QuotationType
+  case object Notional extends QuotationType
 
 }

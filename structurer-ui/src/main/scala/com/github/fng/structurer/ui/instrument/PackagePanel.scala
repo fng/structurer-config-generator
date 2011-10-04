@@ -6,7 +6,7 @@ import swing._
 import collection.mutable.ListBuffer
 import com.github.fng.structurer.instrument._
 
-class PackagePanel(default: PackageInstrument = PackageInstrument(1000, QuotationType.Percent,
+class PackagePanel(default: PackageInstrument = PackageInstrument(1000, QuotationType.Notional,
   OptionInstrument(OptionType.Call, 0.0, 1000, OptionBarrierType.NoBarrier))) extends BorderPanel {
   border = BorderFactory.createTitledBorder("Package")
 
