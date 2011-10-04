@@ -9,7 +9,7 @@ import view._
 import swing._
 import event.ButtonClicked
 
-object Structurer extends SimpleSwingApplication {
+object Structurer extends SimpleSwingApplication with PayoffSamples {
 
   val payoffChartCreator = new PayoffChartCreator
 
@@ -28,27 +28,6 @@ object Structurer extends SimpleSwingApplication {
     val addOptionMenu = new MenuItem("Option")
     val addBondMenu = new MenuItem("Bond")
 
-    val samples = List(new SampleMenuItem("Reverse Convertible",
-      BondInstrument(1000, 1),
-      OptionInstrument(OptionType.Put, 1.0, -1000, OptionBarrierType.NoBarrier)),
-      new SampleMenuItem("Outperformance Certificate",
-        OptionInstrument(OptionType.Call, 0, 100, OptionBarrierType.NoBarrier),
-        OptionInstrument(OptionType.Call, 1.0, 50, OptionBarrierType.NoBarrier)),
-      new SampleMenuItem("Capped Outperformance Certificate",
-        OptionInstrument(OptionType.Call, 0, 100, OptionBarrierType.NoBarrier),
-        OptionInstrument(OptionType.Call, 1.0, 50, OptionBarrierType.NoBarrier),
-        OptionInstrument(OptionType.Call, 1.5, -150, OptionBarrierType.NoBarrier)),
-      new SampleMenuItem("Capital Protected w/o Cap",
-        BondInstrument(950, 1),
-        OptionInstrument(OptionType.Call, 1.0, 1000, OptionBarrierType.NoBarrier)),
-      new SampleMenuItem("Capital Protected with Cap",
-        BondInstrument(950, 1),
-        OptionInstrument(OptionType.Call, 1.0, 1000, OptionBarrierType.NoBarrier),
-        OptionInstrument(OptionType.Call, 1.4, -1000, OptionBarrierType.NoBarrier)),
-      new SampleMenuItem("Barrier Reverse Convertible",
-        BondInstrument(1000, 1),
-        OptionInstrument(OptionType.Put, 1.0, -1000, OptionBarrierType.KnockInBarrier))
-    )
 
     menuBar = new MenuBar {
       contents += new Menu("File") {
@@ -63,7 +42,7 @@ object Structurer extends SimpleSwingApplication {
       }
 
       contents += new Menu("Samples") {
-        contents ++= samples
+        contents ++= payoffSamples
       }
 
 
@@ -79,7 +58,7 @@ object Structurer extends SimpleSwingApplication {
       override lazy val peer = payoffChartFormInstrumentPanel(instrumentPanel)
     }
 
-    samples.foreach(listenTo(_))
+    payoffSamples.foreach(listenTo(_))
 
     instrumentPanel.contents.collect({
       case p: Publisher => p
@@ -90,7 +69,7 @@ object Structurer extends SimpleSwingApplication {
 
     reactions += {
       case ButtonClicked(`drawButton`) =>
-        reDrawChart
+        reDrawChart()
       case InstrumentPanel.PanelEvent.RemovePanelEvent(panel) =>
         instrumentPanel.contents -= panel
         instrumentPanel.revalidate()
