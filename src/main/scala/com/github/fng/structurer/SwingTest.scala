@@ -8,6 +8,7 @@ import org.jfree.util.Rotation
 import org.jfree.data.xy.{XYSeriesCollection, XYSeries}
 import org.jfree.chart.plot.{XYPlot, PlotOrientation, PiePlot3D}
 import org.jfree.chart.axis.NumberAxis
+import view.{OptionPanel, DoubleField, StringField}
 
 object SwingTest extends SimpleSwingApplication {
   def top = new MainFrame {
@@ -34,22 +35,20 @@ object SwingTest extends SimpleSwingApplication {
       }
     }
 
-    val firstPanel = new FlowPanel {
-      contents += new Label {
-        text = "firstPanel - A"
-      }
-      contents += new Label {
-        text = "firstPanel - B"
-      }
-    }
 
-    val secondPanel = new FlowPanel {
-      contents += new Label {
-        text = "secondPanel - A"
-      }
-      contents += new Label {
-        text = "secondPanel - B"
-      }
+    val instrumentPanel = new BorderPanel {
+      val optionPanel1 = new OptionPanel
+      val optionPanel2 = new OptionPanel
+
+      add(new BoxPanel(Orientation.Horizontal) {
+        contents += optionPanel1
+        contents += optionPanel2
+      }, BorderPanel.Position.North)
+
+      add(new Button(Action("Press me") {
+        Dialog.showMessage(message = "Option 1: " + optionPanel1.optionInstrument + " Option 2: " + optionPanel2.optionInstrument)
+      }), BorderPanel.Position.South)
+
     }
 
 
@@ -58,13 +57,12 @@ object SwingTest extends SimpleSwingApplication {
     }
 
 
-//    contents = new SplitPane(Orientation.Vertical, firstPanel, chartPanel) {
-//      dividerLocation = 250
-//      dividerSize = 8
-//      oneTouchExpandable = true
-//    }
-
-    contents = chartPanel
+    contents = new SplitPane(Orientation.Vertical, instrumentPanel, chartPanel) {
+      dividerLocation = 250
+      dividerSize = 8
+      oneTouchExpandable = true
+    }
+    //    contents = chartPanel
 
 
   }
@@ -132,12 +130,12 @@ object SwingTest extends SimpleSwingApplication {
       true, true, false)
 
     val plot = chart.getPlot.asInstanceOf[XYPlot]
-//    plot.getRangeAxis().asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
-//    plot.getRangeAxis().asInstanceOf[NumberAxis].setUpperBound(2000)
-//    plot.getRangeAxis().asInstanceOf[NumberAxis].setLowerBound(-2000)
-//    plot.getDomainAxis.asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
-//    plot.getDomainAxis.asInstanceOf[NumberAxis].setUpperBound(2)
-//    plot.getDomainAxis.asInstanceOf[NumberAxis].setLowerBound(-2)
+    //    plot.getRangeAxis().asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
+    //    plot.getRangeAxis().asInstanceOf[NumberAxis].setUpperBound(2000)
+    //    plot.getRangeAxis().asInstanceOf[NumberAxis].setLowerBound(-2000)
+    //    plot.getDomainAxis.asInstanceOf[NumberAxis].setAutoRangeIncludesZero(true)
+    //    plot.getDomainAxis.asInstanceOf[NumberAxis].setUpperBound(2)
+    //    plot.getDomainAxis.asInstanceOf[NumberAxis].setLowerBound(-2)
 
     plot.getRangeAxis().asInstanceOf[NumberAxis].centerRange(1000)
     plot.getDomainAxis.asInstanceOf[NumberAxis].centerRange(1)
