@@ -1,11 +1,11 @@
 package com.github.fng.structurer
 
 
-case class Option(optionType: OptionType, strike: Double, quantity: Double) {
+case class OptionInstrument(optionType: OptionType, strike: Double, quantity: Double) {
   val notional = 100.0
 }
 
-abstract class OptionType
+sealed abstract class OptionType
 
 object OptionType {
 
