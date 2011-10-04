@@ -2,11 +2,8 @@ package com.github.fng.structurer
 
 import payoff._
 import org.jfree.chart.{ChartFactory, ChartPanel}
-import org.jfree.data.general.DefaultPieDataset
-import org.jfree.util.Rotation
 import org.jfree.data.xy.{XYSeriesCollection, XYSeries}
-import org.jfree.chart.plot.{XYPlot, PlotOrientation, PiePlot3D}
-import org.jfree.chart.axis.NumberAxis
+import org.jfree.chart.plot.{XYPlot, PlotOrientation}
 import javax.swing.JPanel
 import collection.mutable.ListBuffer
 import view._
@@ -29,19 +26,22 @@ object SwingTest extends SimpleSwingApplication {
     val addOptionMenu = new MenuItem("Option")
     val addBondMenu = new MenuItem("Bond")
 
-    val rcSampleMenu = new MenuItem("Reverse Convertible")
-    val ocSampleMenu = new MenuItem("Outperformance Certificate")
-    val occSampleMenu = new MenuItem("Capped Outperformance Certificate")
+    val samples = List(new SampleMenuItem("Reverse Convertible",
+      BondInstrument(1000, 1),
+      OptionInstrument(OptionType.Put, 1.0, -1000)),
+      new SampleMenuItem("Outperformance Certificate",
+        OptionInstrument(OptionType.Call, 0, 100),
+        OptionInstrument(OptionType.Call, 1.0, 50)),
+      new SampleMenuItem("Capped Outperformance Certificate",
+        OptionInstrument(OptionType.Call, 0, 100),
+        OptionInstrument(OptionType.Call, 1.0, 50),
+        OptionInstrument(OptionType.Call, 1.5, -150))
+    )
 
     menuBar = new MenuBar {
       contents += new Menu("File") {
         contents += new MenuItem(Action("Quit") {
           System.exit(0)
-        })
-      }
-      contents += new Menu("Test") {
-        contents += new MenuItem(Action("Dialog ...") {
-          Dialog.showMessage(message = "This is a dialog!")
         })
       }
 
@@ -51,9 +51,7 @@ object SwingTest extends SimpleSwingApplication {
       }
 
       contents += new Menu("Samples") {
-        contents += rcSampleMenu
-        contents += ocSampleMenu
-        contents += occSampleMenu
+        contents ++= samples
       }
 
 
@@ -69,64 +67,38 @@ object SwingTest extends SimpleSwingApplication {
       override lazy val peer = payoffChartFormInstrumentPanel(instrumentPanel)
     }
 
+    samples.foreach(listenTo(_))
+
     instrumentPanel.contents.collect({
       case p: Publisher => p
     }).foreach(listenTo(_))
 
-    listenTo(drawButton, addOptionMenu, addBondMenu, rcSampleMenu, ocSampleMenu, occSampleMenu)
+    listenTo(drawButton, addOptionMenu, addBondMenu)
 
 
     reactions += {
       case ButtonClicked(`drawButton`) =>
         reDrawChart
       case InstrumentPanel.PanelEvent.RemovePanelEvent(panel) =>
-        println("Here")
         instrumentPanel.contents -= panel
         instrumentPanel.revalidate()
         splitPane.revalidate()
       case ButtonClicked(`addOptionMenu`) =>
-        println("add option")
         val newOptionPanel = new OptionPanel
         instrumentPanel.contents += newOptionPanel
         instrumentPanel.revalidate()
         splitPane.revalidate()
         listenTo(newOptionPanel)
       case ButtonClicked(`addBondMenu`) =>
-        println("add bond")
         val newBondPanel = new BondPanel
         instrumentPanel.contents += newBondPanel
         instrumentPanel.revalidate()
         splitPane.revalidate()
         listenTo(newBondPanel)
-      case ButtonClicked(`rcSampleMenu`) =>
-        println("add rcSampleMenu")
+      case ButtonClicked(sample) if sample.isInstanceOf[SampleMenuItem] =>
         dialogSave {
-          refreshInstrumentPanelWithNew(new BondPanel(BondInstrument(1000, 1)),
-            new OptionPanel(OptionInstrument(OptionType.Put, 1.0, -1000)))
+          refreshInstrumentPanelWithNew(sample.asInstanceOf[SampleMenuItem].asInstrumentPanels: _*)
         }
-
-      case ButtonClicked(`ocSampleMenu`) =>
-        println("add ocSampleMenu")
-        dialogSave {
-          refreshInstrumentPanelWithNew(new OptionPanel(OptionInstrument(OptionType.Call, 0, 100)),
-            new OptionPanel(OptionInstrument(OptionType.Call, 1.0, 50)))
-        }
-
-      case ButtonClicked(`ocSampleMenu`) =>
-        println("add ocSampleMenu")
-        dialogSave {
-          refreshInstrumentPanelWithNew(new OptionPanel(OptionInstrument(OptionType.Call, 0, 100)),
-            new OptionPanel(OptionInstrument(OptionType.Call, 1.0, 50)))
-        }
-
-      case ButtonClicked(`occSampleMenu`) =>
-        println("add occSampleMenu")
-        dialogSave {
-          refreshInstrumentPanelWithNew(new OptionPanel(OptionInstrument(OptionType.Call, 0, 100)),
-            new OptionPanel(OptionInstrument(OptionType.Call, 1.0, 50)),
-            new OptionPanel(OptionInstrument(OptionType.Call, 1.5, -150)))
-        }
-
 
     }
 

@@ -1,7 +1,7 @@
 package com.github.fng.structurer
 package payoff
 
-case class OptionInstrument(optionType: OptionType, strike: Double, quantity: Double) {
+case class OptionInstrument(optionType: OptionType, strike: Double, quantity: Double) extends Instrument {
   val notional = 100.0
 }
 
