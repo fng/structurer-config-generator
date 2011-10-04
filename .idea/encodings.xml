@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" />
+  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
+    <file url="file://$PROJECT_DIR$/src/main/resources/config/barrier-reverse-convertible-notional.json" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/scala/com/github/fng/structurer/config/KnownVariables.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/scala/com/github/fng/structurer/config/ProductConfig.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/scala/com/github/fng/structurer/expression/ExprLexical.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/scala/com/github/fng/structurer/expression/ExpressionParser.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/scala/com/github/fng/structurer/expression/RichExpression.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/scala/com/github/fng/structurer/expression/StringConstant.scala" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/scala/com/github/fng/structurer/json/Json.scala" charset="UTF-8" />
+  </component>
 </project>
 
