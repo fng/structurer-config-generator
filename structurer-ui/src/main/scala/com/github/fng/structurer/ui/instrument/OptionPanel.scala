@@ -1,9 +1,9 @@
-package com.github.fng.structurer
-package view
+package com.github.fng.structurer.ui
+package instrument
 
 import javax.swing.BorderFactory
 import swing._
-import instrument.{OptionBarrierType, OptionType, OptionInstrument}
+import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType, OptionInstrument}
 
 class OptionPanel(default: OptionInstrument = OptionInstrument(OptionType.Call, 0.0, 1000, OptionBarrierType.NoBarrier)) extends InstrumentPanel{
   border = BorderFactory.createTitledBorder("Option")

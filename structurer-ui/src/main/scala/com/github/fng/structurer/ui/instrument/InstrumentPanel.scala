@@ -1,5 +1,5 @@
-package com.github.fng.structurer
-package view
+package com.github.fng.structurer.ui
+package instrument
 
 import swing.event.Event
 import swing.{BoxPanel, Orientation, Publisher}

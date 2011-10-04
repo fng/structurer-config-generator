@@ -1,7 +1,7 @@
-package com.github.fng.structurer
+package com.github.fng.structurer.ui
 
-import instrument.{OptionBarrierType, OptionType, OptionInstrument, BondInstrument}
-import view.SampleMenuItem
+import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType, OptionInstrument, BondInstrument}
+import instrument.SampleMenuItem
 
 trait PayoffSamples {
   val payoffSamples = List(new SampleMenuItem("Reverse Convertible",

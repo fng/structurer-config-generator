@@ -1,9 +1,9 @@
-package com.github.fng.structurer
-package view
+package com.github.fng.structurer.ui
+package instrument
 
 import java.awt.{Color}
 import swing._
-import instrument.{OptionBarrierType, OptionType}
+import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType}
 
 abstract class Field[T](val label: String, val valueField: TextField) extends BoxPanel(Orientation.Horizontal) {
 

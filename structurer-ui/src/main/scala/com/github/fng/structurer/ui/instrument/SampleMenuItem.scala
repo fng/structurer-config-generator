@@ -1,4 +1,5 @@
-package com.github.fng.structurer.view
+package com.github.fng.structurer.ui
+package instrument
 
 import swing.MenuItem
 import com.github.fng.structurer.instrument.{BondInstrument, OptionInstrument, Instrument}

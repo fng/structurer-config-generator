@@ -1,4 +1,4 @@
-package com.github.fng.structurer
+package com.github.fng.structurer.ui
 package chart
 
 import org.jfree.chart.{ChartFactory, ChartPanel}
@@ -6,8 +6,8 @@ import org.jfree.chart.plot.{XYPlot, PlotOrientation}
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer
 import org.jfree.data.xy.{XYDataset, XYSeries, XYSeriesCollection}
 import java.awt.BasicStroke
-import payoff._
-import instrument._
+import com.github.fng.structurer.instrument.{BondInstrument, OptionInstrument}
+import com.github.fng.structurer.payoff.{PayoffSegment, Payoff, PayoffBuilder}
 
 class PayoffChartCreator {
 

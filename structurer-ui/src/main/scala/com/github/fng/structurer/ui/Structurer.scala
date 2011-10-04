@@ -1,11 +1,10 @@
-package com.github.fng.structurer
+package com.github.fng.structurer.ui
 
 import chart.PayoffChartCreator
-import payoff._
+import instrument._
 import org.jfree.chart.ChartPanel
 import javax.swing.JPanel
 import collection.mutable.ListBuffer
-import view._
 import swing._
 import event.ButtonClicked
 
