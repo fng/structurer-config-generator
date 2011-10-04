@@ -5,7 +5,7 @@ import payoff.{OptionType, OptionInstrument}
 import javax.swing.BorderFactory
 import swing._
 
-class OptionPanel(default: OptionInstrument = OptionInstrument(OptionType.Put, 1.0, -1000)) extends InstrumentPanel{
+class OptionPanel(default: OptionInstrument = OptionInstrument(OptionType.Call, 0.0, 1000)) extends InstrumentPanel{
   border = BorderFactory.createTitledBorder("Option")
 
 

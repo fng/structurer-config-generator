@@ -31,6 +31,7 @@ object SwingTest extends SimpleSwingApplication {
 
     val rcSampleMenu = new MenuItem("Reverse Convertible")
     val ocSampleMenu = new MenuItem("Outperformance Certificate")
+    val occSampleMenu = new MenuItem("Capped Outperformance Certificate")
 
     menuBar = new MenuBar {
       contents += new Menu("File") {
@@ -52,6 +53,7 @@ object SwingTest extends SimpleSwingApplication {
       contents += new Menu("Samples") {
         contents += rcSampleMenu
         contents += ocSampleMenu
+        contents += occSampleMenu
       }
 
 
@@ -60,7 +62,7 @@ object SwingTest extends SimpleSwingApplication {
     val drawButton = new Button("Draw")
 
     val instrumentPanel = new BoxPanel(Orientation.Horizontal) {
-      contents ++= ListBuffer[InstrumentPanel](new OptionPanel, new BondPanel)
+      contents ++= ListBuffer[InstrumentPanel](new OptionPanel)
     }
 
     val chartPanel = new Panel {
@@ -71,7 +73,7 @@ object SwingTest extends SimpleSwingApplication {
       case p: Publisher => p
     }).foreach(listenTo(_))
 
-    listenTo(drawButton, addOptionMenu, addBondMenu, rcSampleMenu, ocSampleMenu)
+    listenTo(drawButton, addOptionMenu, addBondMenu, rcSampleMenu, ocSampleMenu, occSampleMenu)
 
 
     reactions += {
@@ -98,22 +100,42 @@ object SwingTest extends SimpleSwingApplication {
         listenTo(newBondPanel)
       case ButtonClicked(`rcSampleMenu`) =>
         println("add rcSampleMenu")
-        val result = Dialog.showOptions(message = "Show sample and loose all data?", optionType = Dialog.Options.YesNo, initial = 0,
-          entries = Seq("do it", "no Way"))
-        if (result == Dialog.Result.Ok) {
+        dialogSave {
           refreshInstrumentPanelWithNew(new BondPanel(BondInstrument(1000, 1)),
             new OptionPanel(OptionInstrument(OptionType.Put, 1.0, -1000)))
         }
 
       case ButtonClicked(`ocSampleMenu`) =>
         println("add ocSampleMenu")
-        val result = Dialog.showOptions(message = "Show sample and loose all data?", optionType = Dialog.Options.YesNo, initial = 0,
-          entries = Seq("do it", "no Way"))
-        if (result == Dialog.Result.Ok) {
+        dialogSave {
           refreshInstrumentPanelWithNew(new OptionPanel(OptionInstrument(OptionType.Call, 0, 100)),
             new OptionPanel(OptionInstrument(OptionType.Call, 1.0, 50)))
         }
 
+      case ButtonClicked(`ocSampleMenu`) =>
+        println("add ocSampleMenu")
+        dialogSave {
+          refreshInstrumentPanelWithNew(new OptionPanel(OptionInstrument(OptionType.Call, 0, 100)),
+            new OptionPanel(OptionInstrument(OptionType.Call, 1.0, 50)))
+        }
+
+      case ButtonClicked(`occSampleMenu`) =>
+        println("add occSampleMenu")
+        dialogSave {
+          refreshInstrumentPanelWithNew(new OptionPanel(OptionInstrument(OptionType.Call, 0, 100)),
+            new OptionPanel(OptionInstrument(OptionType.Call, 1.0, 50)),
+            new OptionPanel(OptionInstrument(OptionType.Call, 1.5, -150)))
+        }
+
+
+    }
+
+    def dialogSave(ifOkFunction: => Unit) {
+      val result = Dialog.showOptions(message = "Show sample and loose all data?", optionType = Dialog.Options.YesNo, initial = 0,
+        entries = Seq("do it", "no Way"))
+      if (result == Dialog.Result.Ok) {
+        ifOkFunction
+      }
     }
 
     def reDrawChart {
@@ -146,7 +168,7 @@ object SwingTest extends SimpleSwingApplication {
         add(drawButton, BorderPanel.Position.South)
       }
       , chartPanel) {
-      //      dividerLocation = 140
+      dividerLocation = 160
       dividerSize = 8
       oneTouchExpandable = true
     }
