@@ -7,10 +7,10 @@ import swing._
 import event.ButtonClicked
 import javax.swing.JPanel
 import com.efgfp.commons.spring.resource.ResourceLoader
-import com.github.fng.structurer.config.ProductConfig
 import com.github.fng.structurer.instrument._
 import org.springframework.core.io.support.{ResourcePatternResolver, ResourcePatternUtils}
 import org.springframework.core.io.{Resource, DefaultResourceLoader, ClassPathResource}
+import com.github.fng.structurer.config.{FieldConfig, ProductConfig}
 
 object Structurer extends SimpleSwingApplication with PayoffSamples with LoadableConfigurations {
 
@@ -26,8 +26,6 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     val screenSize = java.awt.Toolkit.getDefaultToolkit.getScreenSize
     location = new java.awt.Point((screenSize.width - framewidth) / 2, (screenSize.height - frameheight) / 2)
     minimumSize = new java.awt.Dimension(framewidth, frameheight)
-
-
 
 
     val addOptionMenu = new MenuItem("Option")
@@ -61,9 +59,23 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     val packagePanel = new PackagePanel
 
-    val chartPanel = new Panel {
-      override lazy val peer = payoffChartFormInstrumentPanel(packagePanel.instrumentPanel)
+
+    val chartPanel = new BorderPanel {
+
+      updateChart()
+
+      def updateChart() {
+        add(new Panel {
+          override lazy val peer = payoffChartFormInstrumentPanel(packagePanel.instrumentPanel)
+        }, BorderPanel.Position.Center)
+      }
+
     }
+
+    def updateChartPanel() {
+      chartPanel.updateChart()
+    }
+
 
     payoffSamples.foreach(listenTo(_))
 
@@ -78,7 +90,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     reactions += {
       case ButtonClicked(`drawButton`) =>
-        reDrawChart()
+        chartPanel.updateChart()
       case InstrumentPanel.PanelEvent.RemovePanelEvent(panel) =>
         packagePanel.instrumentPanel.contents -= panel
         packagePanel.instrumentPanel.revalidate()
@@ -114,26 +126,29 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       }
     }
 
-    def reDrawChart() {
-      splitPane.contents_=(splitPane.leftComponent, new Panel {
-        override lazy val peer: JPanel = payoffChartFormInstrumentPanel(packagePanel.instrumentPanel)
-      })
-    }
-
 
     def refreshPackagePanelWithNew(packageInstrument: PackageInstrument) {
       packagePanel.update(packageInstrument)
       splitPane.revalidate()
-      reDrawChart()
+      chartPanel.updateChart()
     }
 
+
+    val fieldPanel = new FieldPanel
 
     val splitPane = new SplitPane(Orientation.Horizontal,
       new BorderPanel {
         add(packagePanel, BorderPanel.Position.North)
         add(drawButton, BorderPanel.Position.South)
       }
-      , chartPanel) {
+      , new SplitPane(Orientation.Vertical,
+        new BorderPanel {
+          add(fieldPanel, BorderPanel.Position.North)
+        },
+        chartPanel) {
+        dividerSize = 8
+        oneTouchExpandable = true
+      }) {
       //dividerLocation = 230
       dividerSize = 8
       oneTouchExpandable = true
@@ -182,6 +197,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
       val packageInstrument = PackageInstrument(productTypeId, payoffType, denomination, quotationType, bonds ::: options)
       refreshPackagePanelWithNew(packageInstrument)
+      fieldPanel.refreshFieldPanel(productConfig.fields)
     }
 
 
