@@ -4,7 +4,7 @@ package instrument
 import java.awt.{Color}
 import swing._
 import com.github.fng.structurer.instrument.{PayoffType, QuotationType, OptionBarrierType, OptionType}
-import com.github.fng.structurer.config.expression.ExpressionParser
+import com.github.fng.structurer.config.expression.{RichExpression, ExpressionParser}
 
 abstract class Field[T](val label: String, val valueField: TextField) extends BoxPanel(Orientation.Horizontal) {
 
@@ -69,11 +69,11 @@ class RangeDoubleField(label: String, defaultValue: Double, from: Double, to: Do
 }
 
 class ExpressionField(label: String, defaultValue: String)
-  extends Field[String](label, new VerifiedTextField(defaultValue, TextFieldType.ExpressionField)) {
-  def getValue: String = valueField.text
+  extends Field[RichExpression](label, new VerifiedTextField(defaultValue, TextFieldType.ExpressionField)) {
+  def getValue: RichExpression = ExpressionParser.parse(valueField.text)
 
-  def setValue(value: String) {
-    valueField.text = value
+  def setValue(value: RichExpression) {
+    valueField.text = value.describe
   }
 }
 

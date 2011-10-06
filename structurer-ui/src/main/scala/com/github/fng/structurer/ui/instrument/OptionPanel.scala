@@ -10,7 +10,7 @@ class OptionPanel(default: OptionInstrument = OptionInstrument(OptionType.Call, 
 
 
   val optionTypeField = new OptionTypeField("OptionType", default.optionType)
-  val strikeField = new DoubleField("Strike", default.strike)
+  val strikeField = new ExpressionField("Strike", default.strike.toString)
   val quantityField = new DoubleField("Quantity", default.quantity)
   val notionalField = new DoubleField("Notional", default.notional)
   val barrierTypeField = new OptionBarrierTypeField("BarrierType", default.optionBarrierType)
@@ -28,7 +28,11 @@ class OptionPanel(default: OptionInstrument = OptionInstrument(OptionType.Call, 
 
 
   def optionType = optionTypeField.getValue
-  def strike = strikeField.getValue
+  def strike = {
+    val result = strikeField.getValue.evaluate().doubleValue()
+    println("result: " + result)
+    result
+  }
   def quantity = quantityField.getValue
   def notional = notionalField.getValue
   def optionBarrierType = barrierTypeField.getValue

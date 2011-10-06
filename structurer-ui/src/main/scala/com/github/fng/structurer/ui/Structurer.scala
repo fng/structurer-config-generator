@@ -91,6 +91,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     reactions += {
       case ButtonClicked(`drawButton`) =>
         chartPanel.updateChart()
+        splitPane.revalidate()
       case InstrumentPanel.PanelEvent.RemovePanelEvent(panel) =>
         packagePanel.instrumentPanel.contents -= panel
         packagePanel.instrumentPanel.revalidate()
