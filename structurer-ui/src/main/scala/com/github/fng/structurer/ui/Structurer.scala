@@ -146,6 +146,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
           add(fieldPanel, BorderPanel.Position.North)
         },
         chartPanel) {
+        dividerLocation = 350
         dividerSize = 8
         oneTouchExpandable = true
       }) {

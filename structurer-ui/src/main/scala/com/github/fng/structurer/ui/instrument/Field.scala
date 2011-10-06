@@ -36,6 +36,28 @@ class DoubleField(label: String, defaultValue: Double)
   }
 }
 
+abstract class ConstrainedDoubleField(label: String, defaultValue: Double, textFieldType: TextFieldType.ConstrainedDoubleField)
+  extends Field[Double](label + "(" + textFieldType.constraint + " " + textFieldType.level + ")", new VerifiedTextField(defaultValue.toString, textFieldType)) {
+  def getValue: Double = java.lang.Double.valueOf(valueField.text).doubleValue()
+
+  def setValue(value: Double) {
+    valueField.text = value.toString
+  }
+}
+
+class GreaterThanDoubleField(label: String, defaultValue: Double, level: Double)
+  extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.GreaterThanDoubleField(level))
+
+class GreaterThanEqualDoubleField(label: String, defaultValue: Double, level: Double)
+  extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.GreaterThanEqualDoubleField(level))
+
+class LessThanDoubleField(label: String, defaultValue: Double, level: Double)
+  extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.LessThanDoubleField(level))
+
+class LessThanEqualDoubleField(label: String, defaultValue: Double, level: Double)
+  extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.LessThanEqualDoubleField(level))
+
+
 class OptionTypeField(label: String, defaultValue: OptionType) extends BoxPanel(Orientation.Horizontal) {
 
   private val optionTypeCallRadio = new RadioButton("Call")
@@ -167,6 +189,43 @@ class OptionBarrierTypeField(label: String, defaultValue: OptionBarrierType) ext
 }
 
 
+class RadioTypeField(label: String, options: List[String]) extends BoxPanel(Orientation.Horizontal) {
+
+  private val radioButtons = options.map(new RadioButton(_))
+  private val group = new ButtonGroup(radioButtons: _*)
+  radioButtons.headOption.foreach {
+    radioButton => radioButton.selected = true
+  }
+
+  contents += new Label {
+    text = label
+  }
+  contents += new FlowPanel {
+    contents ++= radioButtons
+  }
+
+  def getValue: String = group.selected match {
+    case Some(radioButton) => radioButton.text
+    case None => error("please choose a value!")
+  }
+
+}
+
+class ComboBoxTypeField(label: String, options: List[String]) extends BoxPanel(Orientation.Horizontal) {
+
+  private val comboBox = new ComboBox[String](options)
+
+  contents += new Label {
+    text = label
+  }
+  contents += new FlowPanel {
+    contents += comboBox
+  }
+
+  def getValue: String = comboBox.selection.item
+}
+
+
 class VerifiedTextField(defaultValue: String, textFieldType: TextFieldType) extends TextField(defaultValue, 10) {
   val myVerifier = new TextFieldVerifier(this, textFieldType)
   shouldYieldFocus = myVerifier.verify _
@@ -188,6 +247,28 @@ object TextFieldType {
         false
     }
   }
+
+
+  abstract class ConstrainedDoubleField(val level: Double, val constraint: String, valueConstraintLevel: (Double, Double) => Boolean)
+    extends TextFieldType("Not " + constraint + " " + level) {
+    def verify(value: String): Boolean = try {
+      valueConstraintLevel(java.lang.Double.valueOf(value).doubleValue(), level)
+    } catch {
+      case e: Exception =>
+        println(e.getMessage)
+        false
+    }
+
+  }
+
+   class GreaterThanDoubleField(level: Double) extends ConstrainedDoubleField(level, ">", (value, level) => value > level)
+
+   class GreaterThanEqualDoubleField(level: Double) extends ConstrainedDoubleField(level, ">=", (value, level) => value >= level)
+
+   class LessThanDoubleField(level: Double) extends ConstrainedDoubleField(level, "<", (value, level) => value < level)
+
+   class LessThanEqualDoubleField(level: Double) extends ConstrainedDoubleField(level, "<=", (value, level) => value <= level)
+
 
 }
 

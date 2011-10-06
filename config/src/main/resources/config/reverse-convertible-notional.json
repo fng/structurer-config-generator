@@ -9,13 +9,15 @@
         "field": [
             {
                 "name": "COUPONRATE",
-                "direction": "GT",
-                "value": "0"
+                "type": "number",
+                "validationType": "GT",
+                "validationValue": "0"
             },
             {
                 "name": "COUPONFREQUENCY",
-                "direction": "OneOf",
-                "value": "annually, semi-annually, quarterly, monthly"
+                "type": "choose",
+                "validationType": "OneOf",
+                "validationValue": "annually,semi-annually,quarterly,monthly"
             }
         ],
         "option": [
