@@ -18,13 +18,20 @@ object FieldConfig {
     val validationValue = map.forceString("validationValue")
 
     fieldType match {
-      case "number" => DoubleFieldConfig(name, DoubleFieldValidationType.fromString(validationType), validationValue.toDouble)
+      case "number" => validationType match {
+        case "between" => validationValue.split(";").toList match {
+          case List(a, b) => DoubleRangeFieldConfig(name, a.toDouble, b.toDouble)
+          case _ => error("not like '10;20'!")
+        }
+        case other => DoubleFieldConfig(name, DoubleFieldValidationType.fromString(other), validationValue.toDouble)
+      }
       case "choose" => ChooseFieldConfig(name, ChooseFieldValidationType.fromString(validationType), validationValue.split(",").toList)
     }
 
   }
 
   case class DoubleFieldConfig(name: String, validationType: DoubleFieldValidationType, level: Double) extends FieldConfig
+  case class DoubleRangeFieldConfig(name: String, from: Double, to: Double) extends FieldConfig
 
   abstract class DoubleFieldValidationType
 

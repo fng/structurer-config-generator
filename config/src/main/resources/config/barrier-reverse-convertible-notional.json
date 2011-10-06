@@ -20,6 +20,12 @@
                 "validationValue": "0"
             },
             {
+                "name": "DUMMY",
+                "type": "number",
+                "validationType": "between",
+                "validationValue": "50;100"
+            },
+            {
                 "name": "COUPONFREQUENCY",
                 "type": "choose",
                 "validationType": "OneOf",

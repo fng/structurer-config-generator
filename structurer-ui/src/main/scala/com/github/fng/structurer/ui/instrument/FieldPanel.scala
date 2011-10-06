@@ -4,18 +4,21 @@ package instrument
 import swing.{Label, Orientation, BoxPanel}
 import com.github.fng.structurer.config.FieldConfig
 import instrument.TextFieldType.DoubleField
-import com.github.fng.structurer.config.FieldConfig.{DoubleFieldValidationType, ChooseFieldValidationType, ChooseFieldConfig, DoubleFieldConfig}
+import com.github.fng.structurer.config.FieldConfig._
 
 class FieldPanel extends BoxPanel(Orientation.Vertical) {
 
-  contents += new StringField("Varibale 1", "100")
-  contents += new GreaterThanDoubleField("Variable 2", 30, 20)
-  contents += new ComboBoxTypeField("Variable 3", List("annually", "semi-annually", "quarterly", "monthly"))
+  contents += new StringField("String", "100")
+  contents += new GreaterThanDoubleField("Double", 30, 20)
+  contents += new ComboBoxTypeField("Choise", List("annually", "semi-annually", "quarterly", "monthly"))
+  contents += new RangeDoubleField("Range", 20, 10, 30)
+  contents += new ExpressionField("Expression", "0")
 
   def refreshFieldPanel(fields: List[FieldConfig]) {
     println("fields: " + fields)
     contents.clear()
     contents ++= fields.map {
+      case DoubleRangeFieldConfig(name, from, to) => new RangeDoubleField(name, 0, from, to)
       case DoubleFieldConfig(name, validationType, level) => validationType match {
         case DoubleFieldValidationType.GreaterThan => new GreaterThanDoubleField(name, 0, level)
         case DoubleFieldValidationType.GreaterThanEqual => new GreaterThanEqualDoubleField(name, 0, level)

@@ -4,6 +4,7 @@ package instrument
 import java.awt.{Color}
 import swing._
 import com.github.fng.structurer.instrument.{PayoffType, QuotationType, OptionBarrierType, OptionType}
+import com.github.fng.structurer.config.expression.ExpressionParser
 
 abstract class Field[T](val label: String, val valueField: TextField) extends BoxPanel(Orientation.Horizontal) {
 
@@ -56,6 +57,26 @@ class LessThanDoubleField(label: String, defaultValue: Double, level: Double)
 
 class LessThanEqualDoubleField(label: String, defaultValue: Double, level: Double)
   extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.LessThanEqualDoubleField(level))
+
+class RangeDoubleField(label: String, defaultValue: Double, from: Double, to: Double)
+  extends Field[Double](label + "(between" + from + " and " + to + ")",
+    new VerifiedTextField(defaultValue.toString, new TextFieldType.RangeDoubleField(from, to))) {
+  def getValue: Double = java.lang.Double.valueOf(valueField.text).doubleValue()
+
+  def setValue(value: Double) {
+    valueField.text = value.toString
+  }
+}
+
+class ExpressionField(label: String, defaultValue: String)
+  extends Field[String](label, new VerifiedTextField(defaultValue, TextFieldType.ExpressionField)) {
+  def getValue: String = valueField.text
+
+  def setValue(value: String) {
+    valueField.text = value
+  }
+}
+
 
 
 class OptionTypeField(label: String, defaultValue: OptionType) extends BoxPanel(Orientation.Horizontal) {
@@ -261,13 +282,36 @@ object TextFieldType {
 
   }
 
-   class GreaterThanDoubleField(level: Double) extends ConstrainedDoubleField(level, ">", (value, level) => value > level)
+  class GreaterThanDoubleField(level: Double) extends ConstrainedDoubleField(level, ">", (value, level) => value > level)
 
-   class GreaterThanEqualDoubleField(level: Double) extends ConstrainedDoubleField(level, ">=", (value, level) => value >= level)
+  class GreaterThanEqualDoubleField(level: Double) extends ConstrainedDoubleField(level, ">=", (value, level) => value >= level)
 
-   class LessThanDoubleField(level: Double) extends ConstrainedDoubleField(level, "<", (value, level) => value < level)
+  class LessThanDoubleField(level: Double) extends ConstrainedDoubleField(level, "<", (value, level) => value < level)
 
-   class LessThanEqualDoubleField(level: Double) extends ConstrainedDoubleField(level, "<=", (value, level) => value <= level)
+  class LessThanEqualDoubleField(level: Double) extends ConstrainedDoubleField(level, "<=", (value, level) => value <= level)
+
+  class RangeDoubleField(from: Double, to: Double) extends TextFieldType("Not between " + from + " and " + to) {
+    def verify(value: String): Boolean = try {
+      val doubleValue = java.lang.Double.valueOf(value).doubleValue()
+      from <= doubleValue && doubleValue <= to
+    } catch {
+      case e: Exception =>
+        println(e.getMessage)
+        false
+    }
+
+  }
+
+  case object ExpressionField extends TextFieldType("Not a valid Expression!") {
+    def verify(value: String): Boolean = try {
+      ExpressionParser.parse(value)
+      true
+    } catch {
+      case e: Exception =>
+        println(e.getMessage)
+        false
+    }
+  }
 
 
 }
