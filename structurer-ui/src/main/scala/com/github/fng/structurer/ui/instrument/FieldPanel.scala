@@ -5,6 +5,7 @@ import swing.{Label, Orientation, BoxPanel}
 import com.github.fng.structurer.config.FieldConfig
 import instrument.TextFieldType.DoubleField
 import com.github.fng.structurer.config.FieldConfig._
+import com.github.fng.structurer.config.expression.ExpressionParser
 
 class FieldPanel extends BoxPanel(Orientation.Vertical) {
 
@@ -12,7 +13,7 @@ class FieldPanel extends BoxPanel(Orientation.Vertical) {
   contents += new GreaterThanDoubleField("Double", 30, 20)
   contents += new ComboBoxTypeField("Choise", List("annually", "semi-annually", "quarterly", "monthly"))
   contents += new RangeDoubleField("Range", 20, 10, 30)
-  contents += new ExpressionField("Expression", "0")
+  contents += new ExpressionField("Expression", ExpressionParser.parse(0))
 
   def refreshFieldPanel(fields: List[FieldConfig]) {
     println("fields: " + fields)

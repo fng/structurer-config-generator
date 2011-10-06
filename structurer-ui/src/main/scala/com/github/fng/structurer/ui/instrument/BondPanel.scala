@@ -5,12 +5,12 @@ import javax.swing.BorderFactory
 import com.github.fng.structurer.instrument.BondInstrument
 import swing.{Button, Action, BoxPanel, Orientation}
 
-class BondPanel(default: BondInstrument = BondInstrument(1000, 1)) extends InstrumentPanel {
+class BondPanel(default: ExpressionBond = ExpressionBond(1000, 1)) extends InstrumentPanel {
   border = BorderFactory.createTitledBorder("Bond")
 
 
-  val notionalField = new DoubleField("Notional", default.notional)
-  val quantityField = new DoubleField("Quantity", default.quantity)
+  val notionalField = new ExpressionField("Notional", default.notional)
+  val quantityField = new ExpressionField("Quantity", default.quantity)
 
   val removeButton = new Button(Action("Remove") {
     publish(InstrumentPanel.PanelEvent.RemovePanelEvent(BondPanel.this))
@@ -21,9 +21,9 @@ class BondPanel(default: BondInstrument = BondInstrument(1000, 1)) extends Instr
   contents += removeButton
 
 
-  def notional = notionalField.getValue
+  def notional = notionalField.getValue.evaluate().doubleValue()
 
-  def quantity = quantityField.getValue
+  def quantity = quantityField.getValue.evaluate().doubleValue()
 
 
   def bondInstrument = BondInstrument(notional, quantity)

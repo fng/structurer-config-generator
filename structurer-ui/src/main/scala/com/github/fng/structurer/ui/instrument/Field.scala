@@ -68,8 +68,8 @@ class RangeDoubleField(label: String, defaultValue: Double, from: Double, to: Do
   }
 }
 
-class ExpressionField(label: String, defaultValue: String)
-  extends Field[RichExpression](label, new VerifiedTextField(defaultValue, TextFieldType.ExpressionField)) {
+class ExpressionField(label: String, defaultValue: RichExpression)
+  extends Field[RichExpression](label, new VerifiedTextField(ExpressionHacker.hackNegativeValues(defaultValue.describe), TextFieldType.ExpressionField)) {
   def getValue: RichExpression = ExpressionParser.parse(valueField.text)
 
   def setValue(value: RichExpression) {
@@ -77,6 +77,13 @@ class ExpressionField(label: String, defaultValue: String)
   }
 }
 
+object ExpressionHacker{
+  def hackNegativeValues(described: String): String = if(described.startsWith("-")){
+    "("+described+")"
+  }else{
+    described
+  }
+}
 
 
 class OptionTypeField(label: String, defaultValue: OptionType) extends BoxPanel(Orientation.Horizontal) {

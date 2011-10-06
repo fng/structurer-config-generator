@@ -7,8 +7,8 @@ import com.github.fng.structurer.instrument.{PackageInstrument, BondInstrument, 
 class SampleMenuItem(title: String, val packageInstrument: PackageInstrument) extends MenuItem(title){
 
   def getComponentPanels: List[InstrumentPanel] = packageInstrument.components.map{
-    case o: OptionInstrument => new OptionPanel(o)
-    case b: BondInstrument => new BondPanel(b)
+    case o: OptionInstrument => new OptionPanel(ExpressionOption(o))
+    case b: BondInstrument => new BondPanel(ExpressionBond(b))
     case unsupported => error("Unsupported Instrument: " + unsupported)
   }
 
