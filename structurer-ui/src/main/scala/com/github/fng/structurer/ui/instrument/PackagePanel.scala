@@ -36,7 +36,9 @@ class PackagePanel(default: PackageInstrument = PackageInstrument("xxx.xxx", Pay
 
     instrumentPanel.contents ++= packageInstrument.components.map {
       case o: OptionInstrument => new OptionPanel(ExpressionOption(o))
+      case o: ExpressionOption => new OptionPanel(o)
       case b: BondInstrument => new BondPanel(ExpressionBond(b))
+      case b: ExpressionBond => new BondPanel(b)
       case unsupported => error("Unsupported Instrument: " + unsupported)
     }
 

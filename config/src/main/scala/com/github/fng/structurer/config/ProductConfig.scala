@@ -16,22 +16,23 @@ object FieldConfig {
     val fieldType = map.forceString("type")
     val validationType = map.forceString("validationType")
     val validationValue = map.forceString("validationValue")
+    val default = map.forceStringOption("default")
 
     fieldType match {
       case "number" => validationType match {
         case "between" => validationValue.split(";").toList match {
-          case List(a, b) => DoubleRangeFieldConfig(name, a.toDouble, b.toDouble)
+          case List(a, b) => DoubleRangeFieldConfig(name, a.toDouble, b.toDouble, default.map(_.toDouble))
           case _ => error("not like '10;20'!")
         }
-        case other => DoubleFieldConfig(name, DoubleFieldValidationType.fromString(other), validationValue.toDouble)
+        case other => DoubleFieldConfig(name, DoubleFieldValidationType.fromString(other), validationValue.toDouble, default.map(_.toDouble))
       }
-      case "choose" => ChooseFieldConfig(name, ChooseFieldValidationType.fromString(validationType), validationValue.split(",").toList)
+      case "choose" => ChooseFieldConfig(name, ChooseFieldValidationType.fromString(validationType), validationValue.split(",").toList, default)
     }
 
   }
 
-  case class DoubleFieldConfig(name: String, validationType: DoubleFieldValidationType, level: Double) extends FieldConfig
-  case class DoubleRangeFieldConfig(name: String, from: Double, to: Double) extends FieldConfig
+  case class DoubleFieldConfig(name: String, validationType: DoubleFieldValidationType, level: Double, default: Option[Double]) extends FieldConfig
+  case class DoubleRangeFieldConfig(name: String, from: Double, to: Double, default: Option[Double]) extends FieldConfig
 
   abstract class DoubleFieldValidationType
 
@@ -53,7 +54,7 @@ object FieldConfig {
     }
   }
 
-  case class ChooseFieldConfig(name: String, validation: ChooseFieldValidationType, values: List[String]) extends FieldConfig
+  case class ChooseFieldConfig(name: String, validation: ChooseFieldValidationType, values: List[String], default: Option[String]) extends FieldConfig
 
   abstract class ChooseFieldValidationType
 
@@ -89,11 +90,11 @@ object OptionConfig {
   }
 }
 
-case class BondConfig(quantity: String, notional: String, frequency: RichExpression, fixedRate: RichExpression)
+case class BondConfig(quantity: RichExpression, notional: RichExpression, frequency: RichExpression, fixedRate: RichExpression)
 
 object BondConfig {
   def apply(quantity: String, notional: String, frequency: String, fixedRate: String): BondConfig = {
-    BondConfig(quantity, notional, ExpressionParser.parse(frequency), ExpressionParser.parse(fixedRate))
+    BondConfig(ExpressionParser.parse(quantity), ExpressionParser.parse(notional), ExpressionParser.parse(frequency), ExpressionParser.parse(fixedRate))
   }
 }
 
@@ -152,8 +153,8 @@ object ProductConfig {
     })).getOrElse(List[OptionConfig]())
     val bonds = productConfig.listMap("bond").map(bonds => bonds.map((bond) => {
       BondConfig(
-        bond.forceString("quantity"),
-        bond.forceString("notional"),
+        bond.forceExpression("quantity"),
+        bond.forceExpression("notional"),
         bond.forceExpression("frequency"),
         bond.forceExpression("fixedRate")
       )

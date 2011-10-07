@@ -14,7 +14,7 @@ object ExpressionParser extends StandardTokenParsers {
 
   def parse(s: String): RichExpression = {
     val result: ParseResult[Expression] = phrase(expr)(new lexical.Scanner(s))
-    RichExpression(result.getOrElse(error(result.toString)))
+    RichExpression(result.getOrElse(error(result.toString)), s)
   }
 
   override val lexical = new ExprLexical

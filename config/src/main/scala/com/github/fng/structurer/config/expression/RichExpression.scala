@@ -22,7 +22,7 @@ object RichExpression {
   }
 }
 
-case class RichExpression(val expression: Expression) {
+case class RichExpression(expression: Expression, originalString: String) {
   import RichExpression._
 
   def describe: String = expression.describe

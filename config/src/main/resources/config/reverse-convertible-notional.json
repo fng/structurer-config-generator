@@ -11,27 +11,31 @@
                 "name": "STRIKE",
                 "type": "number",
                 "validationType": "GT",
-                "validationValue": "0.5"
-            },    
+                "validationValue": "50",
+                "default": "90"
+            }
+            ,
             {
                 "name": "COUPONRATE",
                 "type": "number",
                 "validationType": "GT",
-                "validationValue": "0"
+                "validationValue": "0",
+                "default": "2.4"
             },
             {
                 "name": "COUPONFREQUENCY",
                 "type": "choose",
                 "validationType": "OneOf",
-                "validationValue": "annually,semi-annually,quarterly,monthly"
+                "validationValue": "annually,semi-annually,quarterly,monthly",
+                "default": "annually"
             }
         ],
         "option": [
             {
-                "quantity": "(-10)",
+                "quantity": "((-10)/($$STRIKE$$/100))",
                 "type": "Put",
                 "setup" : "ForwardPerformancePayoff",
-                "strike": "1",
+                "strike": "100",
                 "basis": "$$SINGLE_UNDERLYING_FIXING$$",
                 "notional": "100"
             }

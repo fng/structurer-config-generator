@@ -1,0 +1,55 @@
+{
+    "product-config":{
+        "productTypeId": "350.001",
+        "payoffType": "Bullish",
+        "quotationType": "Notional",
+        "underlyingType": "Single",
+        "autocallable": "false",
+        "allotment": "EFGFP Capped Outperf Cert (350)",
+        "field": [
+            {
+                "name": "PARTICIPATION",
+                "type": "number",
+                "validationType": "GT",
+                "validationValue": "100",
+                "default": "120"
+            },
+            {
+                "name": "CAP",
+                "type": "number",
+                "validationType": "between",
+                "validationValue": "120;180",
+                "default": "150"
+            }
+        ],
+        "option": [
+            {
+                "quantity": "10",
+                "type": "Call",
+                "setup" : "ForwardPerformancePayoff",
+                "strike": "0",
+                "basis": "$$SINGLE_UNDERLYING_FIXING$$",
+                "notional": "100"
+            },
+            {
+                "quantity": "(($$PARTICIPATION$$/100)*10)",
+                "type": "Call",
+                "setup" : "ForwardPerformancePayoff",
+                "strike": "100",
+                "basis": "$$SINGLE_UNDERLYING_FIXING$$",
+                "notional": "100"
+            },
+            {
+                "quantity": "(-(((($$PARTICIPATION$$/100))*10)+10))",
+                "type": "Call",
+                "setup" : "ForwardPerformancePayoff",
+                "strike": "$$CAP$$",
+                "basis": "$$SINGLE_UNDERLYING_FIXING$$",
+                "notional": "100"
+            }
+        ],
+        "bond": [
+
+        ]
+    }
+}

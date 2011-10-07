@@ -180,22 +180,22 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
             case "Call" => OptionType.Call
             case "Put" => OptionType.Put
           }
-          val strike = option.strike.evaluate().doubleValue()
-          val quantity = option.quantity.evaluate().doubleValue()
-          val notional = option.notional.evaluate().doubleValue()
+          val strike = option.strike
+          val quantity = option.quantity
+          val notional = option.notional
           val barrierType = Option(option.barrier).map(_.barrierType) match {
             case Some("DownIn") => OptionBarrierType.KnockInBarrier
             case None => OptionBarrierType.NoBarrier
           }
-          OptionInstrument(optionType, strike, quantity, notional, barrierType)
+          ExpressionOption(optionType, strike, quantity, notional, barrierType)
         }
       }
 
       val bonds = productConfig.bonds.map {
         bond => {
-          val notional = bond.notional.toDouble
-          val quantity = bond.quantity.toDouble
-          BondInstrument(notional, quantity)
+          val notional = bond.notional
+          val quantity = bond.quantity
+          ExpressionBond(notional, quantity)
         }
       }
 

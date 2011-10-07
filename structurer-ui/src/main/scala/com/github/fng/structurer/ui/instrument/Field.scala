@@ -72,7 +72,7 @@ class RangeDoubleField(label: String, defaultValue: Double, from: Double, to: Do
 }
 
 class ExpressionField(label: String, defaultValue: RichExpression)
-        extends Field[RichExpression](label, new VerifiedTextField(ExpressionHacker.hackNegativeValues(defaultValue.describe), TextFieldType.ExpressionField)) {
+        extends Field[RichExpression](label, new VerifiedTextField(ExpressionHacker.hackNegativeValues(defaultValue.originalString), TextFieldType.ExpressionField)) {
   def getValue: RichExpression = ExpressionParser.parse(valueField.text)
 
   def setValue(value: RichExpression) {
@@ -242,7 +242,7 @@ class RadioTypeField(label: String, options: List[String]) extends BoxPanel(Orie
 
 }
 
-class ComboBoxTypeField(label: String, options: List[String]) extends BoxPanel(Orientation.Horizontal) {
+class ComboBoxTypeField(label: String, options: List[String], default: Option[String]) extends BoxPanel(Orientation.Horizontal) {
 
   private val comboBox = new ComboBox[String](options)
 
@@ -251,6 +251,10 @@ class ComboBoxTypeField(label: String, options: List[String]) extends BoxPanel(O
   }
   contents += new FlowPanel {
     contents += comboBox
+  }
+
+  default.foreach {
+    defaultItem => comboBox.selection.item = defaultItem
   }
 
   def getValue: String = comboBox.selection.item

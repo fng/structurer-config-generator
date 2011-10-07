@@ -11,25 +11,29 @@
                 "name": "BARRIER",
                 "type": "number",
                 "validationType": "LT",
-                "validationValue": "100"
+                "validationValue": "100",
+                "default": "80"
             },
             {
                 "name": "COUPONRATE",
                 "type": "number",
                 "validationType": "GT",
-                "validationValue": "0"
+                "validationValue": "0",
+                "default": "2.4"
             },
             {
                 "name": "DUMMY",
                 "type": "number",
                 "validationType": "between",
-                "validationValue": "50;100"
+                "validationValue": "50;100",
+                "default": "60"
             },
             {
                 "name": "COUPONFREQUENCY",
                 "type": "choose",
                 "validationType": "OneOf",
-                "validationValue": "annually,semi-annually,quarterly,monthly"
+                "validationValue": "annually,semi-annually,quarterly,monthly",
+                "default": "annually"
             }
         ],
         "option": [
@@ -37,7 +41,7 @@
                 "quantity": "(-10)",
                 "type": "Put",
                 "setup" : "ForwardPerformancePayoff",
-                "strike": "1",
+                "strike": "100",
                 "basis": "$$SINGLE_UNDERLYING_FIXING$$",
                 "notional": "100",
                 "barrier": {
