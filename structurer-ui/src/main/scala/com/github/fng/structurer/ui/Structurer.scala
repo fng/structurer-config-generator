@@ -82,9 +82,13 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     loadableConfigurations.foreach(listenTo(_))
 
-    packagePanel.instrumentPanel.contents.collect({
-      case p: Publisher => p
-    }).foreach(listenTo(_))
+    def listenToInstrumentPanelContent() {
+      packagePanel.instrumentPanel.contents.collect({
+        case p: Publisher => p
+      }).foreach(listenTo(_))
+    }
+
+    listenToInstrumentPanelContent()
 
     listenTo(drawButton, addOptionMenu, addBondMenu)
 
@@ -131,6 +135,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     def refreshPackagePanelWithNew(packageInstrument: PackageInstrument, fields: List[FieldConfig]) {
       packagePanel.update(packageInstrument)
+      listenToInstrumentPanelContent()
       fieldPanel.refreshFieldPanel(fields)
       splitPane.revalidate()
       chartPanel.updateChart()
