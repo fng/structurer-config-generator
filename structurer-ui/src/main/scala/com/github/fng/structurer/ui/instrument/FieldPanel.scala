@@ -5,15 +5,16 @@ import swing.{Label, Orientation, BoxPanel}
 import com.github.fng.structurer.config.FieldConfig
 import instrument.TextFieldType.DoubleField
 import com.github.fng.structurer.config.FieldConfig._
-import com.github.fng.structurer.config.expression.ExpressionParser
+import com.efgfp.commons.expression.{Constant, Variable, Expression}
+import com.github.fng.structurer.config.expression.{StringConstant, ExpressionParser}
 
 class FieldPanel extends BoxPanel(Orientation.Vertical) {
 
-  contents += new StringField("String", "100")
-  contents += new GreaterThanDoubleField("Double", 30, 20)
-  contents += new ComboBoxTypeField("Choise", List("annually", "semi-annually", "quarterly", "monthly"))
-  contents += new RangeDoubleField("Range", 20, 10, 30)
-  contents += new ExpressionField("Expression", ExpressionParser.parse(0))
+  //  contents += new StringField("String", "100")
+  //  contents += new GreaterThanDoubleField("Double", 30, 20)
+  //  contents += new ComboBoxTypeField("Choise", List("annually", "semi-annually", "quarterly", "monthly"))
+  //  contents += new RangeDoubleField("Range", 20, 10, 30)
+  //  contents += new ExpressionField("Expression", ExpressionParser.parse(0))
 
   def refreshFieldPanel(fields: List[FieldConfig]) {
     println("fields: " + fields)
@@ -31,6 +32,18 @@ class FieldPanel extends BoxPanel(Orientation.Vertical) {
         case ChooseFieldValidationType.OneOf => new ComboBoxTypeField(name, values)
       }
     }
+  }
+
+
+  def getFieldsWithValues: Map[Expression, Expression] = {
+    contents.toList.map {
+      case doubleField: Field[Double] => List(new StringConstant(doubleField.label) -> new Constant(doubleField.getValue))
+      case otherField: Field[_] => error("field of type: " + otherField + " is not supported!")
+      case combobox: ComboBoxTypeField => Nil
+      case other => {
+        error(other + " is not a field!")
+      }
+    }.flatten.toMap
   }
 
 

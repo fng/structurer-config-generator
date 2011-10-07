@@ -6,10 +6,11 @@ import swing._
 import com.github.fng.structurer.instrument.{PayoffType, QuotationType, OptionBarrierType, OptionType}
 import com.github.fng.structurer.config.expression.{RichExpression, ExpressionParser}
 
-abstract class Field[T](val label: String, val valueField: TextField) extends BoxPanel(Orientation.Horizontal) {
+abstract class Field[T](val label: String, val valueField: TextField, val labelSuffix: String = "")
+        extends BoxPanel(Orientation.Horizontal) {
 
   contents += new Label {
-    text = label
+    text = label + labelSuffix
   }
   contents += valueField
 
@@ -20,7 +21,7 @@ abstract class Field[T](val label: String, val valueField: TextField) extends Bo
 }
 
 class StringField(label: String, defaultValue: String)
-  extends Field[String](label, new TextField(defaultValue, 10)) {
+        extends Field[String](label, new TextField(defaultValue, 10)) {
   def getValue: String = valueField.text
 
   def setValue(value: String) {
@@ -29,7 +30,7 @@ class StringField(label: String, defaultValue: String)
 }
 
 class DoubleField(label: String, defaultValue: Double)
-  extends Field[Double](label, new VerifiedTextField(defaultValue.toString, TextFieldType.DoubleField)) {
+        extends Field[Double](label, new VerifiedTextField(defaultValue.toString, TextFieldType.DoubleField)) {
   def getValue: Double = java.lang.Double.valueOf(valueField.text).doubleValue()
 
   def setValue(value: Double) {
@@ -38,7 +39,8 @@ class DoubleField(label: String, defaultValue: Double)
 }
 
 abstract class ConstrainedDoubleField(label: String, defaultValue: Double, textFieldType: TextFieldType.ConstrainedDoubleField)
-  extends Field[Double](label + "(" + textFieldType.constraint + " " + textFieldType.level + ")", new VerifiedTextField(defaultValue.toString, textFieldType)) {
+        extends Field[Double](label, new VerifiedTextField(defaultValue.toString, textFieldType),
+          "(" + textFieldType.constraint + " " + textFieldType.level + ")") {
   def getValue: Double = java.lang.Double.valueOf(valueField.text).doubleValue()
 
   def setValue(value: Double) {
@@ -47,20 +49,21 @@ abstract class ConstrainedDoubleField(label: String, defaultValue: Double, textF
 }
 
 class GreaterThanDoubleField(label: String, defaultValue: Double, level: Double)
-  extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.GreaterThanDoubleField(level))
+        extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.GreaterThanDoubleField(level))
 
 class GreaterThanEqualDoubleField(label: String, defaultValue: Double, level: Double)
-  extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.GreaterThanEqualDoubleField(level))
+        extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.GreaterThanEqualDoubleField(level))
 
 class LessThanDoubleField(label: String, defaultValue: Double, level: Double)
-  extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.LessThanDoubleField(level))
+        extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.LessThanDoubleField(level))
 
 class LessThanEqualDoubleField(label: String, defaultValue: Double, level: Double)
-  extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.LessThanEqualDoubleField(level))
+        extends ConstrainedDoubleField(label, defaultValue, new TextFieldType.LessThanEqualDoubleField(level))
 
 class RangeDoubleField(label: String, defaultValue: Double, from: Double, to: Double)
-  extends Field[Double](label + "(between" + from + " and " + to + ")",
-    new VerifiedTextField(defaultValue.toString, new TextFieldType.RangeDoubleField(from, to))) {
+        extends Field[Double](label,
+          new VerifiedTextField(defaultValue.toString, new TextFieldType.RangeDoubleField(from, to)),
+          "(between" + from + " and " + to + ")") {
   def getValue: Double = java.lang.Double.valueOf(valueField.text).doubleValue()
 
   def setValue(value: Double) {
@@ -69,7 +72,7 @@ class RangeDoubleField(label: String, defaultValue: Double, from: Double, to: Do
 }
 
 class ExpressionField(label: String, defaultValue: RichExpression)
-  extends Field[RichExpression](label, new VerifiedTextField(ExpressionHacker.hackNegativeValues(defaultValue.describe), TextFieldType.ExpressionField)) {
+        extends Field[RichExpression](label, new VerifiedTextField(ExpressionHacker.hackNegativeValues(defaultValue.describe), TextFieldType.ExpressionField)) {
   def getValue: RichExpression = ExpressionParser.parse(valueField.text)
 
   def setValue(value: RichExpression) {
@@ -77,10 +80,10 @@ class ExpressionField(label: String, defaultValue: RichExpression)
   }
 }
 
-object ExpressionHacker{
-  def hackNegativeValues(described: String): String = if(described.startsWith("-")){
-    "("+described+")"
-  }else{
+object ExpressionHacker {
+  def hackNegativeValues(described: String): String = if (described.startsWith("-")) {
+    "(" + described + ")"
+  } else {
     described
   }
 }
@@ -278,7 +281,7 @@ object TextFieldType {
 
 
   abstract class ConstrainedDoubleField(val level: Double, val constraint: String, valueConstraintLevel: (Double, Double) => Boolean)
-    extends TextFieldType("Not " + constraint + " " + level) {
+          extends TextFieldType("Not " + constraint + " " + level) {
     def verify(value: String): Boolean = try {
       valueConstraintLevel(java.lang.Double.valueOf(value).doubleValue(), level)
     } catch {

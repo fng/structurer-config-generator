@@ -26,6 +26,6 @@ abstract class ProjectDefaults(info: ProjectInfo) extends EfgDefaultProject(info
   val scalaz = "org.scalaz" %% "scalaz-core" % "6.0" withSources
   val scalaSwing = "org.scala-lang" % "scala-swing" % "2.8.1" withSources
   val jfreechart = "jfree" % "jfreechart" % "1.0.13"
-  val EfgMeasuresAndUnits = "com.efgfp.commons" % "efg-measures-and-units" % "0.10"
+  val EfgMeasuresAndUnits = "com.efgfp.commons" % "efg-measures-and-units" % "0.12" withSources
   val SpringWrapper = "com.efgfp.commons" % "spring-wrapper" % "0.15"
 }

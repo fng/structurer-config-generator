@@ -59,6 +59,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     val packagePanel = new PackagePanel
 
+    val fieldPanel = new FieldPanel
 
     val chartPanel = new BorderPanel {
 
@@ -66,7 +67,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
       def updateChart() {
         add(new Panel {
-          override lazy val peer = payoffChartFormInstrumentPanel(packagePanel.instrumentPanel)
+          override lazy val peer = createPayoffChart(packagePanel.instrumentPanel, fieldPanel)
         }, BorderPanel.Position.Center)
       }
 
@@ -114,7 +115,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         }
       case ButtonClicked(sample) if sample.isInstanceOf[SampleMenuItem] =>
         dialogSave {
-          refreshPackagePanelWithNew(sample.asInstanceOf[SampleMenuItem].packageInstrument)
+          refreshPackagePanelWithNew(sample.asInstanceOf[SampleMenuItem].packageInstrument, Nil)
         }
 
     }
@@ -128,14 +129,15 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     }
 
 
-    def refreshPackagePanelWithNew(packageInstrument: PackageInstrument) {
+    def refreshPackagePanelWithNew(packageInstrument: PackageInstrument, fields: List[FieldConfig]) {
       packagePanel.update(packageInstrument)
+      fieldPanel.refreshFieldPanel(fields)
       splitPane.revalidate()
       chartPanel.updateChart()
     }
 
 
-    val fieldPanel = new FieldPanel
+
 
     val splitPane = new SplitPane(Orientation.Horizontal,
       new BorderPanel {
@@ -198,21 +200,36 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       }
 
       val packageInstrument = PackageInstrument(productTypeId, payoffType, denomination, quotationType, bonds ::: options)
-      refreshPackagePanelWithNew(packageInstrument)
-      fieldPanel.refreshFieldPanel(productConfig.fields)
+      refreshPackagePanelWithNew(packageInstrument, productConfig.fields)
     }
 
 
   }
 
-  def payoffChartFormInstrumentPanel(instrumentPanel: BoxPanel): ChartPanel = {
+  def createPayoffChart(instrumentPanel: BoxPanel, fieldPanel: FieldPanel): ChartPanel = {
+
+    val variableValues = fieldPanel.getFieldsWithValues
+
     val options = instrumentPanel.contents.collect({
       case o: OptionPanel => o
-    }).map(_.optionInstrument).toList
+    }).map(_.expressionOption).toList.map {
+      expressionOption => OptionInstrument(expressionOption.optionType,
+        expressionOption.strike.evaluate(variableValues).doubleValue(),
+        expressionOption.quantity.evaluate(variableValues).doubleValue(),
+        expressionOption.notional.evaluate(variableValues).doubleValue(),
+        expressionOption.optionBarrierType
+      )
+    }
 
     val bonds = instrumentPanel.contents.collect({
       case o: BondPanel => o
-    }).map(_.bondInstrument).toList
+    }).map(_.expressionBond).toList.map {
+      expressionBond => BondInstrument(
+        expressionBond.notional.evaluate(variableValues).doubleValue(),
+        expressionBond.quantity.evaluate(variableValues).doubleValue()
+      )
+    }
+
 
     val payoffChart = payoffChartCreator.createPayoffChart(options, bonds)
     payoffChart

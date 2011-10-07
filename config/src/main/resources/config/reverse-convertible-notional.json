@@ -8,6 +8,12 @@
         "allotment": "EFGFP Reverse Convertibles (330)",
         "field": [
             {
+                "name": "STRIKE",
+                "type": "number",
+                "validationType": "GT",
+                "validationValue": "0.5"
+            },    
+            {
                 "name": "COUPONRATE",
                 "type": "number",
                 "validationType": "GT",

@@ -21,12 +21,18 @@ class BondPanel(default: ExpressionBond = ExpressionBond(1000, 1)) extends Instr
   contents += removeButton
 
 
-  def notional = notionalField.getValue.evaluate().doubleValue()
+  def notional = notionalField.getValue
 
-  def quantity = quantityField.getValue.evaluate().doubleValue()
+  def notionalValue = notional.evaluate().doubleValue()
 
+  def quantity = quantityField.getValue
 
-  def bondInstrument = BondInstrument(notional, quantity)
+  def quantityValue = quantity.evaluate().doubleValue()
+
+  @Deprecated
+  def bondInstrument = BondInstrument(notionalValue, quantityValue)
+
+  def expressionBond = ExpressionBond(notional, quantity)
 
 }
 

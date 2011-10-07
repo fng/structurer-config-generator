@@ -29,12 +29,18 @@ class OptionPanel(default: ExpressionOption = ExpressionOption(OptionType.Call, 
 
 
   def optionType = optionTypeField.getValue
-  def strike = strikeField.getValue.evaluate().doubleValue()
-  def quantity = quantityField.getValue.evaluate().doubleValue()  
-  def notional = notionalField.getValue.evaluate().doubleValue()
+  def strike = strikeField.getValue
+  def strikeValue = strike.evaluate().doubleValue()
+  def quantity = quantityField.getValue
+  def quantityValue = quantity.evaluate().doubleValue()
+  def notional = notionalField.getValue
+  def notionalValue = notional.evaluate().doubleValue()
   def optionBarrierType = barrierTypeField.getValue
 
-  def optionInstrument = OptionInstrument(optionType, strike, quantity, notional, optionBarrierType)
+  // TODO 07.10.11 17:17 wyd: do not use anymore
+  @Deprecated
+  def optionInstrument = OptionInstrument(optionType, strikeValue, quantityValue, notionalValue, optionBarrierType)
+  def expressionOption = ExpressionOption(optionType, strike, quantity, notional, optionBarrierType)
 
 }
 
