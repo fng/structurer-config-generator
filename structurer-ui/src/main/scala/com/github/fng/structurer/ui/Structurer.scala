@@ -11,6 +11,7 @@ import com.github.fng.structurer.instrument._
 import org.springframework.core.io.support.{ResourcePatternResolver, ResourcePatternUtils}
 import org.springframework.core.io.{Resource, DefaultResourceLoader, ClassPathResource}
 import com.github.fng.structurer.config.{FieldConfig, ProductConfig}
+import javax.swing.table.AbstractTableModel
 
 object Structurer extends SimpleSwingApplication with PayoffSamples with LoadableConfigurations {
 
@@ -77,6 +78,11 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       chartPanel.updateChart()
     }
 
+    val options = List(ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier),
+      ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier))
+
+
+    val optionTable = new OptionTable(options)
 
     payoffSamples.foreach(listenTo(_))
 
@@ -101,12 +107,14 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         packagePanel.instrumentPanel.contents -= panel
         packagePanel.instrumentPanel.revalidate()
         splitPane.revalidate()
+        optionTable.removeOne
       case ButtonClicked(`addOptionMenu`) =>
         val newOptionPanel = new OptionPanel
         packagePanel.instrumentPanel.contents += newOptionPanel
         packagePanel.instrumentPanel.revalidate()
         splitPane.revalidate()
         listenTo(newOptionPanel)
+        optionTable.add(newOptionPanel.expressionOption)
       case ButtonClicked(`addBondMenu`) =>
         val newBondPanel = new BondPanel
         packagePanel.instrumentPanel.contents += newBondPanel
@@ -139,14 +147,21 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       fieldPanel.refreshFieldPanel(fields)
       splitPane.revalidate()
       chartPanel.updateChart()
+
+      val expressionOptions = packagePanel.instrumentPanel.contents.collect({
+        case o: OptionPanel => o
+      }).map(_.expressionOption).toList
+
+      optionTable.updateWithNewList(expressionOptions)
+
+
     }
-
-
 
 
     val splitPane = new SplitPane(Orientation.Horizontal,
       new BorderPanel {
         add(packagePanel, BorderPanel.Position.North)
+        add(new ScrollPane(optionTable), BorderPanel.Position.Center)
         add(drawButton, BorderPanel.Position.South)
       }
       , new SplitPane(Orientation.Vertical,
@@ -154,11 +169,11 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
           add(fieldPanel, BorderPanel.Position.North)
         },
         chartPanel) {
-        dividerLocation = 350
+        dividerLocation = 200
         dividerSize = 8
         oneTouchExpandable = true
       }) {
-      //dividerLocation = 230
+      dividerLocation = 400
       dividerSize = 8
       oneTouchExpandable = true
     }
