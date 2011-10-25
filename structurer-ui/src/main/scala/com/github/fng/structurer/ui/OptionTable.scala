@@ -6,12 +6,14 @@ import collection.mutable.Buffer
 import javax.swing.{JComboBox, DefaultCellEditor}
 import javax.swing.table.{TableCellEditor, AbstractTableModel}
 import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType}
-import com.github.fng.structurer.config.expression.RichExpression
+import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpression}
 
 class OptionTable(options: List[MutableOption]) extends Table {
 
   val tableModel: OptionTable.OptionTableModel = new OptionTable.OptionTableModel(options.toBuffer)
   model = tableModel
+
+  autoResizeMode = Table.AutoResizeMode.AllColumns
 
   def add(option: MutableOption) {
     tableModel.add(option)
@@ -47,9 +49,21 @@ object OptionTable {
     Column("OptionType", true, _.optionType,
       update = (option, newValue) => option.optionType = newValue.asInstanceOf[OptionType],
       customCellEditor = Some(new OptionTable.ComboboxCellEditor(List(OptionType.Call, OptionType.Put)))),
-    Column("Strike", false, _.strike),
-    Column("Quantity", false, _.quantity),
-    Column("Notional", false, _.notional),
+    Column("Strike", true, _.strike.originalString,
+      update = (option, newValue) => option.strike = newValue match {
+        case s: String => ExpressionParser.parse(s)
+        case other => error(other.getClass + " is not supported for strike field")
+      }),
+    Column("Quantity", true, _.quantity.originalString,
+      update = (option, newValue) => option.quantity = newValue match {
+        case s: String => ExpressionParser.parse(s)
+        case other => error(other.getClass + " is not supported for quantity field")
+      }),
+    Column("Notional", true, _.notional.originalString,
+      update = (option, newValue) => option.notional = newValue match {
+        case s: String => ExpressionParser.parse(s)
+        case other => error(other.getClass + " is not supported for notional field")
+      }),
     Column("BarrierType", true, _.optionBarrierType,
       update = (option, newValue) => option.optionBarrierType = newValue.asInstanceOf[OptionBarrierType],
       customCellEditor = Some(new OptionTable.ComboboxCellEditor(List(OptionBarrierType.NoBarrier, OptionBarrierType.KnockInBarrier, OptionBarrierType.KnockOutBarrier))))
