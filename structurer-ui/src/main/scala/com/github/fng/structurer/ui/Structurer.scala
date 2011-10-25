@@ -82,7 +82,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier))
 
 
-    val optionTable = new OptionTable(options)
+    val optionTable = new OptionTable(options.map(MutableOption(_)))
 
     payoffSamples.foreach(listenTo(_))
 
@@ -114,7 +114,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         packagePanel.instrumentPanel.revalidate()
         splitPane.revalidate()
         listenTo(newOptionPanel)
-        optionTable.add(newOptionPanel.expressionOption)
+        optionTable.add(MutableOption(newOptionPanel.expressionOption))
       case ButtonClicked(`addBondMenu`) =>
         val newBondPanel = new BondPanel
         packagePanel.instrumentPanel.contents += newBondPanel
@@ -152,7 +152,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         case o: OptionPanel => o
       }).map(_.expressionOption).toList
 
-      optionTable.updateWithNewList(expressionOptions)
+      optionTable.updateWithNewList(expressionOptions.map(MutableOption(_)))
 
 
     }
