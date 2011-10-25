@@ -7,10 +7,12 @@ import javax.swing.{JComboBox, DefaultCellEditor}
 import javax.swing.table.{TableCellEditor, AbstractTableModel}
 import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType}
 import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpression}
+import table.GenericTableModel
+import table.GenericTableModel.Column
 
 class OptionTable(options: List[MutableOption]) extends Table {
 
-  val tableModel: OptionTable.OptionTableModel = new OptionTable.OptionTableModel(options.toBuffer)
+  val tableModel = new GenericTableModel[MutableOption](OptionTable.columns, options.toBuffer)
   model = tableModel
 
   autoResizeMode = Table.AutoResizeMode.AllColumns
@@ -36,78 +38,37 @@ class OptionTable(options: List[MutableOption]) extends Table {
 }
 
 
+
+
 object OptionTable {
 
 
-  case class Column(name: String, editable: Boolean, extractor: (MutableOption) => AnyRef,
-                    update: (MutableOption, AnyRef) => Unit = (a, b) => {
-                      error("not supported b: " + b)
-                    },
-                    customCellEditor: Option[TableCellEditor] = None)
 
   val columns = List(
-    Column("OptionType", true, _.optionType,
+    Column[MutableOption]("OptionType", true, _.optionType,
       update = (option, newValue) => option.optionType = newValue.asInstanceOf[OptionType],
       customCellEditor = Some(new OptionTable.ComboboxCellEditor(List(OptionType.Call, OptionType.Put)))),
-    Column("Strike", true, _.strike.originalString,
+    Column[MutableOption]("Strike", true, _.strike.originalString,
       update = (option, newValue) => option.strike = newValue match {
         case s: String => ExpressionParser.parse(s)
         case other => error(other.getClass + " is not supported for strike field")
       }),
-    Column("Quantity", true, _.quantity.originalString,
+    Column[MutableOption]("Quantity", true, _.quantity.originalString,
       update = (option, newValue) => option.quantity = newValue match {
         case s: String => ExpressionParser.parse(s)
         case other => error(other.getClass + " is not supported for quantity field")
       }),
-    Column("Notional", true, _.notional.originalString,
+    Column[MutableOption]("Notional", true, _.notional.originalString,
       update = (option, newValue) => option.notional = newValue match {
         case s: String => ExpressionParser.parse(s)
         case other => error(other.getClass + " is not supported for notional field")
       }),
-    Column("BarrierType", true, _.optionBarrierType,
+    Column[MutableOption]("BarrierType", true, _.optionBarrierType,
       update = (option, newValue) => option.optionBarrierType = newValue.asInstanceOf[OptionBarrierType],
       customCellEditor = Some(new OptionTable.ComboboxCellEditor(List(OptionBarrierType.NoBarrier, OptionBarrierType.KnockInBarrier, OptionBarrierType.KnockOutBarrier))))
   )
+  
 
-
-  private class OptionTableModel(options: Buffer[MutableOption]) extends AbstractTableModel {
-    def getRowCount = options.length
-
-    def getColumnCount = columns.length
-
-    def getValueAt(row: Int, col: Int) = columns(col).extractor(options(row))
-
-    override def isCellEditable(row: Int, col: Int) = columns(col).editable
-
-    override def getColumnName(col: Int) = columns(col).name
-
-
-    override def setValueAt(value: AnyRef, row: Int, col: Int) {
-      println("update row: " + row + " col: " + col + " with value: " + value)
-      columns(col).update(options(row), value)
-
-    }
-
-    def add(option: MutableOption) {
-      options += option
-      fireTableDataChanged()
-    }
-
-    def removeOne {
-      options.headOption.foreach {
-        head =>
-          options -= head
-          fireTableDataChanged()
-      }
-    }
-
-    def updateWithNewList(newOptions: List[MutableOption]) {
-      options.clear()
-      options ++= newOptions
-      fireTableDataChanged()
-    }
-
-  }
 
   class ComboboxCellEditor(values: List[AnyRef]) extends DefaultCellEditor(new JComboBox(values.toArray))
 
