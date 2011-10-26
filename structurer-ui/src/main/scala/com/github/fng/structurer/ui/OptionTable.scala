@@ -1,12 +1,13 @@
 package com.github.fng.structurer.ui
 
 import instrument.ExpressionOption
-import swing.Table
 import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType}
 import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpression}
 import com.github.fng.structurer.ui.table.GenericTableModel
-import com.github.fng.structurer.ui.table.GenericTableModel.Column
-import table.CellEditor.{ComboboxCellEditor, ExpressionCellEditor}
+import table.CellEditor.{ButtonTableCellEditor, ComboboxCellEditor, ExpressionCellEditor}
+import swing.Table.ElementMode
+import swing.{Component, Button, Table}
+import table.GenericTableModel.{ComponentCellRenderer, Column}
 
 class OptionTable(options: List[MutableOption]) extends Table {
 
@@ -32,16 +33,22 @@ class OptionTable(options: List[MutableOption]) extends Table {
         case other => sys.error(other.getClass + " is not supported for notional field")
       },
       customCellEditor = Some(new ExpressionCellEditor())),
-    Column[MutableOption]("BarrierType", true, _.optionBarrierType,
-      update = (option, newValue) => option.optionBarrierType = newValue.asInstanceOf[OptionBarrierType],
-      customCellEditor = Some(new ComboboxCellEditor(List(OptionBarrierType.NoBarrier, OptionBarrierType.KnockInBarrier, OptionBarrierType.KnockOutBarrier))))
+    Column[MutableOption]("Delete", true, _ => "Remove",
+      update = (option, newValue) => {},
+      customCellEditor = Some(new ButtonTableCellEditor((row) => {
+        println("row to Remove: " + row);
+        tableModel.removeRow(row)
+      })),
+      customCellRenderer = Some(new ComponentCellRenderer {
+        def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = new Button(tableModel.getValueAt(row, column).toString)
+      }))
   )
 
-
-  val tableModel = new GenericTableModel[MutableOption](columns, options.toBuffer)
+  val tableModel: GenericTableModel[MutableOption] = new GenericTableModel[MutableOption](columns, options.toBuffer)
   model = tableModel
 
   autoResizeMode = Table.AutoResizeMode.AllColumns
+  selection.elementMode = ElementMode.Cell
 
   peer.getColumnModel.getColumn(1).setPreferredWidth(150)
   peer.getColumnModel.getColumn(2).setPreferredWidth(150)
@@ -68,6 +75,11 @@ class OptionTable(options: List[MutableOption]) extends Table {
   override protected def editor(row: Int, column: Int) = columns(column).customCellEditor match {
     case Some(editor) => editor
     case None => super.editor(row, column)
+  }
+
+  override protected def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = columns(column).customCellRenderer match {
+    case Some(renderer) => renderer.rendererComponent(isSelected, focused, row, column)
+    case None => super.rendererComponent(isSelected, focused, row, column)
   }
 
 }
