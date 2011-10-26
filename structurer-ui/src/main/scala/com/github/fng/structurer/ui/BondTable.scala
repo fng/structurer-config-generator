@@ -5,43 +5,40 @@ import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpres
 import table.CellEditor.{ButtonTableCellEditor, ExpressionCellEditor}
 import swing.{Button, Component, Table}
 import swing.Table.ElementMode
-import table.GenericTableModel.{ColumnBuilder, ColumnEventPublisher, ComponentCellRenderer, Column}
+import table.GenericTableModel.{ComponentCellRenderer, Column}
 import table.{GenericTable, GenericTableModel}
 import swing.event.Event
 
 
 object BondTable {
 
-  val deleteColumn = new ColumnBuilder[MutableBond]("Delete", true, (bond: MutableBond) => "Remove") {
-    updateHandler = (bond: MutableBond, newValue: AnyRef) => bond.notional = newValue match {
-      case s: String => ExpressionParser.parse(s)
-      case other => sys.error(other.getClass + " is not supported for notional field")
-    }
-    customCellEditor = new ButtonTableCellEditor((row) => {
-      println("row to Remove: " + row);
-      columnEventPublisher.publish(DeleteBondTableRowEvent(row))
-    })
-    customCellRenderer = new ComponentCellRenderer[MutableBond] {
-      def rendererComponent(tableModel: GenericTableModel[MutableBond], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = new Button(tableModel.getValueAt(row, column).toString)
-    }
-  }.build
-
-
   val columns = {
     List(
-      Column[MutableBond]("Notional", true, _.notional.originalString,
-        update = (bond, newValue) => bond.notional = newValue match {
+      new Column[MutableBond]("Notional", true, (bond: MutableBond) => bond.notional.originalString) {
+        updateHandler = (bond: MutableBond, newValue: AnyRef) => bond.notional = newValue match {
           case s: String => ExpressionParser.parse(s)
           case other => sys.error(other.getClass + " is not supported for notional field")
-        },
-        customCellEditor = Some(new ExpressionCellEditor())),
-      Column[MutableBond]("Quantity", true, _.quantity.originalString,
-        update = (bond, newValue) => bond.quantity = newValue match {
+        }
+        customCellEditor = new ExpressionCellEditor()
+      },
+      new Column[MutableBond]("Quantity", true, (bond: MutableBond) => bond.quantity.originalString) {
+        updateHandler = (bond: MutableBond, newValue: AnyRef) => bond.quantity = newValue match {
           case s: String => ExpressionParser.parse(s)
           case other => sys.error(other.getClass + " is not supported for quantity field")
-        },
-        customCellEditor = Some(new ExpressionCellEditor())),
-      deleteColumn
+        }
+        customCellEditor = new ExpressionCellEditor()
+      },
+      new Column[MutableBond]("Delete", true, (bond: MutableBond) => "Remove") {
+        updateHandler = (bond: MutableBond, newValue: AnyRef) => {}
+        customCellEditor = new ButtonTableCellEditor((row) => {
+          println("row to Remove: " + row);
+          columnEventPublisher.publish(DeleteBondTableRowEvent(row))
+        })
+        customCellRenderer = new ComponentCellRenderer[MutableBond] {
+          def rendererComponent(tableModel: GenericTableModel[MutableBond], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = new Button(tableModel.getValueAt(row, column).toString)
+        }
+      }
+
     )
 
   }

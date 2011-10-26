@@ -7,50 +7,47 @@ import table.CellEditor.{ButtonTableCellEditor, ComboboxCellEditor, ExpressionCe
 import swing.Table.ElementMode
 import table.GenericTableModel.{ColumnEventPublisher, ComponentCellRenderer, Column}
 import table.{GenericTable, GenericTableModel}
-import swing.{Publisher, Component, Button, Table}
+import swing.{Component, Button, Table}
 import swing.event.Event
 
 object OptionTable {
-  val columns = {
-
-    val deleteColumnEventPublisher = new ColumnEventPublisher
-
-    List(
-      Column[MutableOption]("OptionType", true, _.optionType,
-        update = (option, newValue) => option.optionType = newValue.asInstanceOf[OptionType],
-        customCellEditor = Some(new ComboboxCellEditor(List(OptionType.Call, OptionType.Put)))),
-      Column[MutableOption]("Strike", true, _.strike.originalString,
-        update = (option, newValue) => option.strike = newValue match {
-          case s: String => ExpressionParser.parse(s)
-          case other => sys.error(other.getClass + " is not supported for strike field")
-        },
-        customCellEditor = Some(new ExpressionCellEditor())),
-      Column[MutableOption]("Quantity", true, _.quantity.originalString,
-        update = (option, newValue) => option.quantity = newValue match {
-          case s: String => ExpressionParser.parse(s)
-          case other => sys.error(other.getClass + " is not supported for quantity field")
-        },
-        customCellEditor = Some(new ExpressionCellEditor())),
-      Column[MutableOption]("Notional", true, _.notional.originalString,
-        update = (option, newValue) => option.notional = newValue match {
-          case s: String => ExpressionParser.parse(s)
-          case other => sys.error(other.getClass + " is not supported for notional field")
-        },
-        customCellEditor = Some(new ExpressionCellEditor())),
-      Column[MutableOption]("Delete", true, _ => "Remove",
-        update = (option, newValue) => {},
-        customCellEditor = Some(new ButtonTableCellEditor((row) => {
-          println("row to Remove: " + row);
-          //        tableModel.removeRow(row)
-          deleteColumnEventPublisher.publish(DeleteOptionTableRowEvent(row))
-        })),
-        customCellRenderer = Some(new ComponentCellRenderer[MutableOption] {
-          def rendererComponent(tableModel: GenericTableModel[MutableOption], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = new Button(tableModel.getValueAt(row, column).toString)
-        }),
-        columnEventPublisher = deleteColumnEventPublisher)
-    )
-
-  }
+  val columns = List(
+    new Column[MutableOption]("OptionType", true, (option: MutableOption) => option.optionType) {
+      updateHandler = (option: MutableOption, newValue: AnyRef) => option.optionType = newValue.asInstanceOf[OptionType]
+      customCellEditor = new ComboboxCellEditor(List(OptionType.Call, OptionType.Put))
+    },
+    new Column[MutableOption]("Strike", true, (option: MutableOption) => option.strike.originalString) {
+      updateHandler = (option: MutableOption, newValue: AnyRef) => option.strike = newValue match {
+        case s: String => ExpressionParser.parse(s)
+        case other => sys.error(other.getClass + " is not supported for strike field")
+      }
+      customCellEditor = new ExpressionCellEditor()
+    },
+    new Column[MutableOption]("Quantity", true, (option: MutableOption) => option.quantity.originalString) {
+      updateHandler = (option: MutableOption, newValue: AnyRef) => option.quantity = newValue match {
+        case s: String => ExpressionParser.parse(s)
+        case other => sys.error(other.getClass + " is not supported for quantity field")
+      }
+      customCellEditor = new ExpressionCellEditor()
+    },
+    new Column[MutableOption]("Notional", true, (option: MutableOption) => option.notional.originalString) {
+      updateHandler = (option: MutableOption, newValue: AnyRef) => option.notional = newValue match {
+        case s: String => ExpressionParser.parse(s)
+        case other => sys.error(other.getClass + " is not supported for notional field")
+      }
+      customCellEditor = new ExpressionCellEditor()
+    },
+    new Column[MutableOption]("Delete", true, (option: MutableOption) => "Remove") {
+      updateHandler = (option: MutableOption, newValue: AnyRef) => {}
+      customCellEditor = new ButtonTableCellEditor((row) => {
+        println("row to Remove: " + row);
+        columnEventPublisher.publish(DeleteOptionTableRowEvent(row))
+      })
+      customCellRenderer = new ComponentCellRenderer[MutableOption] {
+        def rendererComponent(tableModel: GenericTableModel[MutableOption], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = new Button(tableModel.getValueAt(row, column).toString)
+      }
+    }
+  )
 
 
   case class DeleteOptionTableRowEvent(row: Int) extends Event

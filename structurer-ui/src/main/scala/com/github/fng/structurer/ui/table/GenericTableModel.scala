@@ -1,20 +1,11 @@
 package com.github.fng.structurer.ui.table
 
 import collection.mutable.Buffer
-import javax.swing.table.AbstractTableModel._
 import javax.swing.table.{TableCellEditor, AbstractTableModel}
 import swing.{Publisher, Component}
-import com.github.fng.structurer.ui.table.GenericTableModel.{ColumnEventPublisher, Column}
+import com.github.fng.structurer.ui.table.GenericTableModel.Column
 
 object GenericTableModel {
-
-  case class Column[T](name: String, editable: Boolean, extractor: (T) => AnyRef,
-                       update: (T, AnyRef) => Unit = (a: T, b: AnyRef) => {
-                         error("not supported b: " + b)
-                       },
-                       customCellEditor: Option[TableCellEditor] = None,
-                       customCellRenderer: Option[ComponentCellRenderer[T]] = None,
-                       columnEventPublisher: ColumnEventPublisher = new ColumnEventPublisher)
 
   class ColumnEventPublisher extends Publisher
 
@@ -22,9 +13,9 @@ object GenericTableModel {
     def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component
   }
 
-  class ColumnBuilder[T](var _name: String, var _editable: Boolean, var _extractor: (T) => AnyRef) {
+  class Column[T](var _name: String, var _editable: Boolean, var _extractor: (T) => AnyRef) {
 
-    def this() = this(null, false, null)
+    def this() = this (null, false, null)
 
     val columnEventPublisher: ColumnEventPublisher = new ColumnEventPublisher
 
@@ -61,27 +52,23 @@ object GenericTableModel {
 
     def updateHandler: (T, AnyRef) => Unit = _update
 
+    def update: (T, AnyRef) => Unit = _update
+
 
     def customCellEditor_=(customCellEditor: TableCellEditor) {
       _customCellEditor = Option(customCellEditor)
     }
 
-    def customCellEditor: TableCellEditor = _customCellEditor.orNull
+    def customCellEditor: Option[TableCellEditor] = _customCellEditor
 
 
     def customCellRenderer_=(customCellRenderer: ComponentCellRenderer[T]) {
       _customCellRenderer = Option(customCellRenderer)
     }
 
-    def customCellRenderer: ComponentCellRenderer[T] = _customCellRenderer.orNull
-
-
-    def build: Column[T] = Column[T](_name, _editable, _extractor, _update,
-      customCellRenderer = _customCellRenderer, customCellEditor = _customCellEditor,
-      columnEventPublisher = columnEventPublisher)
+    def customCellRenderer: Option[ComponentCellRenderer[T]] = _customCellRenderer
 
   }
-
 
 
 }
