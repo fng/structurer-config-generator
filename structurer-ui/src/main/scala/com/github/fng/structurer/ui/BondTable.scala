@@ -49,10 +49,16 @@ class BondTable(bonds: List[MutableBond]) extends Table {
     case None => super.editor(row, column)
   }
 
+  def getBonds: List[ExpressionBond] = {
+    tableModel.values.map(_.toExpressionBond).toList
+  }
+
 }
 
 
-case class MutableBond(var notional: RichExpression, var quantity: RichExpression)
+case class MutableBond(var notional: RichExpression, var quantity: RichExpression) {
+  def toExpressionBond: ExpressionBond = ExpressionBond(notional, quantity)
+}
 
 object MutableBond {
   def apply(bond: ExpressionBond): MutableBond =

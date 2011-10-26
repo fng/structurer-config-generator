@@ -16,7 +16,7 @@ object GenericTableModel {
 
 }
 
-class GenericTableModel[T](columns: List[Column[T]], values: Buffer[T]) extends AbstractTableModel {
+class GenericTableModel[T](columns: List[Column[T]], val values: Buffer[T]) extends AbstractTableModel {
   def getRowCount = values.length
 
   def getColumnCount = columns.length

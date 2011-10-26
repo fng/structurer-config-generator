@@ -60,6 +60,11 @@ class OptionTable(options: List[MutableOption]) extends Table {
     tableModel.updateWithNewList(options)
   }
 
+  def getOptions: List[ExpressionOption] = {
+    tableModel.values.map(_.toExpressionOption).toList
+  }
+
+
   override protected def editor(row: Int, column: Int) = columns(column).customCellEditor match {
     case Some(editor) => editor
     case None => super.editor(row, column)
@@ -70,7 +75,9 @@ class OptionTable(options: List[MutableOption]) extends Table {
 
 case class MutableOption(var optionType: OptionType, var strike: RichExpression, var quantity: RichExpression,
                          var notional: RichExpression,
-                         var optionBarrierType: OptionBarrierType)
+                         var optionBarrierType: OptionBarrierType) {
+  def toExpressionOption: ExpressionOption = ExpressionOption(optionType, strike, quantity, notional, optionBarrierType)
+}
 
 object MutableOption {
   def apply(option: ExpressionOption): MutableOption =

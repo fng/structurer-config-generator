@@ -11,7 +11,6 @@ class PackagePanel(default: PackageInstrument = PackageInstrument("xxx.xxx", Pay
   border = BorderFactory.createTitledBorder("Package")
 
   val instrumentPanel = new BoxPanel(Orientation.Horizontal) {
-    contents ++= ListBuffer[InstrumentPanel](new OptionPanel)
   }
 
   val productTypeIdField = new StringField("ProductTypeId", default.productTypeId)
@@ -34,13 +33,17 @@ class PackagePanel(default: PackageInstrument = PackageInstrument("xxx.xxx", Pay
 
     instrumentPanel.contents.clear()
 
-    instrumentPanel.contents ++= packageInstrument.components.map {
-      case o: OptionInstrument => new OptionPanel(ExpressionOption(o))
-      case o: ExpressionOption => new OptionPanel(o)
-      case b: BondInstrument => new BondPanel(ExpressionBond(b))
-      case b: ExpressionBond => new BondPanel(b)
-      case unsupported => error("Unsupported Instrument: " + unsupported)
-    }
+//    instrumentPanel.contents ++= packageInstrument.components.filter{
+//      case o: OptionInstrument => true
+//      case o: ExpressionOption => true
+//      case _ => false
+//    }.map {
+//      case o: OptionInstrument => new OptionPanel(ExpressionOption(o))
+//      case o: ExpressionOption => new OptionPanel(o)
+//      case b: BondInstrument => new BondPanel(ExpressionBond(b))
+//      case b: ExpressionBond => new BondPanel(b)
+//      case unsupported => error("Unsupported Instrument: " + unsupported)
+//    }
 
     instrumentPanel.contents.collect({
       case p: Publisher => p

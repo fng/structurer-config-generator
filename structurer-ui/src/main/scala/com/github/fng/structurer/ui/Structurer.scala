@@ -62,13 +62,23 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     val fieldPanel = new FieldPanel
 
+    val options = List(ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier),
+      ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier))
+
+    val bonds = List(ExpressionBond(1000, 1))
+
+
+    val optionTable = new OptionTable(options.map(MutableOption(_)))
+    val bondTable = new BondTable(bonds.map(MutableBond(_)))
+
     val chartPanel = new BorderPanel {
 
       updateChart()
 
       def updateChart() {
         add(new Panel {
-          override lazy val peer = createPayoffChart(packagePanel.instrumentPanel, fieldPanel)
+          override lazy val peer = createPayoffChart(packagePanel.instrumentPanel, optionTable.getOptions, bondTable.getBonds,
+            fieldPanel)
         }, BorderPanel.Position.Center)
       }
 
@@ -78,14 +88,6 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       chartPanel.updateChart()
     }
 
-    val options = List(ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier),
-      ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier))
-
-    val bonds = List(ExpressionBond(1000, 1))
-
-
-    val optionTable = new OptionTable(options.map(MutableOption(_)))
-    val bondTable = new BondTable(bonds.map(MutableBond(_)))
 
     payoffSamples.foreach(listenTo(_))
 
@@ -113,19 +115,9 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         optionTable.removeOne
         bondTable.removeOne
       case ButtonClicked(`addOptionMenu`) =>
-        val newOptionPanel = new OptionPanel
-        packagePanel.instrumentPanel.contents += newOptionPanel
-        packagePanel.instrumentPanel.revalidate()
-        splitPane.revalidate()
-        listenTo(newOptionPanel)
-        optionTable.add(MutableOption(newOptionPanel.expressionOption))
+        optionTable.add(MutableOption(ExpressionOption(OptionType.Call, 0.0, 10, 100, OptionBarrierType.NoBarrier)))
       case ButtonClicked(`addBondMenu`) =>
-        val newBondPanel = new BondPanel
-        packagePanel.instrumentPanel.contents += newBondPanel
-        packagePanel.instrumentPanel.revalidate()
-        splitPane.revalidate()
-        listenTo(newBondPanel)
-        bondTable.add(MutableBond(newBondPanel.expressionBond))
+        bondTable.add(MutableBond(ExpressionBond(1000, 1)))
       case ButtonClicked(config) if config.isInstanceOf[LoadableConfigMenuItem] =>
         dialogSave {
           loadFromConfig(config.asInstanceOf[LoadableConfigMenuItem].resource)
@@ -147,22 +139,25 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
 
     def refreshPackagePanelWithNew(packageInstrument: PackageInstrument, fields: List[FieldConfig]) {
+      val expressionOptions = packageInstrument.components.collect({
+        case eo: ExpressionOption => eo
+        case oi: OptionInstrument => ExpressionOption(oi)
+      })
+
+      optionTable.updateWithNewList(expressionOptions.map(MutableOption(_)))
+
+      val expressionBonds = packageInstrument.components.collect({
+        case eb: ExpressionBond => eb
+        case bi: BondInstrument => ExpressionBond(bi)
+      })
+
+      bondTable.updateWithNewList(expressionBonds.map(MutableBond(_)))
+
       packagePanel.update(packageInstrument)
       listenToInstrumentPanelContent()
       fieldPanel.refreshFieldPanel(fields)
       splitPane.revalidate()
       chartPanel.updateChart()
-
-      val expressionOptions = packagePanel.instrumentPanel.contents.collect({
-        case o: OptionPanel => o
-      }).map(_.expressionOption).toList
-
-      val expressionBonds = packagePanel.instrumentPanel.contents.collect({
-        case o: BondPanel => o
-      }).map(_.expressionBond).toList
-
-      optionTable.updateWithNewList(expressionOptions.map(MutableOption(_)))
-      bondTable.updateWithNewList(expressionBonds.map(MutableBond(_)))
 
 
     }
@@ -172,10 +167,10 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       new BorderPanel {
         add(packagePanel, BorderPanel.Position.North)
         add(new BoxPanel(Orientation.Vertical) {
-          contents += new ScrollPane(optionTable){
+          contents += new ScrollPane(optionTable) {
             border = BorderFactory.createTitledBorder("Options")
           }
-          contents += new ScrollPane(bondTable){
+          contents += new ScrollPane(bondTable) {
             border = BorderFactory.createTitledBorder("Bonds")
           }
         }
@@ -191,7 +186,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         dividerSize = 8
         oneTouchExpandable = true
       }) {
-      dividerLocation = 400
+      dividerLocation = 300
       dividerSize = 8
       oneTouchExpandable = true
     }
@@ -244,13 +239,11 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
   }
 
-  def createPayoffChart(instrumentPanel: BoxPanel, fieldPanel: FieldPanel): ChartPanel = {
+  def createPayoffChart(instrumentPanel: BoxPanel, options: List[ExpressionOption], bonds: List[ExpressionBond], fieldPanel: FieldPanel): ChartPanel = {
 
     val variableValues = fieldPanel.getFieldsWithValues
 
-    val options = instrumentPanel.contents.collect({
-      case o: OptionPanel => o
-    }).map(_.expressionOption).toList.map {
+    val optionInstruments = options.map {
       expressionOption => OptionInstrument(expressionOption.optionType,
         expressionOption.strike.evaluate(variableValues).doubleValue(),
         expressionOption.quantity.evaluate(variableValues).doubleValue(),
@@ -259,9 +252,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       )
     }
 
-    val bonds = instrumentPanel.contents.collect({
-      case o: BondPanel => o
-    }).map(_.expressionBond).toList.map {
+    val bondInstruments = bonds.map {
       expressionBond => BondInstrument(
         expressionBond.notional.evaluate(variableValues).doubleValue(),
         expressionBond.quantity.evaluate(variableValues).doubleValue()
@@ -269,7 +260,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     }
 
 
-    val payoffChart = payoffChartCreator.createPayoffChart(options, bonds)
+    val payoffChart = payoffChartCreator.createPayoffChart(optionInstruments, bondInstruments)
     payoffChart
   }
 
