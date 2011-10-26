@@ -13,14 +13,76 @@ object GenericTableModel {
                          error("not supported b: " + b)
                        },
                        customCellEditor: Option[TableCellEditor] = None,
-                              customCellRenderer: Option[ComponentCellRenderer[T]] = None,
-                              columnEventPublisher: ColumnEventPublisher = new ColumnEventPublisher)
+                       customCellRenderer: Option[ComponentCellRenderer[T]] = None,
+                       columnEventPublisher: ColumnEventPublisher = new ColumnEventPublisher)
 
   class ColumnEventPublisher extends Publisher
 
-  trait ComponentCellRenderer[T]{
-     def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component
+  trait ComponentCellRenderer[T] {
+    def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component
   }
+
+  class ColumnBuilder[T](var _name: String, var _editable: Boolean, var _extractor: (T) => AnyRef) {
+
+    def this() = this(null, false, null)
+
+    val columnEventPublisher: ColumnEventPublisher = new ColumnEventPublisher
+
+    var _update: (T, AnyRef) => Unit = (a: T, b: AnyRef) => {
+      sys.error("not supported b: " + b)
+    }
+    var _customCellEditor: Option[TableCellEditor] = None
+    var _customCellRenderer: Option[ComponentCellRenderer[T]] = None
+
+    def name_=(name: String) {
+      _name = name
+    }
+
+    def name: String = _name
+
+
+    def editable_=(editable: Boolean) {
+      _editable = editable
+    }
+
+    def editable: Boolean = _editable
+
+
+    def extractor_=(extractor: (T) => AnyRef) {
+      _extractor = extractor
+    }
+
+    def extractor: (T) => AnyRef = _extractor
+
+
+    def updateHandler_=(update: (T, AnyRef) => Unit) {
+      _update = update
+    }
+
+    def updateHandler: (T, AnyRef) => Unit = _update
+
+
+    def customCellEditor_=(customCellEditor: TableCellEditor) {
+      _customCellEditor = Option(customCellEditor)
+    }
+
+    def customCellEditor: TableCellEditor = _customCellEditor.orNull
+
+
+    def customCellRenderer_=(customCellRenderer: ComponentCellRenderer[T]) {
+      _customCellRenderer = Option(customCellRenderer)
+    }
+
+    def customCellRenderer: ComponentCellRenderer[T] = _customCellRenderer.orNull
+
+
+    def build: Column[T] = Column[T](_name, _editable, _extractor, _update,
+      customCellRenderer = _customCellRenderer, customCellEditor = _customCellEditor,
+      columnEventPublisher = columnEventPublisher)
+
+  }
+
+
 
 }
 
@@ -38,7 +100,7 @@ class GenericTableModel[T](columns: List[Column[T]], val values: Buffer[T]) exte
 
   override def setValueAt(value: AnyRef, row: Int, col: Int) {
     println("update row: " + row + " col: " + col + " with value: " + value)
-    if(values.length > row){
+    if (values.length > row) {
       columns(col).update(values(row), value)
     }
   }
@@ -62,7 +124,7 @@ class GenericTableModel[T](columns: List[Column[T]], val values: Buffer[T]) exte
     fireTableDataChanged()
   }
 
-  def removeRow(row: Int){
+  def removeRow(row: Int) {
     values.remove(row)
     fireTableDataChanged()
   }
