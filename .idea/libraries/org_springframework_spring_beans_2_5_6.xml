@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="org.springframework_spring-beans_2.5.6">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring-beans/jars/spring-beans-2.5.6.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/org.springframework/spring-beans/srcs/spring-beans-2.5.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

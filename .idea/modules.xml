@@ -2,12 +2,12 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/config/config.iml" filepath="$PROJECT_DIR$/config/config.iml" />
-      <module fileurl="file://$PROJECT_DIR$/instrument/instrument.iml" filepath="$PROJECT_DIR$/instrument/instrument.iml" />
-      <module fileurl="file://$PROJECT_DIR$/payoff/payoff.iml" filepath="$PROJECT_DIR$/payoff/payoff.iml" />
-      <module fileurl="file://$PROJECT_DIR$/project/project.iml" filepath="$PROJECT_DIR$/project/project.iml" />
-      <module fileurl="file://$PROJECT_DIR$/structurer-config-generator.iml" filepath="$PROJECT_DIR$/structurer-config-generator.iml" />
-      <module fileurl="file://$PROJECT_DIR$/structurer-ui/structurer-ui.iml" filepath="$PROJECT_DIR$/structurer-ui/structurer-ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/config.iml" filepath="$PROJECT_DIR$/.idea_modules/config.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/instrument.iml" filepath="$PROJECT_DIR$/.idea_modules/instrument.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/payoff.iml" filepath="$PROJECT_DIR$/.idea_modules/payoff.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/project.iml" filepath="$PROJECT_DIR$/.idea_modules/project.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/structurer-config-generator.iml" filepath="$PROJECT_DIR$/.idea_modules/structurer-config-generator.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea_modules/structurer-ui.iml" filepath="$PROJECT_DIR$/.idea_modules/structurer-ui.iml" />
     </modules>
   </component>
 </project>

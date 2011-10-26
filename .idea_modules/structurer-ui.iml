@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="scala" name="Scala">
+      <configuration>
+        <option name="compilerLibraryLevel" value="Project" />
+        <option name="compilerLibraryName" value="scala-2.9.1" />
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/../structurer-ui/target/classes" />
+    <output-test url="file://$MODULE_DIR$/../structurer-ui/target/test-classes" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../structurer-ui">
+      <sourceFolder url="file://$MODULE_DIR$/../structurer-ui/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../structurer-ui/src/main/java" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../structurer-ui/src/main/resources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../structurer-ui/src/test/scala" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../structurer-ui/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/../structurer-ui/src/test/resources" isTestSource="true" />
+      <excludeFolder url="file://$MODULE_DIR$/../structurer-ui/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="org.scala-lang_scala-library_2.9.1" level="project" />
+    <orderEntry type="library" name="com.efgfp.commons_efg-measures-and-units_0.12" level="project" />
+    <orderEntry type="library" name="com.efgfp.commons_efg-commons-lang_0.2" level="project" />
+    <orderEntry type="library" name="commons-lang_commons-lang_2.4" level="project" />
+    <orderEntry type="library" name="com.efgfp.commons_efg-commons-collections_0.1" level="project" />
+    <orderEntry type="library" name="org.functionaljava_fj_2.13" level="project" />
+    <orderEntry type="library" name="commons-collections_commons-collections_3.2.1" level="project" />
+    <orderEntry type="library" name="com.efgfp.commons_spring-wrapper_0.15" level="project" />
+    <orderEntry type="library" name="commons-io_commons-io_1.4" level="project" />
+    <orderEntry type="library" name="org.springframework_spring-core_2.5.6" level="project" />
+    <orderEntry type="library" name="commons-logging_commons-logging_1.1.1" level="project" />
+    <orderEntry type="library" name="org.springframework_spring-aop_2.5.6" level="project" />
+    <orderEntry type="library" name="aopalliance_aopalliance_1.0" level="project" />
+    <orderEntry type="library" name="org.springframework_spring-beans_2.5.6" level="project" />
+    <orderEntry type="library" name="org.springframework_spring-context_2.5.6" level="project" />
+    <orderEntry type="library" name="org.springframework_spring-orm_2.5.6" level="project" />
+    <orderEntry type="library" name="org.springframework_spring-tx_2.5.6" level="project" />
+    <orderEntry type="library" name="net.sourceforge.collections_collections-generic_4.01" level="project" />
+    <orderEntry type="library" name="org.aspectj_aspectjweaver_1.6.6" level="project" />
+    <orderEntry type="library" name="org.scala-lang_scala-swing_2.9.1" level="project" />
+    <orderEntry type="library" name="jfree_jfreechart_1.0.13" level="project" />
+    <orderEntry type="library" name="jfree_jcommon_1.0.16" level="project" />
+    <orderEntry type="module" module-name="instrument" exported="" />
+    <orderEntry type="module" module-name="payoff" exported="" />
+    <orderEntry type="module" module-name="config" exported="" />
+  </component>
+</module>
+

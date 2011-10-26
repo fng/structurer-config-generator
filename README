@@ -1,1 +1,6 @@
-Hi! 
+Hi!
+
+xsbt intellij settings:
+
+c:\tools\sbt\sbt-launch-0.10.1.jar
+-Dsbt.log.noformat=true -XX:+CMSClassUnloadingEnabled -Xmx1000M -Xss1M -Xmn300M -XX:MaxPermSize=400M -Dhttp.proxyHost=172.22.100.15 -Dhttp.proxyPort=8080 -Dhttp.nonProxyHosts=hudson|nexus
