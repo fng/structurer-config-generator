@@ -18,4 +18,8 @@ abstract class GenericTable[T](columns: List[Column[T]], data: List[T]) extends 
     case None => super.rendererComponent(isSelected, focused, row, column)
   }
 
+  columns.foreach {
+    column => listenTo(column.columnEventPublisher)
+  }
+
 }

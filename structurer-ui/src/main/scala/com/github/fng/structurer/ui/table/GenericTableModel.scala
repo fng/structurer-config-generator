@@ -3,8 +3,8 @@ package com.github.fng.structurer.ui.table
 import collection.mutable.Buffer
 import javax.swing.table.AbstractTableModel._
 import javax.swing.table.{TableCellEditor, AbstractTableModel}
-import com.github.fng.structurer.ui.table.GenericTableModel.Column
 import swing.{Publisher, Component}
+import com.github.fng.structurer.ui.table.GenericTableModel.{ColumnEventPublisher, Column}
 
 object GenericTableModel {
 
@@ -13,7 +13,10 @@ object GenericTableModel {
                          error("not supported b: " + b)
                        },
                        customCellEditor: Option[TableCellEditor] = None,
-                              customCellRenderer: Option[ComponentCellRenderer[T]] = None)
+                              customCellRenderer: Option[ComponentCellRenderer[T]] = None,
+                              columnEventPublisher: ColumnEventPublisher = new ColumnEventPublisher)
+
+  class ColumnEventPublisher extends Publisher
 
   trait ComponentCellRenderer[T]{
      def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component
