@@ -3,15 +3,12 @@ package instrument
 
 import javax.swing.BorderFactory
 import swing._
-import collection.mutable.ListBuffer
 import com.github.fng.structurer.instrument._
 
 class PackagePanel(default: PackageInstrument = PackageInstrument("xxx.xxx", PayoffType.Bullish, 1000, QuotationType.Notional,
   OptionInstrument(OptionType.Call, 0.0, 10, 100, OptionBarrierType.NoBarrier))) extends BorderPanel {
   border = BorderFactory.createTitledBorder("Package")
 
-  val instrumentPanel = new BoxPanel(Orientation.Horizontal) {
-  }
 
   val productTypeIdField = new StringField("ProductTypeId", default.productTypeId)
   val payoffTypeField = new PayoffTypeField("PayoffType", default.payoffType)
@@ -21,7 +18,6 @@ class PackagePanel(default: PackageInstrument = PackageInstrument("xxx.xxx", Pay
   add(new FlowPanel(FlowPanel.Alignment.Left)(productTypeIdField, payoffTypeField, denominationField, quotationTypeField),
     BorderPanel.Position.North)
 
-  add(instrumentPanel, BorderPanel.Position.Center)
 
   def update(packageInstrument: PackageInstrument) {
 
@@ -30,27 +26,6 @@ class PackagePanel(default: PackageInstrument = PackageInstrument("xxx.xxx", Pay
     denominationField.setValue(packageInstrument.denomination)
     quotationTypeField.setValue(packageInstrument.quotationType)
 
-
-    instrumentPanel.contents.clear()
-
-//    instrumentPanel.contents ++= packageInstrument.components.filter{
-//      case o: OptionInstrument => true
-//      case o: ExpressionOption => true
-//      case _ => false
-//    }.map {
-//      case o: OptionInstrument => new OptionPanel(ExpressionOption(o))
-//      case o: ExpressionOption => new OptionPanel(o)
-//      case b: BondInstrument => new BondPanel(ExpressionBond(b))
-//      case b: ExpressionBond => new BondPanel(b)
-//      case unsupported => error("Unsupported Instrument: " + unsupported)
-//    }
-
-    instrumentPanel.contents.collect({
-      case p: Publisher => p
-    }).foreach(listenTo(_))
-
-
-    instrumentPanel.revalidate()
   }
 
 }

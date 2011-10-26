@@ -77,8 +77,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
       def updateChart() {
         add(new Panel {
-          override lazy val peer = createPayoffChart(packagePanel.instrumentPanel, optionTable.getOptions, bondTable.getBonds,
-            fieldPanel)
+          override lazy val peer = createPayoffChart(optionTable.getOptions, bondTable.getBonds, fieldPanel)
         }, BorderPanel.Position.Center)
       }
 
@@ -93,14 +92,6 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     loadableConfigurations.foreach(listenTo(_))
 
-    def listenToInstrumentPanelContent() {
-      packagePanel.instrumentPanel.contents.collect({
-        case p: Publisher => p
-      }).foreach(listenTo(_))
-    }
-
-    listenToInstrumentPanelContent()
-
     listenTo(drawButton, addOptionMenu, addBondMenu)
 
 
@@ -108,12 +99,12 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       case ButtonClicked(`drawButton`) =>
         chartPanel.updateChart()
         splitPane.revalidate()
-      case InstrumentPanel.PanelEvent.RemovePanelEvent(panel) =>
-        packagePanel.instrumentPanel.contents -= panel
-        packagePanel.instrumentPanel.revalidate()
-        splitPane.revalidate()
-        optionTable.removeOne
-        bondTable.removeOne
+//      case InstrumentPanel.PanelEvent.RemovePanelEvent(panel) =>
+//        packagePanel.instrumentPanel.contents -= panel
+//        packagePanel.instrumentPanel.revalidate()
+//        splitPane.revalidate()
+//        optionTable.removeOne
+//        bondTable.removeOne
       case ButtonClicked(`addOptionMenu`) =>
         optionTable.add(MutableOption(ExpressionOption(OptionType.Call, 0.0, 10, 100, OptionBarrierType.NoBarrier)))
       case ButtonClicked(`addBondMenu`) =>
@@ -154,7 +145,6 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       bondTable.updateWithNewList(expressionBonds.map(MutableBond(_)))
 
       packagePanel.update(packageInstrument)
-      listenToInstrumentPanelContent()
       fieldPanel.refreshFieldPanel(fields)
       splitPane.revalidate()
       chartPanel.updateChart()
@@ -239,7 +229,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
   }
 
-  def createPayoffChart(instrumentPanel: BoxPanel, options: List[ExpressionOption], bonds: List[ExpressionBond], fieldPanel: FieldPanel): ChartPanel = {
+  def createPayoffChart(options: List[ExpressionOption], bonds: List[ExpressionBond], fieldPanel: FieldPanel): ChartPanel = {
 
     val variableValues = fieldPanel.getFieldsWithValues
 
