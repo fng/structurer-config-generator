@@ -4,8 +4,7 @@ import collection.mutable.Buffer
 import javax.swing.table.AbstractTableModel._
 import javax.swing.table.{TableCellEditor, AbstractTableModel}
 import com.github.fng.structurer.ui.table.GenericTableModel.Column
-import swing.Component
-
+import swing.{Publisher, Component}
 
 object GenericTableModel {
 
@@ -14,10 +13,10 @@ object GenericTableModel {
                          error("not supported b: " + b)
                        },
                        customCellEditor: Option[TableCellEditor] = None,
-                              customCellRenderer: Option[ComponentCellRenderer] = None)
+                              customCellRenderer: Option[ComponentCellRenderer[T]] = None)
 
-  trait ComponentCellRenderer{
-     def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component
+  trait ComponentCellRenderer[T]{
+     def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component
   }
 
 }

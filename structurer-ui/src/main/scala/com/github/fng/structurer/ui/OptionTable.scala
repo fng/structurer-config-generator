@@ -3,14 +3,14 @@ package com.github.fng.structurer.ui
 import instrument.ExpressionOption
 import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType}
 import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpression}
-import com.github.fng.structurer.ui.table.GenericTableModel
 import table.CellEditor.{ButtonTableCellEditor, ComboboxCellEditor, ExpressionCellEditor}
 import swing.Table.ElementMode
-import swing.{Component, Button, Table}
 import table.GenericTableModel.{ComponentCellRenderer, Column}
+import table.{GenericTable, GenericTableModel}
+import swing.{Publisher, Component, Button, Table}
+import swing.event.Event
 
-class OptionTable(options: List[MutableOption]) extends Table {
-
+object OptionTable {
   val columns = List(
     Column[MutableOption]("OptionType", true, _.optionType,
       update = (option, newValue) => option.optionType = newValue.asInstanceOf[OptionType],
@@ -37,15 +37,24 @@ class OptionTable(options: List[MutableOption]) extends Table {
       update = (option, newValue) => {},
       customCellEditor = Some(new ButtonTableCellEditor((row) => {
         println("row to Remove: " + row);
-        tableModel.removeRow(row)
+        //        tableModel.removeRow(row)
+        OptionTableRemoveRowPublisher.publish(DeleteOptionTableRowEvent(row))
       })),
-      customCellRenderer = Some(new ComponentCellRenderer {
-        def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = new Button(tableModel.getValueAt(row, column).toString)
+      customCellRenderer = Some(new ComponentCellRenderer[MutableOption] {
+        def rendererComponent(tableModel: GenericTableModel[MutableOption], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = new Button(tableModel.getValueAt(row, column).toString)
       }))
   )
 
-  val tableModel: GenericTableModel[MutableOption] = new GenericTableModel[MutableOption](columns, options.toBuffer)
-  model = tableModel
+  case object OptionTableRemoveRowPublisher extends Publisher
+
+  case class DeleteOptionTableRowEvent(row: Int) extends Event
+
+}
+
+
+class OptionTable(options: List[MutableOption]) extends GenericTable[MutableOption](OptionTable.columns, options) {
+
+  listenTo(OptionTable.OptionTableRemoveRowPublisher)
 
   autoResizeMode = Table.AutoResizeMode.AllColumns
   selection.elementMode = ElementMode.Cell
@@ -62,7 +71,6 @@ class OptionTable(options: List[MutableOption]) extends Table {
     tableModel.removeOne
   }
 
-
   def updateWithNewList(options: List[MutableOption]) {
     tableModel.updateWithNewList(options)
   }
@@ -71,15 +79,8 @@ class OptionTable(options: List[MutableOption]) extends Table {
     tableModel.values.map(_.toExpressionOption).toList
   }
 
-
-  override protected def editor(row: Int, column: Int) = columns(column).customCellEditor match {
-    case Some(editor) => editor
-    case None => super.editor(row, column)
-  }
-
-  override protected def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = columns(column).customCellRenderer match {
-    case Some(renderer) => renderer.rendererComponent(isSelected, focused, row, column)
-    case None => super.rendererComponent(isSelected, focused, row, column)
+  reactions += {
+    case OptionTable.DeleteOptionTableRowEvent(row) => tableModel.removeRow(row)
   }
 
 }
