@@ -98,13 +98,13 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     reactions += {
       case ButtonClicked(`drawButton`) =>
         chartPanel.updateChart()
-        splitPane.revalidate()
-//      case InstrumentPanel.PanelEvent.RemovePanelEvent(panel) =>
-//        packagePanel.instrumentPanel.contents -= panel
-//        packagePanel.instrumentPanel.revalidate()
-//        splitPane.revalidate()
-//        optionTable.removeOne
-//        bondTable.removeOne
+        mainPanel.revalidate()
+      //      case InstrumentPanel.PanelEvent.RemovePanelEvent(panel) =>
+      //        packagePanel.instrumentPanel.contents -= panel
+      //        packagePanel.instrumentPanel.revalidate()
+      //        splitPane.revalidate()
+      //        optionTable.removeOne
+      //        bondTable.removeOne
       case ButtonClicked(`addOptionMenu`) =>
         optionTable.add(MutableOption(ExpressionOption(OptionType.Call, 0.0, 10, 100, OptionBarrierType.NoBarrier)))
       case ButtonClicked(`addBondMenu`) =>
@@ -146,28 +146,22 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
       packagePanel.update(packageInstrument)
       fieldPanel.refreshFieldPanel(fields)
-      splitPane.revalidate()
+      mainPanel.revalidate()
       chartPanel.updateChart()
 
 
     }
 
-
-    val splitPane = new SplitPane(Orientation.Horizontal,
-      new BorderPanel {
-        add(packagePanel, BorderPanel.Position.North)
-        add(new BoxPanel(Orientation.Vertical) {
-          contents += new ScrollPane(optionTable) {
-            border = BorderFactory.createTitledBorder("Options")
-          }
-          contents += new ScrollPane(bondTable) {
-            border = BorderFactory.createTitledBorder("Bonds")
-          }
-        }
-          , BorderPanel.Position.Center)
-        add(drawButton, BorderPanel.Position.South)
-      }
-      , new SplitPane(Orientation.Vertical,
+    val mainPanel = new MigLayoutPanel(colConstraints = "[grow, fill]", rowConstraints = "[50][100][100][][grow, fill]") {
+      wrap(packagePanel)
+      wrap(new ScrollPane(optionTable) {
+        border = BorderFactory.createTitledBorder("Options")
+      })
+      wrap(new ScrollPane(bondTable) {
+        border = BorderFactory.createTitledBorder("Bonds")
+      })
+      wrap(drawButton)
+      add(new SplitPane(Orientation.Vertical,
         new BorderPanel {
           add(fieldPanel, BorderPanel.Position.North)
         },
@@ -175,12 +169,11 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         dividerLocation = 200
         dividerSize = 8
         oneTouchExpandable = true
-      }) {
-      dividerLocation = 300
-      dividerSize = 8
-      oneTouchExpandable = true
+      })
+
     }
-    contents = splitPane
+
+    contents = mainPanel
 
     def loadFromConfig(resource: Resource) {
 

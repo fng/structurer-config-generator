@@ -48,16 +48,17 @@ object build extends Build {
     base = file("structurer-ui"),
     dependencies = Seq(instrument, payoff, config),
     settings = standardSettings ++ Seq(
-      libraryDependencies ++= Seq(EfgMeasuresAndUnits, scalaSwing, jfreechart)
+      libraryDependencies ++= Seq(EfgMeasuresAndUnits, scalaSwing, jfreechart, SwingMigLayout)
     )
   )
 
 
   //  val specs = "org.scala-tools.testing" %% "specs" % "1.6.8" % "test" withSources
   //  val scalaz = "org.scalaz" %% "scalaz-core" % "6.0" withSources
-    val scalaSwing = "org.scala-lang" % "scala-swing" % "2.9.1" withSources
-    val jfreechart = "jfree" % "jfreechart" % "1.0.13"
-    val EfgMeasuresAndUnits = "com.efgfp.commons" % "efg-measures-and-units" % "0.12" withSources
-    val SpringWrapper = "com.efgfp.commons" % "spring-wrapper" % "0.15"
+  lazy val scalaSwing = "org.scala-lang" % "scala-swing" % "2.9.1" withSources
+  lazy val SwingMigLayout = "com.miglayout" % "miglayout" % "3.7.3.1" withSources()
+  lazy val jfreechart = "jfree" % "jfreechart" % "1.0.13"
+  lazy val EfgMeasuresAndUnits = "com.efgfp.commons" % "efg-measures-and-units" % "0.12" withSources
+  lazy val SpringWrapper = "com.efgfp.commons" % "spring-wrapper" % "0.15"
 
 }

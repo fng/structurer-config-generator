@@ -45,6 +45,7 @@
     <orderEntry type="library" name="org.scala-lang_scala-swing_2.9.1" level="project" />
     <orderEntry type="library" name="jfree_jfreechart_1.0.13" level="project" />
     <orderEntry type="library" name="jfree_jcommon_1.0.16" level="project" />
+    <orderEntry type="library" name="com.miglayout_miglayout_3.7.3.1" level="project" />
     <orderEntry type="module" module-name="instrument" exported="" />
     <orderEntry type="module" module-name="payoff" exported="" />
     <orderEntry type="module" module-name="config" exported="" />
