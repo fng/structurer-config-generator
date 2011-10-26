@@ -57,10 +57,6 @@ object OptionTable {
 
 class OptionTable(options: List[MutableOption]) extends GenericTable[MutableOption](OptionTable.columns, options) {
 
-
-  autoResizeMode = Table.AutoResizeMode.AllColumns
-  selection.elementMode = ElementMode.Cell
-
   peer.getColumnModel.getColumn(0).setPreferredWidth(50)
   peer.getColumnModel.getColumn(1).setPreferredWidth(200)
   peer.getColumnModel.getColumn(2).setPreferredWidth(200)

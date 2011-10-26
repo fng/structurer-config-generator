@@ -13,6 +13,7 @@ import com.github.fng.structurer.config.{FieldConfig, ProductConfig}
 import javax.swing.table.AbstractTableModel
 import javax.swing.{BorderFactory, JPanel}
 
+
 object Structurer extends SimpleSwingApplication with PayoffSamples with LoadableConfigurations {
 
   val payoffChartCreator = new PayoffChartCreator
@@ -70,6 +71,9 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     val optionTable = new OptionTable(options.map(MutableOption(_)))
     val bondTable = new BondTable(bonds.map(MutableBond(_)))
+
+    val fieldTable = new FieldTable(List(MutableField("CAP", FieldType.NumberField, ConstraintType.GreaterThan, "100"),
+      MutableField("COUPON FREQUENCY", FieldType.ChooseField, ConstraintType.GreaterThan, "YEARLY")))
 
     val chartPanel = new BorderPanel {
 
@@ -152,15 +156,18 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     }
 
-    val mainPanel = new MigLayoutPanel(colConstraints = "[grow, fill]", rowConstraints = "[50][100][100][][grow, fill]") {
-      wrap(packagePanel)
+    val mainPanel = new MigLayoutPanel(colConstraints = "[][grow, fill]", rowConstraints = "[50][100][100][][grow, fill]") {
+      wrap(packagePanel, "spanx 2, growx")
       wrap(new ScrollPane(optionTable) {
         border = BorderFactory.createTitledBorder("Options")
-      })
+      }, "spanx 2, growx")
       wrap(new ScrollPane(bondTable) {
         border = BorderFactory.createTitledBorder("Bonds")
+      }, "spanx 2, growx")
+      wrap(drawButton, "spanx 2, growx")
+      add(new ScrollPane(fieldTable) {
+        border = BorderFactory.createTitledBorder("Fields")
       })
-      wrap(drawButton)
       add(new SplitPane(Orientation.Vertical,
         new BorderPanel {
           add(fieldPanel, BorderPanel.Position.North)
