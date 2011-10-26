@@ -5,7 +5,7 @@ import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType}
 import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpression}
 import table.CellEditor.{ButtonTableCellEditor, ComboboxCellEditor, ExpressionCellEditor}
 import swing.Table.ElementMode
-import table.GenericTableModel.{ColumnEventPublisher, ComponentCellRenderer, Column}
+import table.GenericTableModel.{ComponentCellRenderer, Column}
 import table.{GenericTable, GenericTableModel}
 import swing.{Component, Button, Table}
 import swing.event.Event
@@ -37,7 +37,7 @@ object OptionTable {
       }
       customCellEditor = new ExpressionCellEditor()
     },
-    new Column[MutableOption]("Delete", true, (option: MutableOption) => "Remove") {
+    new Column[MutableOption]("Remove", true, (option: MutableOption) => "Remove") {
       updateHandler = (option: MutableOption, newValue: AnyRef) => {}
       customCellEditor = new ButtonTableCellEditor((row) => {
         println("row to Remove: " + row);
@@ -61,9 +61,11 @@ class OptionTable(options: List[MutableOption]) extends GenericTable[MutableOpti
   autoResizeMode = Table.AutoResizeMode.AllColumns
   selection.elementMode = ElementMode.Cell
 
-  peer.getColumnModel.getColumn(1).setPreferredWidth(150)
-  peer.getColumnModel.getColumn(2).setPreferredWidth(150)
+  peer.getColumnModel.getColumn(0).setPreferredWidth(50)
+  peer.getColumnModel.getColumn(1).setPreferredWidth(200)
+  peer.getColumnModel.getColumn(2).setPreferredWidth(200)
   peer.getColumnModel.getColumn(3).setPreferredWidth(100)
+  peer.getColumnModel.getColumn(4).setPreferredWidth(60)
 
   def add(option: MutableOption) {
     tableModel.add(option)
