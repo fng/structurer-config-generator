@@ -5,13 +5,13 @@ import instrument._
 import org.jfree.chart.ChartPanel
 import swing._
 import event.ButtonClicked
-import javax.swing.JPanel
 import com.efgfp.commons.spring.resource.ResourceLoader
 import com.github.fng.structurer.instrument._
 import org.springframework.core.io.support.{ResourcePatternResolver, ResourcePatternUtils}
 import org.springframework.core.io.{Resource, DefaultResourceLoader, ClassPathResource}
 import com.github.fng.structurer.config.{FieldConfig, ProductConfig}
 import javax.swing.table.AbstractTableModel
+import javax.swing.{BorderFactory, JPanel}
 
 object Structurer extends SimpleSwingApplication with PayoffSamples with LoadableConfigurations {
 
@@ -81,8 +81,11 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     val options = List(ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier),
       ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier))
 
+    val bonds = List(ExpressionBond(1000, 1))
+
 
     val optionTable = new OptionTable(options.map(MutableOption(_)))
+    val bondTable = new BondTable(bonds.map(MutableBond(_)))
 
     payoffSamples.foreach(listenTo(_))
 
@@ -108,6 +111,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         packagePanel.instrumentPanel.revalidate()
         splitPane.revalidate()
         optionTable.removeOne
+        bondTable.removeOne
       case ButtonClicked(`addOptionMenu`) =>
         val newOptionPanel = new OptionPanel
         packagePanel.instrumentPanel.contents += newOptionPanel
@@ -121,6 +125,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         packagePanel.instrumentPanel.revalidate()
         splitPane.revalidate()
         listenTo(newBondPanel)
+        bondTable.add(MutableBond(newBondPanel.expressionBond))
       case ButtonClicked(config) if config.isInstanceOf[LoadableConfigMenuItem] =>
         dialogSave {
           loadFromConfig(config.asInstanceOf[LoadableConfigMenuItem].resource)
@@ -152,7 +157,12 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         case o: OptionPanel => o
       }).map(_.expressionOption).toList
 
+      val expressionBonds = packagePanel.instrumentPanel.contents.collect({
+        case o: BondPanel => o
+      }).map(_.expressionBond).toList
+
       optionTable.updateWithNewList(expressionOptions.map(MutableOption(_)))
+      bondTable.updateWithNewList(expressionBonds.map(MutableBond(_)))
 
 
     }
@@ -161,7 +171,15 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     val splitPane = new SplitPane(Orientation.Horizontal,
       new BorderPanel {
         add(packagePanel, BorderPanel.Position.North)
-        add(new ScrollPane(optionTable), BorderPanel.Position.Center)
+        add(new BoxPanel(Orientation.Vertical) {
+          contents += new ScrollPane(optionTable){
+            border = BorderFactory.createTitledBorder("Options")
+          }
+          contents += new ScrollPane(bondTable){
+            border = BorderFactory.createTitledBorder("Bonds")
+          }
+        }
+          , BorderPanel.Position.Center)
         add(drawButton, BorderPanel.Position.South)
       }
       , new SplitPane(Orientation.Vertical,
