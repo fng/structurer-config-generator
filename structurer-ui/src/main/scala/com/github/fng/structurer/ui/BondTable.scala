@@ -15,15 +15,15 @@ object BondTable {
   val columns = List(
     new Column[MutableBond, String]("Notional", true, (bond: MutableBond) => bond.notional.originalString) {
       updateHandler = (bond: MutableBond, newValue: String) => bond.notional = ExpressionParser.parse(newValue)
-      customCellEditor = new ExpressionCellEditor()
+      customCellEditor = new ExpressionCellEditor[MutableBond]()
     },
     new Column[MutableBond, String]("Quantity", true, (bond: MutableBond) => bond.quantity.originalString) {
       updateHandler = (bond: MutableBond, newValue: String) => bond.quantity = ExpressionParser.parse(newValue)
-      customCellEditor = new ExpressionCellEditor()
+      customCellEditor = new ExpressionCellEditor[MutableBond]()
     },
     new Column[MutableBond, String]("Delete", true, (bond: MutableBond) => "Remove") {
       updateHandler = (bond: MutableBond, newValue: String) => {}
-      customCellEditor = new ButtonTableCellEditor((row) => {
+      customCellEditor = new ButtonTableCellEditor[MutableBond]((row) => {
         println("row to Remove: " + row);
         columnEventPublisher.publish(DeleteBondTableRowEvent(row))
       })

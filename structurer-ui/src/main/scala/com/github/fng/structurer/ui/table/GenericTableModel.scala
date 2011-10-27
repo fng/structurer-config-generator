@@ -2,9 +2,12 @@ package com.github.fng.structurer.ui.table
 
 import collection.mutable.Buffer
 import javax.swing.table.{TableCellEditor, AbstractTableModel}
-import swing.{Publisher, Component}
 import com.github.fng.structurer.ui.table.GenericTableModel.Column
 import java.awt.Color
+import com.github.fng.structurer.ui.instrument.TextFieldType.ExpressionField
+import javax.swing._
+import java.awt.event.{ActionEvent, ActionListener}
+import swing.{Button, Publisher, Component}
 
 object GenericTableModel {
 
@@ -25,6 +28,7 @@ object GenericTableModel {
       component
     }
   }
+
 
 
   abstract class EditableMode[T]
@@ -52,7 +56,7 @@ object GenericTableModel {
     var _updateHandler: (T, F) => Unit = (a: T, b: F) => {
       sys.error("not supported b: " + b)
     }
-    var _customCellEditor: Option[TableCellEditor] = None
+    var _customCellEditor: Option[ComponentCellEditor[T]] = None
     var _customCellRenderer: Option[ComponentCellRenderer[T]] = None
 
     def name_=(name: String) {
@@ -94,11 +98,11 @@ object GenericTableModel {
     }
 
 
-    def customCellEditor_=(customCellEditor: TableCellEditor) {
+    def customCellEditor_=(customCellEditor: ComponentCellEditor[T]) {
       _customCellEditor = Option(customCellEditor)
     }
 
-    def customCellEditor: Option[TableCellEditor] = _customCellEditor
+    def customCellEditor: Option[ComponentCellEditor[T]] = _customCellEditor
 
 
     def customCellRenderer_=(customCellRenderer: ComponentCellRenderer[T]) {

@@ -15,7 +15,7 @@ abstract class GenericTable[T](columns: List[Column[T, _]], data: List[T]) exten
   selection.elementMode = ElementMode.Cell
 
   override protected def editor(row: Int, column: Int) = columns(column).customCellEditor match {
-    case Some(editor) => editor
+    case Some(editor) => editor.editor(tableModel, row, column)
     case None => super.editor(row, column)
   }
 

@@ -3,10 +3,11 @@ package com.github.fng.structurer.ui
 import table.CellEditor.{ComboboxCellEditor, ButtonTableCellEditor}
 import table.GenericTableModel.EditableMode.CustomEditableMode
 import table.GenericTableModel.{NonEditableBackgroundColorCellRenderer, ComponentCellRenderer, Column}
-import table.{GenericTable, GenericTableModel}
 import swing.event.Event
 import swing._
 import java.awt.Color
+import table.{ComponentCellEditor, GenericTable, GenericTableModel}
+import javax.swing.table.TableCellEditor
 
 object FieldTable {
 
@@ -16,14 +17,18 @@ object FieldTable {
     },
     new Column[MutableField, FieldType]("Type", true, (field: MutableField) => field.fieldType) {
       updateHandler = (field: MutableField, newValue: FieldType) => field.fieldType = newValue
-      customCellEditor = new ComboboxCellEditor(List(FieldType.NumberField,
+      customCellEditor = new ComboboxCellEditor[MutableField](List(FieldType.NumberField,
         FieldType.NumberRangeField, FieldType.ChooseField))
     },
     new Column[MutableField, ConstraintType]("Constraint Type", true, (field: MutableField) => field.constraintType) {
       updateHandler = (field: MutableField, newValue: ConstraintType) => field.constraintType = newValue
-      customCellEditor = new ComboboxCellEditor(List(ConstraintType.GreaterThan,
-        ConstraintType.GreaterThanEqual, ConstraintType.LessThanEqual,
-        ConstraintType.LessThan, ConstraintType.Between, ConstraintType.OneOf, ConstraintType.ManyOf))
+
+      customCellEditor = new ComponentCellEditor[MutableField] {
+        def editor(tableModel: GenericTableModel[MutableField], row: Int, column: Int): TableCellEditor = {
+          new ComboboxCellEditor[MutableField](tableModel.values(row).fieldType.constrainTypes).editor(tableModel, row, column)
+        }
+      }
+
     },
     new Column[MutableField, String]("Number Value", new CustomEditableMode[MutableField] {
       def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.NumberField
@@ -48,7 +53,7 @@ object FieldTable {
     },
     new Column[MutableField, String]("Delete", true, (field: MutableField) => "Remove") {
       updateHandler = (field: MutableField, newValue: String) => {}
-      customCellEditor = new ButtonTableCellEditor((row) => {
+      customCellEditor = new ButtonTableCellEditor[MutableField]((row) => {
         println("row to Remove: " + row);
         columnEventPublisher.publish(DeleteFieldTableRowEvent(row))
       })
@@ -86,6 +91,7 @@ case class MutableField(var name: String, private var _fieldType: FieldType, var
   fieldTypeChanged()
 
   private def fieldTypeChanged() {
+    if(!fieldType.constrainTypes.exists(_ == constraintType)) constraintType = null
     fieldType match {
       case FieldType.NumberField =>
         numberRangeValue = ""
@@ -127,17 +133,18 @@ case class MutableField(var name: String, private var _fieldType: FieldType, var
   def chooseValue: String = _chooseValue
 }
 
-abstract class FieldType(val header: String) {
+abstract class FieldType(val header: String, val constrainTypes: List[ConstraintType]) {
   override def toString: String = header
 }
 
 object FieldType {
 
-  case object NumberField extends FieldType("Number")
+  case object NumberField extends FieldType("Number", List(ConstraintType.GreaterThan, ConstraintType.GreaterThanEqual,
+    ConstraintType.LessThanEqual, ConstraintType.LessThan))
 
-  case object NumberRangeField extends FieldType("Number Range")
+  case object NumberRangeField extends FieldType("Number Range", List(ConstraintType.Between))
 
-  case object ChooseField extends FieldType("Choose")
+  case object ChooseField extends FieldType("Choose", List(ConstraintType.OneOf, ConstraintType.ManyOf))
 
   def forHeader(header: String): FieldType = header match {
     case NumberField.header => NumberField
