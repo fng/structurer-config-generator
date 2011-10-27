@@ -13,9 +13,21 @@ object GenericTableModel {
     def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component
   }
 
-  class Column[T, F](var _name: String, var _editable: Boolean, var _extractor: (T) => F) {
+  abstract class EditableMode
 
-    def this() = this (null, false, null)
+  object EditableMode {
+
+    case object IsEditable extends EditableMode
+
+    case object IsNotEditable extends EditableMode
+
+  }
+
+  class Column[T, F](var _name: String, var _editableMode: EditableMode, var _extractor: (T) => F) {
+
+    def this() = this (null, EditableMode.IsNotEditable, null)
+
+    def this(name: String, editable: Boolean, extractor: (T) => F) = this (name, if (editable) EditableMode.IsEditable else EditableMode.IsNotEditable, extractor)
 
     val columnEventPublisher: ColumnEventPublisher = new ColumnEventPublisher
 
@@ -32,11 +44,16 @@ object GenericTableModel {
     def name: String = _name
 
 
-    def editable_=(editable: Boolean) {
-      _editable = editable
+    def editableMode_=(editableMode: EditableMode) {
+      _editableMode = editableMode
     }
 
-    def editable: Boolean = _editable
+    def editableMode: EditableMode = _editableMode
+
+    def isEditable(row: Int): Boolean = editableMode match {
+      case EditableMode.IsEditable => true
+      case EditableMode.IsNotEditable => false
+    }
 
 
     def extractor_=(extractor: (T) => F) {
@@ -83,7 +100,7 @@ class GenericTableModel[T](columns: List[Column[T, _]], val values: Buffer[T]) e
 
   def getValueAt(row: Int, col: Int) = columns(col).extractor(values(row)).asInstanceOf[AnyRef]
 
-  override def isCellEditable(row: Int, col: Int) = columns(col).editable
+  override def isCellEditable(row: Int, col: Int) = columns(col).isEditable(row)
 
   override def getColumnName(col: Int) = columns(col).name
 
