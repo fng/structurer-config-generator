@@ -8,31 +8,25 @@ import table.{GenericTable, GenericTableModel}
 
 object FieldTable {
   val columns = List(
-    new Column[MutableField]("Name", true, (field: MutableField) => field.name) {
-      updateHandler = (field: MutableField, newValue: AnyRef) => field.name = newValue match {
-        case s: String => s
-        case other => sys.error(other.getClass + " is not supported for name field")
-      }
+    new Column[MutableField, String]("Name", true, (field: MutableField) => field.name) {
+      updateHandler = (field: MutableField, newValue: String) => field.name = newValue
     },
-    new Column[MutableField]("Type", true, (field: MutableField) => field.fieldType.header) {
-      updateHandler = (field: MutableField, newValue: AnyRef) => field.fieldType = FieldType.forHeader(newValue.asInstanceOf[String])
+    new Column[MutableField, String]("Type", true, (field: MutableField) => field.fieldType.header) {
+      updateHandler = (field: MutableField, newValue: String) => field.fieldType = FieldType.forHeader(newValue)
       customCellEditor = new ComboboxCellEditor(List(FieldType.NumberField.header,
         FieldType.NumberRangeField.header, FieldType.ChooseField.header))
     },
-    new Column[MutableField]("Constraint Type", true, (field: MutableField) => field.constraintType.header) {
-      updateHandler = (field: MutableField, newValue: AnyRef) => field.constraintType = ConstraintType.forHeader(newValue.asInstanceOf[String])
+    new Column[MutableField, String]("Constraint Type", true, (field: MutableField) => field.constraintType.header) {
+      updateHandler = (field: MutableField, newValue: String) => field.constraintType = ConstraintType.forHeader(newValue)
       customCellEditor = new ComboboxCellEditor(List(ConstraintType.GreaterThan.header,
         ConstraintType.GreaterThanEqual.header, ConstraintType.LessThanEqual.header,
         ConstraintType.LessThan.header, ConstraintType.OneOf.header, ConstraintType.ManyOf.header))
     },
-    new Column[MutableField]("Value", true, (field: MutableField) => field.value) {
-      updateHandler = (field: MutableField, newValue: AnyRef) => field.value = newValue match {
-        case s: String => s
-        case other => sys.error(other.getClass + " is not supported for value field")
-      }
+    new Column[MutableField, String]("Value", true, (field: MutableField) => field.value) {
+      updateHandler = (field: MutableField, newValue: String) => field.value = newValue
     },
-    new Column[MutableField]("Delete", true, (field: MutableField) => "Remove") {
-      updateHandler = (field: MutableField, newValue: AnyRef) => {}
+    new Column[MutableField, String]("Delete", true, (field: MutableField) => "Remove") {
+      updateHandler = (field: MutableField, newValue: String) => {}
       customCellEditor = new ButtonTableCellEditor((row) => {
         println("row to Remove: " + row);
         columnEventPublisher.publish(DeleteFieldTableRowEvent(row))
@@ -86,9 +80,11 @@ object ConstraintType {
   case object LessThanEqual extends ConstraintType("LT")
 
   case object LessThan extends ConstraintType("LE")
+
   case object OneOf extends ConstraintType("OneOf")
+
   case object ManyOf extends ConstraintType("ManyOf")
-  
+
 
   def forHeader(header: String): ConstraintType = header match {
     case GreaterThan.header => GreaterThan

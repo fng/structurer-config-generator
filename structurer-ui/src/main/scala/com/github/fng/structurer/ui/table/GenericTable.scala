@@ -4,7 +4,7 @@ import com.github.fng.structurer.ui.table.GenericTableModel.Column
 import swing.{Component, Table}
 import swing.Table.ElementMode
 
-abstract class GenericTable[T](columns: List[Column[T]], data: List[T]) extends Table {
+abstract class GenericTable[T](columns: List[Column[T, _]], data: List[T]) extends Table {
 
   val tableModel: GenericTableModel[T] = new GenericTableModel[T](columns, data.toBuffer)
   model = tableModel

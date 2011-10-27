@@ -12,33 +12,29 @@ import swing.event.Event
 
 object OptionTable {
   val columns = List(
-    new Column[MutableOption]("OptionType", true, (option: MutableOption) => option.optionType) {
-      updateHandler = (option: MutableOption, newValue: AnyRef) => option.optionType = newValue.asInstanceOf[OptionType]
+    new Column[MutableOption, OptionType]("OptionType", true, (option: MutableOption) => option.optionType) {
+      updateHandler = (option: MutableOption, newValue: OptionType) => option.optionType = newValue
       customCellEditor = new ComboboxCellEditor(List(OptionType.Call, OptionType.Put))
     },
-    new Column[MutableOption]("Strike", true, (option: MutableOption) => option.strike.originalString) {
-      updateHandler = (option: MutableOption, newValue: AnyRef) => option.strike = newValue match {
-        case s: String => ExpressionParser.parse(s)
-        case other => sys.error(other.getClass + " is not supported for strike field")
-      }
+    new Column[MutableOption, String]("Strike", true, (option: MutableOption) => option.strike.originalString) {
+      updateHandler = (option: MutableOption, newValue: String) => option.strike = ExpressionParser.parse(newValue)
       customCellEditor = new ExpressionCellEditor()
     },
-    new Column[MutableOption]("Quantity", true, (option: MutableOption) => option.quantity.originalString) {
-      updateHandler = (option: MutableOption, newValue: AnyRef) => option.quantity = newValue match {
-        case s: String => ExpressionParser.parse(s)
-        case other => sys.error(other.getClass + " is not supported for quantity field")
-      }
+    new Column[MutableOption, String]("Quantity", true, (option: MutableOption) => option.quantity.originalString) {
+      updateHandler = (option: MutableOption, newValue: String) => option.quantity = ExpressionParser.parse(newValue)
       customCellEditor = new ExpressionCellEditor()
     },
-    new Column[MutableOption]("Notional", true, (option: MutableOption) => option.notional.originalString) {
-      updateHandler = (option: MutableOption, newValue: AnyRef) => option.notional = newValue match {
-        case s: String => ExpressionParser.parse(s)
-        case other => sys.error(other.getClass + " is not supported for notional field")
-      }
+    new Column[MutableOption, String]("Notional", true, (option: MutableOption) => option.notional.originalString) {
+      updateHandler = (option: MutableOption, newValue: String) => option.notional = ExpressionParser.parse(newValue)
       customCellEditor = new ExpressionCellEditor()
     },
-    new Column[MutableOption]("Remove", true, (option: MutableOption) => "Remove") {
-      updateHandler = (option: MutableOption, newValue: AnyRef) => {}
+    new Column[MutableOption, OptionBarrierType]("OptionBarrierType", true, (option: MutableOption) => option.optionBarrierType) {
+      updateHandler = (option: MutableOption, newValue: OptionBarrierType) => option.optionBarrierType = newValue
+      customCellEditor = new ComboboxCellEditor(List(OptionBarrierType.NoBarrier, OptionBarrierType.KnockInBarrier,
+        OptionBarrierType.KnockOutBarrier))
+    },
+    new Column[MutableOption, String]("Remove", true, (option: MutableOption) => "Remove") {
+      updateHandler = (option: MutableOption, newValue: String) => {}
       customCellEditor = new ButtonTableCellEditor((row) => {
         println("row to Remove: " + row);
         columnEventPublisher.publish(DeleteOptionTableRowEvent(row))

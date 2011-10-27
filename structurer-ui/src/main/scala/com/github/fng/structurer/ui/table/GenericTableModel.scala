@@ -13,13 +13,13 @@ object GenericTableModel {
     def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component
   }
 
-  class Column[T](var _name: String, var _editable: Boolean, var _extractor: (T) => AnyRef) {
+  class Column[T, F](var _name: String, var _editable: Boolean, var _extractor: (T) => F) {
 
     def this() = this (null, false, null)
 
     val columnEventPublisher: ColumnEventPublisher = new ColumnEventPublisher
 
-    var _update: (T, AnyRef) => Unit = (a: T, b: AnyRef) => {
+    var _updateHandler: (T, F) => Unit = (a: T, b: F) => {
       sys.error("not supported b: " + b)
     }
     var _customCellEditor: Option[TableCellEditor] = None
@@ -39,20 +39,23 @@ object GenericTableModel {
     def editable: Boolean = _editable
 
 
-    def extractor_=(extractor: (T) => AnyRef) {
+    def extractor_=(extractor: (T) => F) {
       _extractor = extractor
     }
 
-    def extractor: (T) => AnyRef = _extractor
+    def extractor: (T) => F = _extractor
 
 
-    def updateHandler_=(update: (T, AnyRef) => Unit) {
-      _update = update
+    def updateHandler_=(update: (T, F) => Unit) {
+      _updateHandler = update
     }
 
-    def updateHandler: (T, AnyRef) => Unit = _update
+    def updateHandler: (T, F) => Unit = _updateHandler
 
-    def update: (T, AnyRef) => Unit = _update
+
+    def update(t: T, value: AnyRef) {
+      updateHandler(t, value.asInstanceOf[F])
+    }
 
 
     def customCellEditor_=(customCellEditor: TableCellEditor) {
@@ -73,12 +76,12 @@ object GenericTableModel {
 
 }
 
-class GenericTableModel[T](columns: List[Column[T]], val values: Buffer[T]) extends AbstractTableModel {
+class GenericTableModel[T](columns: List[Column[T, _]], val values: Buffer[T]) extends AbstractTableModel {
   def getRowCount = values.length
 
   def getColumnCount = columns.length
 
-  def getValueAt(row: Int, col: Int) = columns(col).extractor(values(row))
+  def getValueAt(row: Int, col: Int) = columns(col).extractor(values(row)).asInstanceOf[AnyRef]
 
   override def isCellEditable(row: Int, col: Int) = columns(col).editable
 
