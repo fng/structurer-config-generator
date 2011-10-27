@@ -24,7 +24,6 @@ object BondTable {
     new Column[MutableBond, String]("Delete", EditableMode.IsEditable[MutableBond], (bond: MutableBond) => "Remove") {
       updateHandler = (bond: MutableBond, newValue: String) => {}
       customCellEditor = new ButtonTableCellEditor[MutableBond]((row) => {
-        println("row to Remove: " + row);
         columnEventPublisher.publish(DeleteBondTableRowEvent(row))
       })
       customCellRenderer = new ComponentCellRenderer[MutableBond] {

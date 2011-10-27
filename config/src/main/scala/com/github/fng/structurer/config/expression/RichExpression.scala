@@ -28,10 +28,7 @@ case class RichExpression(expression: Expression, originalString: String) {
   def describe: String = expression.describe
 
   def evaluate(values: Map[Expression, Expression] = Map()): Number = {
-    println("evaluate expression: " + expression)
-    println("values: " + values)
     val evaluatedExpression = expression.evaluate(values)
-    println("evaluatedExpression expression: " + expression)
     evaluatedExpression.asConstant.getNumber
   }
 

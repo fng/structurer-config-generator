@@ -36,7 +36,6 @@ object OptionTable {
     new Column[MutableOption, String]("Remove", EditableMode.IsEditable[MutableOption], (option: MutableOption) => "Remove") {
       updateHandler = (option: MutableOption, newValue: String) => {}
       customCellEditor = new ButtonTableCellEditor[MutableOption]((row) => {
-        println("row to Remove: " + row);
         columnEventPublisher.publish(DeleteOptionTableRowEvent(row))
       })
       customCellRenderer = new ComponentCellRenderer[MutableOption] {

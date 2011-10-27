@@ -42,10 +42,6 @@ object CellEditor {
       }
 
       override def stopCellEditing(): Boolean = {
-        //      println("stopCellEditing editorComponent: " + editorComponent)
-        //      val text = editorComponent.asInstanceOf[JTextField].getText
-        //      println("text: " + text)
-
         val isVerified = verify(editorComponent.asInstanceOf[JTextField])
         if (isVerified) {
           super.stopCellEditing()

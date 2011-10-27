@@ -53,10 +53,12 @@ object FieldTable {
       updateHandler = (field: MutableField, newValue: String) => field.values = newValue
       customCellRenderer = NonEditableBackgroundColorCellRenderer[MutableField](Color.LIGHT_GRAY)
     },
+    new Column[MutableField, String]("Default", EditableMode.IsEditable[MutableField], (field: MutableField) => field.default) {
+      updateHandler = (field: MutableField, newValue: String) => field.default = newValue
+    },
     new Column[MutableField, String]("Delete", EditableMode.IsEditable[MutableField], (field: MutableField) => "Remove") {
       updateHandler = (field: MutableField, newValue: String) => {}
       customCellEditor = new ButtonTableCellEditor[MutableField]((row) => {
-        println("row to Remove: " + row);
         columnEventPublisher.publish(DeleteFieldTableRowEvent(row))
       })
       customCellRenderer = new ComponentCellRenderer[MutableField] {
@@ -79,6 +81,9 @@ class FieldTable(fields: List[MutableField]) extends GenericTable[MutableField](
     tableModel.updateWithNewList(fields)
   }
 
+  def getFields: List[FieldConfig] = {
+    tableModel.values.map(_.toFieldConfig).toList
+  }
 
   reactions += {
     case FieldTable.DeleteFieldTableRowEvent(row) => tableModel.removeRow(row)
@@ -91,16 +96,16 @@ object MutableField {
   case object UpdateEvent extends Event
 
   def apply(fieldConfig: FieldConfig): MutableField = fieldConfig match {
-    case DoubleRangeFieldConfig(name, from, to, default) => MutableField(name, FieldType.NumberRangeField, ConstraintType.Between, null, from + ";" + to, "")
+    case DoubleRangeFieldConfig(name, from, to, default) => MutableField(name, FieldType.NumberRangeField, ConstraintType.Between, null, from + ";" + to, "", default.map(_.toString).orNull)
     case DoubleFieldConfig(name, validationType, level, default) => validationType match {
-      case DoubleFieldValidationType.GreaterThan => MutableField(name, FieldType.NumberLevelField, ConstraintType.GreaterThan, level, "", "")
-      case DoubleFieldValidationType.GreaterThanEqual => MutableField(name, FieldType.NumberLevelField, ConstraintType.GreaterThanEqual, level, "", "")
-      case DoubleFieldValidationType.LessThan => MutableField(name, FieldType.NumberLevelField, ConstraintType.LessThan, level, "", "")
-      case DoubleFieldValidationType.LessThanEqual => MutableField(name, FieldType.NumberLevelField, ConstraintType.LessThanEqual, level, "", "")
+      case DoubleFieldValidationType.GreaterThan => MutableField(name, FieldType.NumberLevelField, ConstraintType.GreaterThan, level, "", "", default.map(_.toString).orNull)
+      case DoubleFieldValidationType.GreaterThanEqual => MutableField(name, FieldType.NumberLevelField, ConstraintType.GreaterThanEqual, level, "", "", default.map(_.toString).orNull)
+      case DoubleFieldValidationType.LessThan => MutableField(name, FieldType.NumberLevelField, ConstraintType.LessThan, level, "", "", default.map(_.toString).orNull)
+      case DoubleFieldValidationType.LessThanEqual => MutableField(name, FieldType.NumberLevelField, ConstraintType.LessThanEqual, level, "", "", default.map(_.toString).orNull)
     }
     case ChooseFieldConfig(name, validationType, values, default) => validationType match {
-      case ChooseFieldValidationType.OneOf => MutableField(name, FieldType.ChooseField, ConstraintType.OneOf, null, "", values.mkString(","))
-      case ChooseFieldValidationType.ManyOf => MutableField(name, FieldType.ChooseField, ConstraintType.ManyOf, null, "", values.mkString(","))
+      case ChooseFieldValidationType.OneOf => MutableField(name, FieldType.ChooseField, ConstraintType.OneOf, null, "", values.mkString(","), default.orNull)
+      case ChooseFieldValidationType.ManyOf => MutableField(name, FieldType.ChooseField, ConstraintType.ManyOf, null, "", values.mkString(","), default.orNull)
     }
   }
 
@@ -108,7 +113,7 @@ object MutableField {
 
 case class MutableField(var name: String, private var _fieldType: FieldType, var constraintType: ConstraintType,
                         private var _level: java.lang.Double, private var _range: String,
-                        private var _values: String) extends Publisher {
+                        private var _values: String, var default: String) extends Publisher {
   fieldTypeChanged()
 
   private def fieldTypeChanged() {
@@ -152,6 +157,43 @@ case class MutableField(var name: String, private var _fieldType: FieldType, var
   }
 
   def values: String = _values
+
+
+  implicit def tryToCastToDouble(value: String): Option[Double] = value match {
+    case null => None
+    case _ =>
+      try {
+        Some(value.toDouble)
+      } catch {
+        case e: Exception => None
+      }
+  }
+
+  implicit def wrapString(value: String): Option[String] = value match {
+    case null => None
+    case notNull => Some(notNull)
+  }
+
+
+
+  def toFieldConfig: FieldConfig = fieldType match {
+    case FieldType.NumberRangeField => range.split(";").toList match {
+      case List(from, to) => DoubleRangeFieldConfig(name, from.toDouble, to.toDouble, default)
+      case _ => sys.error("Not a valid range value!")
+    }
+    case FieldType.NumberLevelField => constraintType match {
+      case ConstraintType.GreaterThan => DoubleFieldConfig(name, DoubleFieldValidationType.GreaterThan, level, default)
+      case ConstraintType.GreaterThanEqual => DoubleFieldConfig(name, DoubleFieldValidationType.GreaterThanEqual, level, default)
+      case ConstraintType.LessThan => DoubleFieldConfig(name, DoubleFieldValidationType.LessThan, level, default)
+      case ConstraintType.LessThanEqual => DoubleFieldConfig(name, DoubleFieldValidationType.LessThanEqual, level, default)
+    }
+    case FieldType.ChooseField => constraintType match {
+      case ConstraintType.OneOf => ChooseFieldConfig(name, ChooseFieldValidationType.OneOf, values.split(",").toList, default)
+      case ConstraintType.ManyOf => ChooseFieldConfig(name, ChooseFieldValidationType.ManyOf, values.split(",").toList, default)
+    }
+  }
+
+
 }
 
 abstract class FieldType(val header: String, val constrainTypes: List[ConstraintType]) {

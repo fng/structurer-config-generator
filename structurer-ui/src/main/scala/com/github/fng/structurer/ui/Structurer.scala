@@ -58,6 +58,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     }
 
+    val refreshFieldsButton = new Button("Refresh Fields")
     val drawButton = new Button("Draw")
 
     val packagePanel = new PackagePanel
@@ -74,9 +75,9 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     val bondTable = new BondTable(bonds.map(MutableBond(_)))
 
     val fieldTable = new FieldTable(List(
-      MutableField("CAP", FieldType.NumberLevelField, ConstraintType.GreaterThan, 100, "", ""),
-      MutableField("DUMMY", FieldType.NumberRangeField, ConstraintType.GreaterThan, null, "50;80", ""),
-      MutableField("COUPON FREQUENCY", FieldType.ChooseField, ConstraintType.OneOf, null, "", "annually,semi-annually,quarterly,monthly")
+      MutableField("CAP", FieldType.NumberLevelField, ConstraintType.GreaterThan, 100, "", "", "120"),
+      MutableField("DUMMY", FieldType.NumberRangeField, ConstraintType.GreaterThan, null, "50;80", "", "60"),
+      MutableField("COUPON FREQUENCY", FieldType.ChooseField, ConstraintType.OneOf, null, "", "annually,semi-annually,quarterly,monthly", "annually")
     ))
 
     val chartPanel = new BorderPanel {
@@ -100,19 +101,16 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     loadableConfigurations.foreach(listenTo(_))
 
-    listenTo(drawButton, addOptionMenu, addBondMenu)
+    listenTo(refreshFieldsButton, drawButton, addOptionMenu, addBondMenu)
 
 
     reactions += {
+      case ButtonClicked(`refreshFieldsButton`) =>
+        fieldPanel.refreshFieldPanel(fieldTable.getFields)
+        mainPanel.revalidate()
       case ButtonClicked(`drawButton`) =>
         chartPanel.updateChart()
         mainPanel.revalidate()
-      //      case InstrumentPanel.PanelEvent.RemovePanelEvent(panel) =>
-      //        packagePanel.instrumentPanel.contents -= panel
-      //        packagePanel.instrumentPanel.revalidate()
-      //        splitPane.revalidate()
-      //        optionTable.removeOne
-      //        bondTable.removeOne
       case ButtonClicked(`addOptionMenu`) =>
         optionTable.add(MutableOption(ExpressionOption(OptionType.Call, 0.0, 10, 100, OptionBarrierType.NoBarrier)))
       case ButtonClicked(`addBondMenu`) =>
@@ -152,11 +150,12 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
       bondTable.updateWithNewList(expressionBonds.map(MutableBond(_)))
 
-
       fieldTable.updateWithNewList(fields.map(MutableField(_)))
 
+
+
       packagePanel.update(packageInstrument)
-      fieldPanel.refreshFieldPanel(fields)
+      fieldPanel.refreshFieldPanel(fieldTable.getFields)
       mainPanel.revalidate()
       chartPanel.updateChart()
 
@@ -174,7 +173,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       wrap(new ScrollPane(fieldTable) {
         border = BorderFactory.createTitledBorder("Fields")
       })
-      wrap(drawButton)
+      wrap(new FlowPanel(refreshFieldsButton, drawButton))
       add(new SplitPane(Orientation.Vertical,
         new BorderPanel {
           add(fieldPanel, BorderPanel.Position.North)
@@ -182,7 +181,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         chartPanel) {
         dividerLocation = 400
         dividerSize = 8
-//        oneTouchExpandable = true
+        //        oneTouchExpandable = true
       })
 
     }

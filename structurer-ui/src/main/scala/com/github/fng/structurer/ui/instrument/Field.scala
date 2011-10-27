@@ -278,7 +278,6 @@ object TextFieldType {
       true
     } catch {
       case e: Exception =>
-        println(e.getMessage)
         false
     }
   }
@@ -290,7 +289,6 @@ object TextFieldType {
       valueConstraintLevel(java.lang.Double.valueOf(value).doubleValue(), level)
     } catch {
       case e: Exception =>
-        println(e.getMessage)
         false
     }
 
@@ -310,7 +308,6 @@ object TextFieldType {
       from <= doubleValue && doubleValue <= to
     } catch {
       case e: Exception =>
-        println(e.getMessage)
         false
     }
 
@@ -322,7 +319,6 @@ object TextFieldType {
       true
     } catch {
       case e: Exception =>
-        println(e.getMessage)
         false
     }
   }

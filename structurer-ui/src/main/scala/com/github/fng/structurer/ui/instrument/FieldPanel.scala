@@ -17,7 +17,6 @@ class FieldPanel extends BoxPanel(Orientation.Vertical) {
   //  contents += new ExpressionField("Expression", ExpressionParser.parse(0))
 
   def refreshFieldPanel(fields: List[FieldConfig]) {
-    println("fields: " + fields)
     contents.clear()
     contents ++= fields.map {
       case DoubleRangeFieldConfig(name, from, to, default) => new RangeDoubleField(name, default.getOrElse(0), from, to)
