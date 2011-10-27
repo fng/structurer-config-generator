@@ -8,10 +8,10 @@ import event.ButtonClicked
 import com.efgfp.commons.spring.resource.ResourceLoader
 import com.github.fng.structurer.instrument._
 import org.springframework.core.io.support.{ResourcePatternResolver, ResourcePatternUtils}
-import org.springframework.core.io.{Resource, DefaultResourceLoader, ClassPathResource}
 import com.github.fng.structurer.config.{FieldConfig, ProductConfig}
 import javax.swing.table.AbstractTableModel
 import javax.swing.{BorderFactory, JPanel}
+import org.springframework.core.io.{FileSystemResource, Resource, DefaultResourceLoader, ClassPathResource}
 
 
 object Structurer extends SimpleSwingApplication with PayoffSamples with LoadableConfigurations {
@@ -36,6 +36,9 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     val addFieldMenu = new MenuItem("Field")
 
 
+    val configsFromDiskMenu = new Menu("Configs from Disk")
+
+
     menuBar = new MenuBar {
       contents += new Menu("File") {
         contents += new MenuItem(Action("Quit") {
@@ -53,12 +56,24 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         contents ++= payoffSamples
       }
 
-      contents += new Menu("Config") {
-        contents ++= loadableConfigurations
+      contents += new Menu("Sample Config") {
+        contents ++= loadableClasspathConfigurations
       }
 
+      contents += configsFromDiskMenu
 
     }
+
+
+
+
+    def refreshFileConfigs() {
+      configsFromDiskMenu.contents.clear()
+      val items = StructurerFS.loadableFileConfigMenuItems
+      configsFromDiskMenu.contents ++= items
+      items.foreach(listenTo(_))
+    }
+
 
     val refreshFieldsButton = new Button("Refresh Fields")
     val drawButton = new Button("Draw")
@@ -91,10 +106,11 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     payoffSamples.foreach(listenTo(_))
 
-    loadableConfigurations.foreach(listenTo(_))
+    loadableClasspathConfigurations.foreach(listenTo(_))
 
     listenTo(refreshFieldsButton, drawButton, addOptionMenu, addBondMenu, addFieldMenu)
 
+    refreshFileConfigs()
 
     reactions += {
       case ButtonClicked(`refreshFieldsButton`) =>
@@ -115,14 +131,19 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         bondTable.add(MutableBond(ExpressionBond(1000, 1)))
       case ButtonClicked(`addFieldMenu`) =>
         fieldTable.add(MutableField("FIELD", FieldType.NumberLevelField, ConstraintType.GreaterThan, 100, "", "", "120"))
-      case ButtonClicked(config) if config.isInstanceOf[LoadableConfigMenuItem] =>
+      case ButtonClicked(classPathConfig) if classPathConfig.isInstanceOf[LoadableClasspathConfigMenuItem] =>
         dialogSave {
-          loadFromConfig(config.asInstanceOf[LoadableConfigMenuItem].resource)
+          loadFromConfig(classPathConfig.asInstanceOf[LoadableClasspathConfigMenuItem].resource)
+        }
+      case ButtonClicked(fileConfig) if fileConfig.isInstanceOf[LoadableFileConfigMenuItem] =>
+        dialogSave {
+          loadFromConfig(new FileSystemResource(fileConfig.asInstanceOf[LoadableFileConfigMenuItem].file))
         }
       case ButtonClicked(sample) if sample.isInstanceOf[SampleMenuItem] =>
         dialogSave {
           refreshPackagePanelWithNew(sample.asInstanceOf[SampleMenuItem].packageInstrument, Nil)
         }
+      case other => println("other: " + other)
 
     }
 
@@ -249,7 +270,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         )
       }
     } catch {
-      case e: Exception => throw new RuntimeException("Problem in evaluating Options. Are all Fields defined? ("+e.getMessage+")", e)
+      case e: Exception => throw new RuntimeException("Problem in evaluating Options. Are all Fields defined? (" + e.getMessage + ")", e)
     }
 
 
@@ -261,7 +282,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         )
       }
     } catch {
-      case e: Exception => throw new RuntimeException("Problem in evaluating Bonds. Are all Fields defined? ("+e.getMessage+")", e)
+      case e: Exception => throw new RuntimeException("Problem in evaluating Bonds. Are all Fields defined? (" + e.getMessage + ")", e)
     }
 
 
