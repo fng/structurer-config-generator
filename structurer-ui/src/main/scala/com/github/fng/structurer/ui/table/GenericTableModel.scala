@@ -30,7 +30,6 @@ object GenericTableModel {
   }
 
 
-
   abstract class EditableMode[T]
 
   object EditableMode {
@@ -45,11 +44,8 @@ object GenericTableModel {
 
   }
 
-  class Column[T, F](var _name: String, var _editableMode: EditableMode[T], var _extractor: (T) => F) {
+  class Column[T, F](var _name: String, var _editableMode: EditableMode[T], var _extractor: (T) => F)(implicit val m: Manifest[F]) {
 
-    def this() = this (null, EditableMode.IsNotEditable[T], null)
-
-    def this(name: String, editable: Boolean, extractor: (T) => F) = this (name, if (editable) EditableMode.IsEditable[T] else EditableMode.IsNotEditable[T], extractor)
 
     val columnEventPublisher: ColumnEventPublisher = new ColumnEventPublisher
 
@@ -94,7 +90,15 @@ object GenericTableModel {
 
 
     def update(t: T, value: AnyRef) {
-      updateHandler(t, value.asInstanceOf[F])
+      println("class: " + manifest.erasure)
+
+      // TODO 27.10.11 15:32 wyd: allow to register a partial function to provide these custom casting from the outside!
+      val castedValue: F = (value, manifest.erasure) match {
+        case (s: String, c) if c == classOf[java.lang.Double] => java.lang.Double.valueOf(s).asInstanceOf[F]
+        case _ => value.asInstanceOf[F]
+      }
+
+      updateHandler(t, castedValue)
     }
 
 

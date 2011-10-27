@@ -5,35 +5,35 @@ import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType}
 import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpression}
 import table.CellEditor.{ButtonTableCellEditor, ComboboxCellEditor, ExpressionCellEditor}
 import swing.Table.ElementMode
-import table.GenericTableModel.{ComponentCellRenderer, Column}
+import table.GenericTableModel.{EditableMode, ComponentCellRenderer, Column}
 import table.{GenericTable, GenericTableModel}
 import swing.{Component, Button, Table}
 import swing.event.Event
 
 object OptionTable {
   val columns = List(
-    new Column[MutableOption, OptionType]("OptionType", true, (option: MutableOption) => option.optionType) {
+    new Column[MutableOption, OptionType]("OptionType", EditableMode.IsEditable[MutableOption], (option: MutableOption) => option.optionType) {
       updateHandler = (option: MutableOption, newValue: OptionType) => option.optionType = newValue
       customCellEditor = new ComboboxCellEditor[MutableOption](List(OptionType.Call, OptionType.Put))
     },
-    new Column[MutableOption, String]("Strike", true, (option: MutableOption) => option.strike.originalString) {
+    new Column[MutableOption, String]("Strike", EditableMode.IsEditable[MutableOption], (option: MutableOption) => option.strike.originalString) {
       updateHandler = (option: MutableOption, newValue: String) => option.strike = ExpressionParser.parse(newValue)
       customCellEditor = new ExpressionCellEditor[MutableOption]()
     },
-    new Column[MutableOption, String]("Quantity", true, (option: MutableOption) => option.quantity.originalString) {
+    new Column[MutableOption, String]("Quantity", EditableMode.IsEditable[MutableOption], (option: MutableOption) => option.quantity.originalString) {
       updateHandler = (option: MutableOption, newValue: String) => option.quantity = ExpressionParser.parse(newValue)
       customCellEditor = new ExpressionCellEditor[MutableOption]()
     },
-    new Column[MutableOption, String]("Notional", true, (option: MutableOption) => option.notional.originalString) {
+    new Column[MutableOption, String]("Notional", EditableMode.IsEditable[MutableOption], (option: MutableOption) => option.notional.originalString) {
       updateHandler = (option: MutableOption, newValue: String) => option.notional = ExpressionParser.parse(newValue)
       customCellEditor = new ExpressionCellEditor[MutableOption]()
     },
-    new Column[MutableOption, OptionBarrierType]("OptionBarrierType", true, (option: MutableOption) => option.optionBarrierType) {
+    new Column[MutableOption, OptionBarrierType]("OptionBarrierType", EditableMode.IsEditable[MutableOption], (option: MutableOption) => option.optionBarrierType) {
       updateHandler = (option: MutableOption, newValue: OptionBarrierType) => option.optionBarrierType = newValue
       customCellEditor = new ComboboxCellEditor[MutableOption](List(OptionBarrierType.NoBarrier, OptionBarrierType.KnockInBarrier,
         OptionBarrierType.KnockOutBarrier))
     },
-    new Column[MutableOption, String]("Remove", true, (option: MutableOption) => "Remove") {
+    new Column[MutableOption, String]("Remove", EditableMode.IsEditable[MutableOption], (option: MutableOption) => "Remove") {
       updateHandler = (option: MutableOption, newValue: String) => {}
       customCellEditor = new ButtonTableCellEditor[MutableOption]((row) => {
         println("row to Remove: " + row);

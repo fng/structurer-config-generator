@@ -5,7 +5,7 @@ import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpres
 import table.CellEditor.{ButtonTableCellEditor, ExpressionCellEditor}
 import swing.{Button, Component, Table}
 import swing.Table.ElementMode
-import table.GenericTableModel.{ComponentCellRenderer, Column}
+import table.GenericTableModel.{EditableMode, ComponentCellRenderer, Column}
 import table.{GenericTable, GenericTableModel}
 import swing.event.Event
 
@@ -13,15 +13,15 @@ import swing.event.Event
 object BondTable {
 
   val columns = List(
-    new Column[MutableBond, String]("Notional", true, (bond: MutableBond) => bond.notional.originalString) {
+    new Column[MutableBond, String]("Notional", EditableMode.IsEditable[MutableBond], (bond: MutableBond) => bond.notional.originalString) {
       updateHandler = (bond: MutableBond, newValue: String) => bond.notional = ExpressionParser.parse(newValue)
       customCellEditor = new ExpressionCellEditor[MutableBond]()
     },
-    new Column[MutableBond, String]("Quantity", true, (bond: MutableBond) => bond.quantity.originalString) {
+    new Column[MutableBond, String]("Quantity", EditableMode.IsEditable[MutableBond], (bond: MutableBond) => bond.quantity.originalString) {
       updateHandler = (bond: MutableBond, newValue: String) => bond.quantity = ExpressionParser.parse(newValue)
       customCellEditor = new ExpressionCellEditor[MutableBond]()
     },
-    new Column[MutableBond, String]("Delete", true, (bond: MutableBond) => "Remove") {
+    new Column[MutableBond, String]("Delete", EditableMode.IsEditable[MutableBond], (bond: MutableBond) => "Remove") {
       updateHandler = (bond: MutableBond, newValue: String) => {}
       customCellEditor = new ButtonTableCellEditor[MutableBond]((row) => {
         println("row to Remove: " + row);

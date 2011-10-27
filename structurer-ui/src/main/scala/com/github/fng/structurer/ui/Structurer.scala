@@ -74,9 +74,9 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     val bondTable = new BondTable(bonds.map(MutableBond(_)))
 
     val fieldTable = new FieldTable(List(
-      MutableField("CAP", FieldType.NumberLevelField, ConstraintType.GreaterThan, "100", "", ""),
-      MutableField("DUMMY", FieldType.NumberRangeField, ConstraintType.GreaterThan, "", "50;80", ""),
-      MutableField("COUPON FREQUENCY", FieldType.ChooseField, ConstraintType.OneOf, "", "", "annually,semi-annually,quarterly,monthly")
+      MutableField("CAP", FieldType.NumberLevelField, ConstraintType.GreaterThan, 100, "", ""),
+      MutableField("DUMMY", FieldType.NumberRangeField, ConstraintType.GreaterThan, null, "50;80", ""),
+      MutableField("COUPON FREQUENCY", FieldType.ChooseField, ConstraintType.OneOf, null, "", "annually,semi-annually,quarterly,monthly")
     ))
 
     val chartPanel = new BorderPanel {
