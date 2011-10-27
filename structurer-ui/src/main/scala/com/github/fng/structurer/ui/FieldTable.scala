@@ -11,16 +11,16 @@ object FieldTable {
     new Column[MutableField, String]("Name", true, (field: MutableField) => field.name) {
       updateHandler = (field: MutableField, newValue: String) => field.name = newValue
     },
-    new Column[MutableField, String]("Type", true, (field: MutableField) => field.fieldType.header) {
-      updateHandler = (field: MutableField, newValue: String) => field.fieldType = FieldType.forHeader(newValue)
-      customCellEditor = new ComboboxCellEditor(List(FieldType.NumberField.header,
-        FieldType.NumberRangeField.header, FieldType.ChooseField.header))
+    new Column[MutableField, FieldType]("Type", true, (field: MutableField) => field.fieldType) {
+      updateHandler = (field: MutableField, newValue: FieldType) => field.fieldType = newValue
+      customCellEditor = new ComboboxCellEditor(List(FieldType.NumberField,
+        FieldType.NumberRangeField, FieldType.ChooseField))
     },
-    new Column[MutableField, String]("Constraint Type", true, (field: MutableField) => field.constraintType.header) {
-      updateHandler = (field: MutableField, newValue: String) => field.constraintType = ConstraintType.forHeader(newValue)
-      customCellEditor = new ComboboxCellEditor(List(ConstraintType.GreaterThan.header,
-        ConstraintType.GreaterThanEqual.header, ConstraintType.LessThanEqual.header,
-        ConstraintType.LessThan.header, ConstraintType.OneOf.header, ConstraintType.ManyOf.header))
+    new Column[MutableField, ConstraintType]("Constraint Type", true, (field: MutableField) => field.constraintType) {
+      updateHandler = (field: MutableField, newValue: ConstraintType) => field.constraintType = newValue
+      customCellEditor = new ComboboxCellEditor(List(ConstraintType.GreaterThan,
+        ConstraintType.GreaterThanEqual, ConstraintType.LessThanEqual,
+        ConstraintType.LessThan, ConstraintType.OneOf, ConstraintType.ManyOf))
     },
     new Column[MutableField, String]("Value", true, (field: MutableField) => field.value) {
       updateHandler = (field: MutableField, newValue: String) => field.value = newValue
@@ -50,7 +50,9 @@ class FieldTable(fields: List[MutableField]) extends GenericTable[MutableField](
 
 case class MutableField(var name: String, var fieldType: FieldType, var constraintType: ConstraintType, var value: String)
 
-abstract class FieldType(val header: String)
+abstract class FieldType(val header: String){
+  override def toString: String = header
+}
 
 object FieldType {
 
@@ -69,7 +71,9 @@ object FieldType {
 
 }
 
-abstract class ConstraintType(val header: String)
+abstract class ConstraintType(val header: String){
+  override def toString: String = header
+}
 
 object ConstraintType {
 
