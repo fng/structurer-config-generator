@@ -38,9 +38,12 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     val configsFromDiskMenu = new Menu("Configs from Disk")
 
+    val saveMenu = new MenuItem("Save")
+
 
     menuBar = new MenuBar {
       contents += new Menu("File") {
+        contents += saveMenu
         contents += new MenuItem(Action("Quit") {
           System.exit(0)
         })
@@ -63,8 +66,6 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       contents += configsFromDiskMenu
 
     }
-
-
 
 
     def refreshFileConfigs() {
@@ -108,11 +109,14 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     loadableClasspathConfigurations.foreach(listenTo(_))
 
-    listenTo(refreshFieldsButton, drawButton, addOptionMenu, addBondMenu, addFieldMenu)
+    listenTo(saveMenu, refreshFieldsButton, drawButton, addOptionMenu, addBondMenu, addFieldMenu)
 
     refreshFileConfigs()
 
     reactions += {
+      case ButtonClicked(`saveMenu`) =>
+        StructurerFS.save(mainPanel)
+        refreshFileConfigs()
       case ButtonClicked(`refreshFieldsButton`) =>
         fieldPanel.refreshFieldPanel(fieldTable.getFields)
         mainPanel.revalidate()
@@ -143,7 +147,6 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         dialogSave {
           refreshPackagePanelWithNew(sample.asInstanceOf[SampleMenuItem].packageInstrument, Nil)
         }
-      case other => println("other: " + other)
 
     }
 
