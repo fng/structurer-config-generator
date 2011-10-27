@@ -57,7 +57,7 @@ class OptionTable(options: List[MutableOption]) extends GenericTable[MutableOpti
   peer.getColumnModel.getColumn(1).setPreferredWidth(200)
   peer.getColumnModel.getColumn(2).setPreferredWidth(200)
   peer.getColumnModel.getColumn(3).setPreferredWidth(100)
-  peer.getColumnModel.getColumn(4).setPreferredWidth(60)
+  peer.getColumnModel.getColumn(5).setPreferredWidth(60)
 
   def add(option: MutableOption) {
     tableModel.add(option)

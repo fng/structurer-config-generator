@@ -22,8 +22,14 @@ object FieldTable {
         ConstraintType.GreaterThanEqual, ConstraintType.LessThanEqual,
         ConstraintType.LessThan, ConstraintType.OneOf, ConstraintType.ManyOf))
     },
-    new Column[MutableField, String]("Value", true, (field: MutableField) => field.value) {
-      updateHandler = (field: MutableField, newValue: String) => field.value = newValue
+    new Column[MutableField, String]("Number Value", true, (field: MutableField) => field.numberValue) {
+      updateHandler = (field: MutableField, newValue: String) => field.numberValue = newValue
+    },
+    new Column[MutableField, String]("Number Range Value", true, (field: MutableField) => field.numberRangeValue) {
+      updateHandler = (field: MutableField, newValue: String) => field.numberRangeValue = newValue
+    },
+    new Column[MutableField, String]("Choose Value", true, (field: MutableField) => field.chooseValue) {
+      updateHandler = (field: MutableField, newValue: String) => field.chooseValue = newValue
     },
     new Column[MutableField, String]("Delete", true, (field: MutableField) => "Remove") {
       updateHandler = (field: MutableField, newValue: String) => {}
@@ -48,9 +54,17 @@ class FieldTable(fields: List[MutableField]) extends GenericTable[MutableField](
   }
 }
 
-case class MutableField(var name: String, var fieldType: FieldType, var constraintType: ConstraintType, var value: String)
+case class MutableField(var name: String, var fieldType: FieldType, var constraintType: ConstraintType,
+                        private var _numberValue: String, var numberRangeValue: String, var chooseValue: String) {
+  def numberValue_=(numberValue: String) {
+    _numberValue = numberValue
+  }
 
-abstract class FieldType(val header: String){
+  def numberValue: String = _numberValue
+
+}
+
+abstract class FieldType(val header: String) {
   override def toString: String = header
 }
 
@@ -71,7 +85,7 @@ object FieldType {
 
 }
 
-abstract class ConstraintType(val header: String){
+abstract class ConstraintType(val header: String) {
   override def toString: String = header
 }
 

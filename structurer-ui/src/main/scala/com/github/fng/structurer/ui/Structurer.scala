@@ -72,8 +72,8 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     val optionTable = new OptionTable(options.map(MutableOption(_)))
     val bondTable = new BondTable(bonds.map(MutableBond(_)))
 
-    val fieldTable = new FieldTable(List(MutableField("CAP", FieldType.NumberField, ConstraintType.GreaterThan, "100"),
-      MutableField("COUPON FREQUENCY", FieldType.ChooseField, ConstraintType.GreaterThan, "YEARLY")))
+    val fieldTable = new FieldTable(List(MutableField("CAP", FieldType.NumberField, ConstraintType.GreaterThan, "100", "", ""),
+      MutableField("COUPON FREQUENCY", FieldType.ChooseField, ConstraintType.GreaterThan, "YEARLY", "", "")))
 
     val chartPanel = new BorderPanel {
 
@@ -156,7 +156,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     }
 
-    val mainPanel = new MigLayoutPanel(colConstraints = "[][grow, fill]", rowConstraints = "[50][100][100][][grow, fill]") {
+    val mainPanel = new MigLayoutPanel(colConstraints = "[600][grow, fill]", rowConstraints = "[50][100][100][][grow, fill]") {
       wrap(packagePanel, "spanx 2, growx")
       wrap(new ScrollPane(optionTable) {
         border = BorderFactory.createTitledBorder("Options")
@@ -167,7 +167,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       wrap(drawButton, "spanx 2, growx")
       add(new ScrollPane(fieldTable) {
         border = BorderFactory.createTitledBorder("Fields")
-      })
+      }, "growx")
       add(new SplitPane(Orientation.Vertical,
         new BorderPanel {
           add(fieldPanel, BorderPanel.Position.North)
