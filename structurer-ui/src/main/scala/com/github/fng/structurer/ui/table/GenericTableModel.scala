@@ -13,21 +13,25 @@ object GenericTableModel {
     def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component
   }
 
-  abstract class EditableMode
+  abstract class EditableMode[T]
 
   object EditableMode {
 
-    case object IsEditable extends EditableMode
+    case class IsEditable[T] extends EditableMode[T]
 
-    case object IsNotEditable extends EditableMode
+    case class IsNotEditable[T] extends EditableMode[T]
+
+    trait CustomEditableMode[T] extends EditableMode[T] {
+      def isEditable(t: T): Boolean
+    }
 
   }
 
-  class Column[T, F](var _name: String, var _editableMode: EditableMode, var _extractor: (T) => F) {
+  class Column[T, F](var _name: String, var _editableMode: EditableMode[T], var _extractor: (T) => F) {
 
-    def this() = this (null, EditableMode.IsNotEditable, null)
+    def this() = this (null, EditableMode.IsNotEditable[T], null)
 
-    def this(name: String, editable: Boolean, extractor: (T) => F) = this (name, if (editable) EditableMode.IsEditable else EditableMode.IsNotEditable, extractor)
+    def this(name: String, editable: Boolean, extractor: (T) => F) = this (name, if (editable) EditableMode.IsEditable[T] else EditableMode.IsNotEditable[T], extractor)
 
     val columnEventPublisher: ColumnEventPublisher = new ColumnEventPublisher
 
@@ -44,15 +48,16 @@ object GenericTableModel {
     def name: String = _name
 
 
-    def editableMode_=(editableMode: EditableMode) {
+    def editableMode_=(editableMode: EditableMode[T]) {
       _editableMode = editableMode
     }
 
-    def editableMode: EditableMode = _editableMode
+    def editableMode: EditableMode[T] = _editableMode
 
-    def isEditable(row: Int): Boolean = editableMode match {
-      case EditableMode.IsEditable => true
-      case EditableMode.IsNotEditable => false
+    def isEditable(t: T): Boolean = editableMode match {
+      case EditableMode.IsEditable() => true
+      case EditableMode.IsNotEditable() => false
+      case custom: EditableMode.CustomEditableMode[T] => custom.isEditable(t)
     }
 
 
@@ -100,7 +105,7 @@ class GenericTableModel[T](columns: List[Column[T, _]], val values: Buffer[T]) e
 
   def getValueAt(row: Int, col: Int) = columns(col).extractor(values(row)).asInstanceOf[AnyRef]
 
-  override def isCellEditable(row: Int, col: Int) = columns(col).isEditable(row)
+  override def isCellEditable(row: Int, col: Int) = columns(col).isEditable(values(row))
 
   override def getColumnName(col: Int) = columns(col).name
 

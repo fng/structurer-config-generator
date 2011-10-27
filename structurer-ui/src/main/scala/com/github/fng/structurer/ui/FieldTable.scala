@@ -1,12 +1,15 @@
 package com.github.fng.structurer.ui
 
 import swing.event.Event
-import swing.{Component, Button}
 import table.CellEditor.{ComboboxCellEditor, ButtonTableCellEditor, ExpressionCellEditor}
-import table.GenericTableModel.{ComponentCellRenderer, Column}
+import table.GenericTableModel.EditableMode.CustomEditableMode
+import table.GenericTableModel.{EditableMode, ComponentCellRenderer, Column}
 import table.{GenericTable, GenericTableModel}
+import swing.{Publisher, Component, Button}
+import swing.event.Event
 
 object FieldTable {
+
   val columns = List(
     new Column[MutableField, String]("Name", true, (field: MutableField) => field.name) {
       updateHandler = (field: MutableField, newValue: String) => field.name = newValue
@@ -22,13 +25,22 @@ object FieldTable {
         ConstraintType.GreaterThanEqual, ConstraintType.LessThanEqual,
         ConstraintType.LessThan, ConstraintType.OneOf, ConstraintType.ManyOf))
     },
-    new Column[MutableField, String]("Number Value", true, (field: MutableField) => field.numberValue) {
+    new Column[MutableField, String]("Number Value", new CustomEditableMode[MutableField] {
+      def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.NumberField
+    }
+      , (field: MutableField) => field.numberValue) {
       updateHandler = (field: MutableField, newValue: String) => field.numberValue = newValue
     },
-    new Column[MutableField, String]("Number Range Value", true, (field: MutableField) => field.numberRangeValue) {
+    new Column[MutableField, String]("Number Range Value", new CustomEditableMode[MutableField] {
+      def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.NumberRangeField
+    }
+      , (field: MutableField) => field.numberRangeValue) {
       updateHandler = (field: MutableField, newValue: String) => field.numberRangeValue = newValue
     },
-    new Column[MutableField, String]("Choose Value", true, (field: MutableField) => field.chooseValue) {
+    new Column[MutableField, String]("Choose Value", new CustomEditableMode[MutableField] {
+      def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.ChooseField
+    }
+      , (field: MutableField) => field.chooseValue) {
       updateHandler = (field: MutableField, newValue: String) => field.chooseValue = newValue
     },
     new Column[MutableField, String]("Delete", true, (field: MutableField) => "Remove") {
@@ -49,19 +61,63 @@ object FieldTable {
 }
 
 class FieldTable(fields: List[MutableField]) extends GenericTable[MutableField](FieldTable.columns, fields) {
+
+  fields.foreach(listenTo(_))
+
   reactions += {
     case FieldTable.DeleteFieldTableRowEvent(row) => tableModel.removeRow(row)
+    case MutableField.UpdateEvent => tableModel.fireTableDataChanged()
   }
 }
 
-case class MutableField(var name: String, var fieldType: FieldType, var constraintType: ConstraintType,
-                        private var _numberValue: String, var numberRangeValue: String, var chooseValue: String) {
+object MutableField{
+  case object UpdateEvent extends Event
+}
+
+case class MutableField(var name: String, private var _fieldType: FieldType, var constraintType: ConstraintType,
+                        private var _numberValue: String, private var _numberRangeValue: String,
+                        private var _chooseValue: String) extends Publisher {
+
+  private def fieldTypeChanged() {
+    fieldType match {
+      case FieldType.NumberField =>
+        numberRangeValue = ""
+        chooseValue = ""
+      case FieldType.NumberRangeField =>
+        numberValue = ""
+        chooseValue = ""
+      case FieldType.ChooseField =>
+        numberValue = ""
+        numberRangeValue = ""
+    }
+    publish(MutableField.UpdateEvent)
+  }
+
+  def fieldType_=(fieldType: FieldType) {
+    _fieldType = fieldType
+    fieldTypeChanged()
+  }
+
+  def fieldType: FieldType = _fieldType
+
   def numberValue_=(numberValue: String) {
     _numberValue = numberValue
   }
 
   def numberValue: String = _numberValue
 
+
+  def numberRangeValue_=(numberRangeValue: String) {
+    _numberRangeValue = numberRangeValue
+  }
+
+  def numberRangeValue: String = _numberRangeValue
+
+  def chooseValue_=(chooseValue: String) {
+    _chooseValue = chooseValue
+  }
+
+  def chooseValue: String = _chooseValue
 }
 
 abstract class FieldType(val header: String) {
