@@ -2,12 +2,13 @@ package com.github.fng.structurer.ui.table
 
 import collection.mutable.Buffer
 import javax.swing.table.{TableCellEditor, AbstractTableModel}
-import com.github.fng.structurer.ui.table.GenericTableModel.Column
 import java.awt.Color
 import com.github.fng.structurer.ui.instrument.TextFieldType.ExpressionField
 import javax.swing._
 import java.awt.event.{ActionEvent, ActionListener}
 import swing.{Button, Publisher, Component}
+import java.lang.Double
+import com.github.fng.structurer.ui.table.GenericTableModel.{DefaultCaster, Column}
 
 object GenericTableModel {
 
@@ -54,6 +55,11 @@ object GenericTableModel {
     }
     var _customCellEditor: Option[ComponentCellEditor[T]] = None
     var _customCellRenderer: Option[ComponentCellRenderer[T]] = None
+    var _customCastHelper: CastHelper[F] = new CastHelper[F] {
+      def apply(pair: (AnyRef, Class[_])): F = sys.error("Override CastHelper!")
+
+      def isDefinedAt(pair: (AnyRef, Class[_])): Boolean = false
+    }
 
     def name_=(name: String) {
       _name = name
@@ -89,19 +95,6 @@ object GenericTableModel {
     def updateHandler: (T, F) => Unit = _updateHandler
 
 
-    def update(t: T, value: AnyRef) {
-      println("class: " + manifest.erasure)
-
-      // TODO 27.10.11 15:32 wyd: allow to register a partial function to provide these custom casting from the outside!
-      val castedValue: F = (value, manifest.erasure) match {
-        case (s: String, c) if c == classOf[java.lang.Double] => java.lang.Double.valueOf(s).asInstanceOf[F]
-        case _ => value.asInstanceOf[F]
-      }
-
-      updateHandler(t, castedValue)
-    }
-
-
     def customCellEditor_=(customCellEditor: ComponentCellEditor[T]) {
       _customCellEditor = Option(customCellEditor)
     }
@@ -115,6 +108,31 @@ object GenericTableModel {
 
     def customCellRenderer: Option[ComponentCellRenderer[T]] = _customCellRenderer
 
+
+    def update(t: T, value: AnyRef) {
+      val caster = _customCastHelper orElse
+              new StringToJavaLangDoubleCaster orElse
+              new DefaultCaster[F]
+      val castedValue = caster((value, manifest.erasure)).asInstanceOf[F]
+      updateHandler(t, castedValue)
+    }
+
+
+  }
+
+  class StringToJavaLangDoubleCaster extends CastHelper[java.lang.Double] {
+    def apply(pair: (AnyRef, Class[_])): Double = java.lang.Double.valueOf(pair._1.asInstanceOf[String])
+
+    def isDefinedAt(pair: (AnyRef, Class[_])): Boolean = (pair._1, pair._2) match {
+      case (s: String, c) if c == classOf[java.lang.Double] => true
+      case _ => false
+    }
+  }
+
+  class DefaultCaster[F] extends CastHelper[F] {
+    def apply(pair: (AnyRef, Class[_])): F = pair._1.asInstanceOf[F]
+
+    def isDefinedAt(pair: (AnyRef, Class[_])): Boolean = true
   }
 
 
@@ -164,3 +182,11 @@ class GenericTableModel[T](val columns: List[Column[T, _]], val values: Buffer[T
   }
 
 }
+
+
+abstract class CastHelper[F] extends PartialFunction[(AnyRef, Class[_]), F] {
+  def apply(pair: (AnyRef, Class[_])): F
+
+  def isDefinedAt(pair: (AnyRef, Class[_])): Boolean
+}
+
