@@ -8,6 +8,8 @@ import swing._
 import java.awt.Color
 import table.{ComponentCellEditor, GenericTable, GenericTableModel}
 import javax.swing.table.TableCellEditor
+import com.github.fng.structurer.config.FieldConfig
+import com.github.fng.structurer.config.FieldConfig._
 
 object FieldTable {
 
@@ -17,7 +19,7 @@ object FieldTable {
     },
     new Column[MutableField, FieldType]("Type", true, (field: MutableField) => field.fieldType) {
       updateHandler = (field: MutableField, newValue: FieldType) => field.fieldType = newValue
-      customCellEditor = new ComboboxCellEditor[MutableField](List(FieldType.NumberField,
+      customCellEditor = new ComboboxCellEditor[MutableField](List(FieldType.NumberLevelField,
         FieldType.NumberRangeField, FieldType.ChooseField))
     },
     new Column[MutableField, ConstraintType]("Constraint Type", true, (field: MutableField) => field.constraintType) {
@@ -30,25 +32,25 @@ object FieldTable {
       }
 
     },
-    new Column[MutableField, String]("Number Value", new CustomEditableMode[MutableField] {
-      def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.NumberField
+    new Column[MutableField, String]("Level", new CustomEditableMode[MutableField] {
+      def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.NumberLevelField
     }
-      , (field: MutableField) => field.numberValue) {
-      updateHandler = (field: MutableField, newValue: String) => field.numberValue = newValue
+      , (field: MutableField) => field.level) {
+      updateHandler = (field: MutableField, newValue: String) => field.level = newValue
       customCellRenderer = NonEditableBackgroundColorCellRenderer[MutableField](Color.LIGHT_GRAY)
     },
-    new Column[MutableField, String]("Number Range Value", new CustomEditableMode[MutableField] {
+    new Column[MutableField, String]("Range", new CustomEditableMode[MutableField] {
       def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.NumberRangeField
     }
-      , (field: MutableField) => field.numberRangeValue) {
-      updateHandler = (field: MutableField, newValue: String) => field.numberRangeValue = newValue
+      , (field: MutableField) => field.range) {
+      updateHandler = (field: MutableField, newValue: String) => field.range = newValue
       customCellRenderer = NonEditableBackgroundColorCellRenderer[MutableField](Color.LIGHT_GRAY)
     },
-    new Column[MutableField, String]("Choose Value", new CustomEditableMode[MutableField] {
+    new Column[MutableField, String]("Values", new CustomEditableMode[MutableField] {
       def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.ChooseField
     }
-      , (field: MutableField) => field.chooseValue) {
-      updateHandler = (field: MutableField, newValue: String) => field.chooseValue = newValue
+      , (field: MutableField) => field.values) {
+      updateHandler = (field: MutableField, newValue: String) => field.values = newValue
       customCellRenderer = NonEditableBackgroundColorCellRenderer[MutableField](Color.LIGHT_GRAY)
     },
     new Column[MutableField, String]("Delete", true, (field: MutableField) => "Remove") {
@@ -73,6 +75,11 @@ class FieldTable(fields: List[MutableField]) extends GenericTable[MutableField](
 
   fields.foreach(listenTo(_))
 
+  def updateWithNewList(fields: List[MutableField]) {
+    tableModel.updateWithNewList(fields)
+  }
+
+
   reactions += {
     case FieldTable.DeleteFieldTableRowEvent(row) => tableModel.removeRow(row)
     case MutableField.UpdateEvent => tableModel.fireTableDataChanged()
@@ -83,25 +90,39 @@ object MutableField {
 
   case object UpdateEvent extends Event
 
+  def apply(fieldConfig: FieldConfig): MutableField = fieldConfig match {
+    case DoubleRangeFieldConfig(name, from, to, default) => MutableField(name, FieldType.NumberRangeField, ConstraintType.Between, "", from + ";" + to, "")
+    case DoubleFieldConfig(name, validationType, level, default) => validationType match {
+      case DoubleFieldValidationType.GreaterThan => MutableField(name, FieldType.NumberLevelField, ConstraintType.GreaterThan, level.toString, "", "")
+      case DoubleFieldValidationType.GreaterThanEqual => MutableField(name, FieldType.NumberLevelField, ConstraintType.GreaterThanEqual, level.toString, "", "")
+      case DoubleFieldValidationType.LessThan => MutableField(name, FieldType.NumberLevelField, ConstraintType.LessThan, level.toString, "", "")
+      case DoubleFieldValidationType.LessThanEqual => MutableField(name, FieldType.NumberLevelField, ConstraintType.LessThanEqual, level.toString, "", "")
+    }
+    case ChooseFieldConfig(name, validationType, values, default) => validationType match {
+      case ChooseFieldValidationType.OneOf => MutableField(name, FieldType.ChooseField, ConstraintType.OneOf, "", "", values.mkString(","))
+      case ChooseFieldValidationType.ManyOf => MutableField(name, FieldType.ChooseField, ConstraintType.ManyOf, "", "", values.mkString(","))
+    }
+  }
+
 }
 
 case class MutableField(var name: String, private var _fieldType: FieldType, var constraintType: ConstraintType,
-                        private var _numberValue: String, private var _numberRangeValue: String,
-                        private var _chooseValue: String) extends Publisher {
+                        private var _level: String, private var _range: String,
+                        private var _values: String) extends Publisher {
   fieldTypeChanged()
 
   private def fieldTypeChanged() {
-    if(!fieldType.constrainTypes.exists(_ == constraintType)) constraintType = null
+    if (!fieldType.constrainTypes.exists(_ == constraintType)) constraintType = null
     fieldType match {
-      case FieldType.NumberField =>
-        numberRangeValue = ""
-        chooseValue = ""
+      case FieldType.NumberLevelField =>
+        range = ""
+        values = ""
       case FieldType.NumberRangeField =>
-        numberValue = ""
-        chooseValue = ""
+        level = ""
+        values = ""
       case FieldType.ChooseField =>
-        numberValue = ""
-        numberRangeValue = ""
+        level = ""
+        range = ""
     }
     publish(MutableField.UpdateEvent)
   }
@@ -113,24 +134,24 @@ case class MutableField(var name: String, private var _fieldType: FieldType, var
 
   def fieldType: FieldType = _fieldType
 
-  def numberValue_=(numberValue: String) {
-    _numberValue = numberValue
+  def level_=(level: String) {
+    _level = level
   }
 
-  def numberValue: String = _numberValue
+  def level: String = _level
 
 
-  def numberRangeValue_=(numberRangeValue: String) {
-    _numberRangeValue = numberRangeValue
+  def range_=(range: String) {
+    _range = range
   }
 
-  def numberRangeValue: String = _numberRangeValue
+  def range: String = _range
 
-  def chooseValue_=(chooseValue: String) {
-    _chooseValue = chooseValue
+  def values_=(values: String) {
+    _values = values
   }
 
-  def chooseValue: String = _chooseValue
+  def values: String = _values
 }
 
 abstract class FieldType(val header: String, val constrainTypes: List[ConstraintType]) {
@@ -139,7 +160,7 @@ abstract class FieldType(val header: String, val constrainTypes: List[Constraint
 
 object FieldType {
 
-  case object NumberField extends FieldType("Number", List(ConstraintType.GreaterThan, ConstraintType.GreaterThanEqual,
+  case object NumberLevelField extends FieldType("Number Level", List(ConstraintType.GreaterThan, ConstraintType.GreaterThanEqual,
     ConstraintType.LessThanEqual, ConstraintType.LessThan))
 
   case object NumberRangeField extends FieldType("Number Range", List(ConstraintType.Between))
@@ -147,7 +168,7 @@ object FieldType {
   case object ChooseField extends FieldType("Choose", List(ConstraintType.OneOf, ConstraintType.ManyOf))
 
   def forHeader(header: String): FieldType = header match {
-    case NumberField.header => NumberField
+    case NumberLevelField.header => NumberLevelField
     case NumberRangeField.header => NumberRangeField
     case ChooseField.header => ChooseField
     case other => sys.error("No FieldType found for header: " + header)

@@ -23,11 +23,12 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     title = "Structurer"
 
-//    val framewidth = 600
-//    val frameheight = 600
-//    val screenSize = java.awt.Toolkit.getDefaultToolkit.getScreenSize
-//    location = new java.awt.Point((screenSize.width - framewidth) / 2, (screenSize.height - frameheight) / 2)
-//    minimumSize = new java.awt.Dimension(framewidth, frameheight)
+    //    val framewidth = 600
+    //    val frameheight = 600
+    val screenSize = java.awt.Toolkit.getDefaultToolkit.getScreenSize
+    //    location = new java.awt.Point((screenSize.width - framewidth) / 2, (screenSize.height - frameheight) / 2)
+    //    minimumSize = new java.awt.Dimension(framewidth, frameheight)
+    preferredSize = screenSize
 
 
     val addOptionMenu = new MenuItem("Option")
@@ -73,7 +74,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
     val bondTable = new BondTable(bonds.map(MutableBond(_)))
 
     val fieldTable = new FieldTable(List(
-      MutableField("CAP", FieldType.NumberField, ConstraintType.GreaterThan, "100", "", ""),
+      MutableField("CAP", FieldType.NumberLevelField, ConstraintType.GreaterThan, "100", "", ""),
       MutableField("DUMMY", FieldType.NumberRangeField, ConstraintType.GreaterThan, "", "50;80", ""),
       MutableField("COUPON FREQUENCY", FieldType.ChooseField, ConstraintType.OneOf, "", "", "annually,semi-annually,quarterly,monthly")
     ))
@@ -151,6 +152,9 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
       bondTable.updateWithNewList(expressionBonds.map(MutableBond(_)))
 
+
+      fieldTable.updateWithNewList(fields.map(MutableField(_)))
+
       packagePanel.update(packageInstrument)
       fieldPanel.refreshFieldPanel(fields)
       mainPanel.revalidate()
@@ -159,7 +163,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     }
 
-    val mainPanel = new MigLayoutPanel(colConstraints = "[grow, fill]", rowConstraints = "[50][100][100][100][][grow, fill]") {
+    val mainPanel = new MigLayoutPanel(colConstraints = "[grow, fill]", rowConstraints = "[50][100][100][150][][grow, fill]") {
       wrap(packagePanel)
       wrap(new ScrollPane(optionTable) {
         border = BorderFactory.createTitledBorder("Options")
@@ -176,9 +180,9 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
           add(fieldPanel, BorderPanel.Position.North)
         },
         chartPanel) {
-        dividerLocation = 200
+        dividerLocation = 400
         dividerSize = 8
-        oneTouchExpandable = true
+//        oneTouchExpandable = true
       })
 
     }
