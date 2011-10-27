@@ -40,7 +40,8 @@ object OptionTable {
         columnEventPublisher.publish(DeleteOptionTableRowEvent(row))
       })
       customCellRenderer = new ComponentCellRenderer[MutableOption] {
-        def rendererComponent(tableModel: GenericTableModel[MutableOption], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = new Button(tableModel.getValueAt(row, column).toString)
+        def rendererComponent(tableModel: GenericTableModel[MutableOption], isSelected: Boolean, focused: Boolean, row: Int,
+                              column: Int, defaultRendererComponent: () => Component): Component = new Button(tableModel.getValueAt(row, column).toString)
       }
     }
   )

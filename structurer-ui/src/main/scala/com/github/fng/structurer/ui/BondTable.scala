@@ -28,7 +28,8 @@ object BondTable {
         columnEventPublisher.publish(DeleteBondTableRowEvent(row))
       })
       customCellRenderer = new ComponentCellRenderer[MutableBond] {
-        def rendererComponent(tableModel: GenericTableModel[MutableBond], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = new Button(tableModel.getValueAt(row, column).toString)
+        def rendererComponent(tableModel: GenericTableModel[MutableBond], isSelected: Boolean, focused: Boolean, row: Int,
+                              column: Int, defaultRendererComponent: () => Component): Component = new Button(tableModel.getValueAt(row, column).toString)
       }
     }
 

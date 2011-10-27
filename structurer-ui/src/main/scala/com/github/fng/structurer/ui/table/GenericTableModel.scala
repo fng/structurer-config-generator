@@ -4,14 +4,28 @@ import collection.mutable.Buffer
 import javax.swing.table.{TableCellEditor, AbstractTableModel}
 import swing.{Publisher, Component}
 import com.github.fng.structurer.ui.table.GenericTableModel.Column
+import java.awt.Color
 
 object GenericTableModel {
 
   class ColumnEventPublisher extends Publisher
 
   trait ComponentCellRenderer[T] {
-    def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component
+    def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int, column: Int,
+                          defaultRendererComponent: () => Component): Component
   }
+
+  case class NonEditableBackgroundColorCellRenderer[T](background: Color) extends ComponentCellRenderer[T] {
+    def rendererComponent(tableModel: GenericTableModel[T], isSelected: Boolean, focused: Boolean, row: Int,
+                          column: Int, defaultRendererComponent: () => Component): Component = {
+      val component = defaultRendererComponent()
+      if (!tableModel.columns(column).isEditable(tableModel.values(row))) {
+        component.background = background
+      }
+      component
+    }
+  }
+
 
   abstract class EditableMode[T]
 
@@ -98,7 +112,7 @@ object GenericTableModel {
 
 }
 
-class GenericTableModel[T](columns: List[Column[T, _]], val values: Buffer[T]) extends AbstractTableModel {
+class GenericTableModel[T](val columns: List[Column[T, _]], val values: Buffer[T]) extends AbstractTableModel {
   def getRowCount = values.length
 
   def getColumnCount = columns.length

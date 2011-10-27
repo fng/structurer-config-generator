@@ -1,12 +1,12 @@
 package com.github.fng.structurer.ui
 
-import swing.event.Event
-import table.CellEditor.{ComboboxCellEditor, ButtonTableCellEditor, ExpressionCellEditor}
+import table.CellEditor.{ComboboxCellEditor, ButtonTableCellEditor}
 import table.GenericTableModel.EditableMode.CustomEditableMode
-import table.GenericTableModel.{EditableMode, ComponentCellRenderer, Column}
+import table.GenericTableModel.{NonEditableBackgroundColorCellRenderer, ComponentCellRenderer, Column}
 import table.{GenericTable, GenericTableModel}
-import swing.{Publisher, Component, Button}
 import swing.event.Event
+import swing._
+import java.awt.Color
 
 object FieldTable {
 
@@ -23,25 +23,28 @@ object FieldTable {
       updateHandler = (field: MutableField, newValue: ConstraintType) => field.constraintType = newValue
       customCellEditor = new ComboboxCellEditor(List(ConstraintType.GreaterThan,
         ConstraintType.GreaterThanEqual, ConstraintType.LessThanEqual,
-        ConstraintType.LessThan, ConstraintType.OneOf, ConstraintType.ManyOf))
+        ConstraintType.LessThan, ConstraintType.Between, ConstraintType.OneOf, ConstraintType.ManyOf))
     },
     new Column[MutableField, String]("Number Value", new CustomEditableMode[MutableField] {
       def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.NumberField
     }
       , (field: MutableField) => field.numberValue) {
       updateHandler = (field: MutableField, newValue: String) => field.numberValue = newValue
+      customCellRenderer = NonEditableBackgroundColorCellRenderer[MutableField](Color.LIGHT_GRAY)
     },
     new Column[MutableField, String]("Number Range Value", new CustomEditableMode[MutableField] {
       def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.NumberRangeField
     }
       , (field: MutableField) => field.numberRangeValue) {
       updateHandler = (field: MutableField, newValue: String) => field.numberRangeValue = newValue
+      customCellRenderer = NonEditableBackgroundColorCellRenderer[MutableField](Color.LIGHT_GRAY)
     },
     new Column[MutableField, String]("Choose Value", new CustomEditableMode[MutableField] {
       def isEditable(field: MutableField): Boolean = field.fieldType == FieldType.ChooseField
     }
       , (field: MutableField) => field.chooseValue) {
       updateHandler = (field: MutableField, newValue: String) => field.chooseValue = newValue
+      customCellRenderer = NonEditableBackgroundColorCellRenderer[MutableField](Color.LIGHT_GRAY)
     },
     new Column[MutableField, String]("Delete", true, (field: MutableField) => "Remove") {
       updateHandler = (field: MutableField, newValue: String) => {}
@@ -50,7 +53,8 @@ object FieldTable {
         columnEventPublisher.publish(DeleteFieldTableRowEvent(row))
       })
       customCellRenderer = new ComponentCellRenderer[MutableField] {
-        def rendererComponent(tableModel: GenericTableModel[MutableField], isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = new Button(tableModel.getValueAt(row, column).toString)
+        def rendererComponent(tableModel: GenericTableModel[MutableField], isSelected: Boolean, focused: Boolean, row: Int,
+                              column: Int, defaultRendererComponent: () => Component): Component = new Button(tableModel.getValueAt(row, column).toString)
       }
     }
 
@@ -70,13 +74,16 @@ class FieldTable(fields: List[MutableField]) extends GenericTable[MutableField](
   }
 }
 
-object MutableField{
+object MutableField {
+
   case object UpdateEvent extends Event
+
 }
 
 case class MutableField(var name: String, private var _fieldType: FieldType, var constraintType: ConstraintType,
                         private var _numberValue: String, private var _numberRangeValue: String,
                         private var _chooseValue: String) extends Publisher {
+  fieldTypeChanged()
 
   private def fieldTypeChanged() {
     fieldType match {
@@ -155,6 +162,8 @@ object ConstraintType {
 
   case object LessThan extends ConstraintType("LE")
 
+  case object Between extends ConstraintType("Between")
+
   case object OneOf extends ConstraintType("OneOf")
 
   case object ManyOf extends ConstraintType("ManyOf")
@@ -165,6 +174,7 @@ object ConstraintType {
     case GreaterThanEqual.header => GreaterThanEqual
     case LessThanEqual.header => LessThanEqual
     case LessThan.header => LessThan
+    case Between.header => Between
     case OneOf.header => OneOf
     case ManyOf.header => ManyOf
     case other => sys.error("No ConstraintType found for header: " + header)
