@@ -23,11 +23,11 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     title = "Structurer"
 
-    val framewidth = 600
-    val frameheight = 600
-    val screenSize = java.awt.Toolkit.getDefaultToolkit.getScreenSize
-    location = new java.awt.Point((screenSize.width - framewidth) / 2, (screenSize.height - frameheight) / 2)
-    minimumSize = new java.awt.Dimension(framewidth, frameheight)
+//    val framewidth = 600
+//    val frameheight = 600
+//    val screenSize = java.awt.Toolkit.getDefaultToolkit.getScreenSize
+//    location = new java.awt.Point((screenSize.width - framewidth) / 2, (screenSize.height - frameheight) / 2)
+//    minimumSize = new java.awt.Dimension(framewidth, frameheight)
 
 
     val addOptionMenu = new MenuItem("Option")
@@ -159,18 +159,18 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     }
 
-    val mainPanel = new MigLayoutPanel(colConstraints = "[600][grow, fill]", rowConstraints = "[50][100][100][][grow, fill]") {
-      wrap(packagePanel, "spanx 2, growx")
+    val mainPanel = new MigLayoutPanel(colConstraints = "[grow, fill]", rowConstraints = "[50][100][100][100][][grow, fill]") {
+      wrap(packagePanel)
       wrap(new ScrollPane(optionTable) {
         border = BorderFactory.createTitledBorder("Options")
-      }, "spanx 2, growx")
+      })
       wrap(new ScrollPane(bondTable) {
         border = BorderFactory.createTitledBorder("Bonds")
-      }, "spanx 2, growx")
-      wrap(drawButton, "spanx 2, growx")
-      add(new ScrollPane(fieldTable) {
+      })
+      wrap(new ScrollPane(fieldTable) {
         border = BorderFactory.createTitledBorder("Fields")
-      }, "growx")
+      })
+      wrap(drawButton)
       add(new SplitPane(Orientation.Vertical,
         new BorderPanel {
           add(fieldPanel, BorderPanel.Position.North)
