@@ -33,6 +33,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     val addOptionMenu = new MenuItem("Option")
     val addBondMenu = new MenuItem("Bond")
+    val addFieldMenu = new MenuItem("Field")
 
 
     menuBar = new MenuBar {
@@ -45,6 +46,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
       contents += new Menu("Add") {
         contents += addOptionMenu
         contents += addBondMenu
+        contents += addFieldMenu
       }
 
       contents += new Menu("Samples") {
@@ -65,20 +67,10 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     val fieldPanel = new FieldPanel
 
-    val options = List(ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier),
-      ExpressionOption(OptionType.Call, 1.0, -10, 100, OptionBarrierType.KnockInBarrier))
+    val optionTable = new OptionTable()
+    val bondTable = new BondTable()
 
-    val bonds = List(ExpressionBond(1000, 1))
-
-
-    val optionTable = new OptionTable(options.map(MutableOption(_)))
-    val bondTable = new BondTable(bonds.map(MutableBond(_)))
-
-    val fieldTable = new FieldTable(List(
-      MutableField("CAP", FieldType.NumberLevelField, ConstraintType.GreaterThan, 100, "", "", "120"),
-      MutableField("DUMMY", FieldType.NumberRangeField, ConstraintType.GreaterThan, null, "50;80", "", "60"),
-      MutableField("COUPON FREQUENCY", FieldType.ChooseField, ConstraintType.OneOf, null, "", "annually,semi-annually,quarterly,monthly", "annually")
-    ))
+    val fieldTable = new FieldTable()
 
     val chartPanel = new BorderPanel {
 
@@ -101,7 +93,7 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     loadableConfigurations.foreach(listenTo(_))
 
-    listenTo(refreshFieldsButton, drawButton, addOptionMenu, addBondMenu)
+    listenTo(refreshFieldsButton, drawButton, addOptionMenu, addBondMenu, addFieldMenu)
 
 
     reactions += {
@@ -109,12 +101,20 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
         fieldPanel.refreshFieldPanel(fieldTable.getFields)
         mainPanel.revalidate()
       case ButtonClicked(`drawButton`) =>
-        chartPanel.updateChart()
-        mainPanel.revalidate()
+        try {
+          chartPanel.updateChart()
+          mainPanel.revalidate()
+        } catch {
+          case e: Exception =>
+            e.printStackTrace()
+            Dialog.showMessage(message = "Error in Drawing The Chart: " + e.getMessage)
+        }
       case ButtonClicked(`addOptionMenu`) =>
         optionTable.add(MutableOption(ExpressionOption(OptionType.Call, 0.0, 10, 100, OptionBarrierType.NoBarrier)))
       case ButtonClicked(`addBondMenu`) =>
         bondTable.add(MutableBond(ExpressionBond(1000, 1)))
+      case ButtonClicked(`addFieldMenu`) =>
+        fieldTable.add(MutableField("FIELD", FieldType.NumberLevelField, ConstraintType.GreaterThan, 100, "", "", "120"))
       case ButtonClicked(config) if config.isInstanceOf[LoadableConfigMenuItem] =>
         dialogSave {
           loadFromConfig(config.asInstanceOf[LoadableConfigMenuItem].resource)
@@ -239,20 +239,29 @@ object Structurer extends SimpleSwingApplication with PayoffSamples with Loadabl
 
     val variableValues = fieldPanel.getFieldsWithValues
 
-    val optionInstruments = options.map {
-      expressionOption => OptionInstrument(expressionOption.optionType,
-        expressionOption.strike.evaluate(variableValues).doubleValue(),
-        expressionOption.quantity.evaluate(variableValues).doubleValue(),
-        expressionOption.notional.evaluate(variableValues).doubleValue(),
-        expressionOption.optionBarrierType
-      )
+    val optionInstruments = try {
+      options.map {
+        expressionOption => OptionInstrument(expressionOption.optionType,
+          expressionOption.strike.evaluate(variableValues).doubleValue(),
+          expressionOption.quantity.evaluate(variableValues).doubleValue(),
+          expressionOption.notional.evaluate(variableValues).doubleValue(),
+          expressionOption.optionBarrierType
+        )
+      }
+    } catch {
+      case e: Exception => throw new RuntimeException("Problem in evaluating Options. Are all Fields defined? ("+e.getMessage+")", e)
     }
 
-    val bondInstruments = bonds.map {
-      expressionBond => BondInstrument(
-        expressionBond.notional.evaluate(variableValues).doubleValue(),
-        expressionBond.quantity.evaluate(variableValues).doubleValue()
-      )
+
+    val bondInstruments = try {
+      bonds.map {
+        expressionBond => BondInstrument(
+          expressionBond.notional.evaluate(variableValues).doubleValue(),
+          expressionBond.quantity.evaluate(variableValues).doubleValue()
+        )
+      }
+    } catch {
+      case e: Exception => throw new RuntimeException("Problem in evaluating Bonds. Are all Fields defined? ("+e.getMessage+")", e)
     }
 
 

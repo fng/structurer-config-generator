@@ -151,7 +151,6 @@ class GenericTableModel[T](val columns: List[Column[T, _]], val values: Buffer[T
 
 
   override def setValueAt(value: AnyRef, row: Int, col: Int) {
-    println("update row: " + row + " col: " + col + " with value: " + value)
     if (values.length > row) {
       columns(col).update(values(row), value)
     }

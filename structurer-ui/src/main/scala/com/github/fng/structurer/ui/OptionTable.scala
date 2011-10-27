@@ -51,7 +51,7 @@ object OptionTable {
 }
 
 
-class OptionTable(options: List[MutableOption]) extends GenericTable[MutableOption](OptionTable.columns, options) {
+class OptionTable(options: List[MutableOption] = Nil) extends GenericTable[MutableOption](OptionTable.columns, options) {
 
   peer.getColumnModel.getColumn(0).setPreferredWidth(50)
   peer.getColumnModel.getColumn(1).setPreferredWidth(200)

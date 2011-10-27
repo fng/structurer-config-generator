@@ -73,9 +73,14 @@ object FieldTable {
 
 }
 
-class FieldTable(fields: List[MutableField]) extends GenericTable[MutableField](FieldTable.columns, fields) {
+class FieldTable(fields: List[MutableField] = Nil) extends GenericTable[MutableField](FieldTable.columns, fields) {
+
 
   fields.foreach(listenTo(_))
+
+  def add(mutableField: MutableField) {
+    tableModel.add(mutableField)
+  }
 
   def updateWithNewList(fields: List[MutableField]) {
     tableModel.updateWithNewList(fields)
@@ -175,7 +180,6 @@ case class MutableField(var name: String, private var _fieldType: FieldType, var
   }
 
 
-
   def toFieldConfig: FieldConfig = fieldType match {
     case FieldType.NumberRangeField => range.split(";").toList match {
       case List(from, to) => DoubleRangeFieldConfig(name, from.toDouble, to.toDouble, default)
@@ -203,7 +207,7 @@ abstract class FieldType(val header: String, val constrainTypes: List[Constraint
 object FieldType {
 
   case object NumberLevelField extends FieldType("Number Level", List(ConstraintType.GreaterThan, ConstraintType.GreaterThanEqual,
-    ConstraintType.LessThanEqual, ConstraintType.LessThan))
+    ConstraintType.LessThan, ConstraintType.LessThanEqual))
 
   case object NumberRangeField extends FieldType("Number Range", List(ConstraintType.Between))
 
@@ -228,9 +232,9 @@ object ConstraintType {
 
   case object GreaterThanEqual extends ConstraintType("GE")
 
-  case object LessThanEqual extends ConstraintType("LT")
+  case object LessThan extends ConstraintType("LT")
 
-  case object LessThan extends ConstraintType("LE")
+  case object LessThanEqual extends ConstraintType("LE")
 
   case object Between extends ConstraintType("Between")
 
@@ -242,8 +246,8 @@ object ConstraintType {
   def forHeader(header: String): ConstraintType = header match {
     case GreaterThan.header => GreaterThan
     case GreaterThanEqual.header => GreaterThanEqual
-    case LessThanEqual.header => LessThanEqual
     case LessThan.header => LessThan
+    case LessThanEqual.header => LessThanEqual
     case Between.header => Between
     case OneOf.header => OneOf
     case ManyOf.header => ManyOf

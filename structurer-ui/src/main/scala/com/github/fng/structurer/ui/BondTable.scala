@@ -40,7 +40,7 @@ object BondTable {
 }
 
 
-class BondTable(bonds: List[MutableBond]) extends GenericTable(BondTable.columns, bonds) {
+class BondTable(bonds: List[MutableBond] = Nil) extends GenericTable(BondTable.columns, bonds) {
 
 
   def add(bond: MutableBond) {
