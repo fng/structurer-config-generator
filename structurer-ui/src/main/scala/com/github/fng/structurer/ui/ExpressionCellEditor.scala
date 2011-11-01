@@ -4,7 +4,7 @@ import instrument.TextFieldType.ExpressionField
 import javax.swing.{JTextField, DefaultCellEditor}
 import javax.swing.DefaultCellEditor._
 import java.awt.Color
-import table.{ComponentCellEditor, GenericTableModel}
+import com.github.fng.commonsscalaswing.table.{GenericTableModel, ComponentCellEditor}
 
 class ExpressionCellEditor[T]() extends ComponentCellEditor[T] {
     val theEditor = new DefaultCellEditor(new JTextField()) {

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="com.github.fng_commons-scala-swing_0.1.0-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.github.fng/commons-scala-swing/jars/commons-scala-swing-0.1.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.github.fng/commons-scala-swing/docs/commons-scala-swing-0.1.0-SNAPSHOT-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ivy2/cache/com.github.fng/commons-scala-swing/srcs/commons-scala-swing-0.1.0-SNAPSHOT-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,15 +1,15 @@
 package com.github.fng.structurer.ui
 
-import table.CellEditor.{ComboboxCellEditor, ButtonTableCellEditor}
-import table.GenericTableModel.EditableMode.CustomEditableMode
 import swing.event.Event
 import swing._
 import java.awt.Color
-import table.GenericTableModel.{EditableMode, NonEditableBackgroundColorCellRenderer, ComponentCellRenderer, Column}
-import table.{ComponentCellEditor, GenericTable, GenericTableModel}
 import javax.swing.table.TableCellEditor
 import com.github.fng.structurer.config.FieldConfig
 import com.github.fng.structurer.config.FieldConfig._
+import com.github.fng.commonsscalaswing.table.GenericTableModel.EditableMode.CustomEditableMode
+import com.github.fng.commonsscalaswing.table.CellEditor.{ButtonTableCellEditor, ComboboxCellEditor}
+import com.github.fng.commonsscalaswing.table.GenericTableModel.{ComponentCellRenderer, NonEditableBackgroundColorCellRenderer, EditableMode, Column}
+import com.github.fng.commonsscalaswing.table.{GenericTable, GenericTableModel, ComponentCellEditor}
 
 object FieldTable {
 

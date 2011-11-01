@@ -2,13 +2,12 @@ package com.github.fng.structurer.ui
 
 import instrument.ExpressionBond
 import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpression}
-import table.CellEditor.{ButtonTableCellEditor}
 import swing.{Button, Component, Table}
 import swing.Table.ElementMode
-import table.GenericTableModel.{EditableMode, ComponentCellRenderer, Column}
-import table.{GenericTable, GenericTableModel}
 import swing.event.Event
-
+import com.github.fng.commonsscalaswing.table.CellEditor.ButtonTableCellEditor
+import com.github.fng.commonsscalaswing.table.GenericTableModel.{EditableMode, ComponentCellRenderer, Column}
+import com.github.fng.commonsscalaswing.table.{GenericTable, GenericTableModel}
 
 object BondTable {
 

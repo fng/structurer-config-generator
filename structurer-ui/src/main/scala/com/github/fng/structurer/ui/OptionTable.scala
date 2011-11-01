@@ -3,12 +3,11 @@ package com.github.fng.structurer.ui
 import instrument.ExpressionOption
 import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType}
 import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpression}
-import table.CellEditor.{ButtonTableCellEditor, ComboboxCellEditor}
-import swing.Table.ElementMode
-import table.GenericTableModel.{EditableMode, ComponentCellRenderer, Column}
-import table.{GenericTable, GenericTableModel}
 import swing.{Component, Button, Table}
 import swing.event.Event
+import com.github.fng.commonsscalaswing.table.CellEditor.{ButtonTableCellEditor, ComboboxCellEditor}
+import com.github.fng.commonsscalaswing.table.GenericTableModel.{ComponentCellRenderer, EditableMode, Column}
+import com.github.fng.commonsscalaswing.table.{GenericTable, GenericTableModel}
 
 object OptionTable {
   val columns = List(

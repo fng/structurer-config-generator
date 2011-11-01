@@ -8,7 +8,9 @@ object build extends Build {
       organization := "com.github.fng",
       version := "1.0.0-SNAPSHOT",
       scalaVersion := "2.9.1",
-      crossPaths := false
+      crossPaths := false,
+      resolvers += "fng-github-snapshots" at "http://fng.github.com/repo/snapshots/",
+      resolvers += "fng-github-release" at "http://fng.github.com/repo/releases/"
     )
 
   lazy val structurerConfigGenerator = Project(
@@ -48,7 +50,7 @@ object build extends Build {
     base = file("structurer-ui"),
     dependencies = Seq(instrument, payoff, config),
     settings = standardSettings ++ Seq(
-      libraryDependencies ++= Seq(EfgMeasuresAndUnits, scalaSwing, jfreechart, SwingMigLayout)
+      libraryDependencies ++= Seq(EfgMeasuresAndUnits, scalaSwing, jfreechart, SwingMigLayout, commonsScalaSwing)
     )
   )
 
@@ -60,5 +62,7 @@ object build extends Build {
   lazy val jfreechart = "jfree" % "jfreechart" % "1.0.13"
   lazy val EfgMeasuresAndUnits = "com.efgfp.commons" % "efg-measures-and-units" % "0.12" withSources
   lazy val SpringWrapper = "com.efgfp.commons" % "spring-wrapper" % "0.15"
+
+  lazy val commonsScalaSwing = "com.github.fng" % "commons-scala-swing" % "0.1.0-SNAPSHOT"
 
 }
