@@ -2,7 +2,7 @@ package com.github.fng.structurer.ui
 
 import instrument.ExpressionBond
 import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpression}
-import table.CellEditor.{ButtonTableCellEditor, ExpressionCellEditor}
+import table.CellEditor.{ButtonTableCellEditor}
 import swing.{Button, Component, Table}
 import swing.Table.ElementMode
 import table.GenericTableModel.{EditableMode, ComponentCellRenderer, Column}

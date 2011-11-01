@@ -3,7 +3,7 @@ package com.github.fng.structurer.ui
 import instrument.ExpressionOption
 import com.github.fng.structurer.instrument.{OptionBarrierType, OptionType}
 import com.github.fng.structurer.config.expression.{ExpressionParser, RichExpression}
-import table.CellEditor.{ButtonTableCellEditor, ComboboxCellEditor, ExpressionCellEditor}
+import table.CellEditor.{ButtonTableCellEditor, ComboboxCellEditor}
 import swing.Table.ElementMode
 import table.GenericTableModel.{EditableMode, ComponentCellRenderer, Column}
 import table.{GenericTable, GenericTableModel}

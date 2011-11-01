@@ -4,9 +4,9 @@
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
   <component name="HudsonMonitorComponent">
-    <option name="timeOutTextField" value="30" />
+    <option value="30" name="timeOutTextField" />
   </component>
-  <component name="IdProvider" IDEtalkID="628898BD6AFCBDF292B17F2060F25C77" />
+  <component IDEtalkID="628898BD6AFCBDF292B17F2060F25C77" name="IdProvider" />
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
     <option name="OPTION_SCOPE" value="protected" />
@@ -25,7 +25,7 @@
     <option name="OPEN_IN_BROWSER" value="true" />
   </component>
   <component name="ProjectDetails">
-    <option name="projectName" value="structurer-config-generator" />
+    <option value="structurer-config-generator" name="projectName" />
   </component>
   <component name="ProjectResources">
     <default-html-doctype>http://www.w3.org/1999/xhtml</default-html-doctype>
@@ -33,6 +33,6 @@
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="1.6" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
-  <component name="WebServicesPlugin" addRequiredLibraries="true" />
+  <component addRequiredLibraries="true" name="WebServicesPlugin" />
 </project>
 
