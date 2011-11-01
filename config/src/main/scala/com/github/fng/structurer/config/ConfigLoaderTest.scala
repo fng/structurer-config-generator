@@ -8,5 +8,8 @@ object ConfigLoaderTest {
  def main(args: Array[String]){
    val productConfig = ProductConfig(ResourceLoader.loadStringResourceUtf8(new ClassPathResource("config/barrier-reverse-convertible-notional.json")))
    println(productConfig)
+
+
+
  }
 }

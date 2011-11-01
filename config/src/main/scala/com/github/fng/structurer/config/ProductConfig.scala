@@ -1,13 +1,18 @@
 package com.github.fng.structurer
 package config
 
-import _root_.scala.util.parsing.json.JSON
 import com.efgfp.commons.expression.Expression
 import expression.{RichExpression, ExpressionParser}
 import java.io.Serializable
 import json.Json._
+import util.parsing.json.JSONObject._
+import util.parsing.json.JSONArray._
+import util.parsing.json.{JSONArray, JSONObject, JSONFormat, JSON}
+import config.FieldConfig.{ChooseFieldConfig, DoubleRangeFieldConfig, DoubleFieldConfig}
 
-abstract class FieldConfig
+abstract class FieldConfig {
+  def toJson: JSONObject
+}
 
 object FieldConfig {
 
@@ -31,42 +36,70 @@ object FieldConfig {
 
   }
 
-  case class DoubleFieldConfig(name: String, validationType: DoubleFieldValidationType, level: Double, default: Option[Double]) extends FieldConfig
-  case class DoubleRangeFieldConfig(name: String, from: Double, to: Double, default: Option[Double]) extends FieldConfig
+  case class DoubleFieldConfig(name: String, validationType: DoubleFieldValidationType, level: Double, default: Option[Double]) extends FieldConfig {
+    def toJson: JSONObject = JSONObject(Map(
+      "name" -> name,
+      "type" -> "number",
+      "validationType" -> validationType.jsonKey,
+      "validationValue" -> level.toString,
+      "default" -> default.map(_.toString).orNull
+    ))
 
-  abstract class DoubleFieldValidationType
+  }
+
+  case class DoubleRangeFieldConfig(name: String, from: Double, to: Double, default: Option[Double]) extends FieldConfig {
+    def toJson: JSONObject = JSONObject(Map(
+      "name" -> name,
+      "type" -> "number",
+      "validationType" -> "between",
+      "validationValue" -> (from + ";" + to),
+      "default" -> default.map(_.toString).orNull
+    ))
+
+  }
+
+  abstract class DoubleFieldValidationType(val jsonKey: String)
 
   object DoubleFieldValidationType {
 
-    case object GreaterThan extends DoubleFieldValidationType
+    case object GreaterThan extends DoubleFieldValidationType("GT")
 
-    case object GreaterThanEqual extends DoubleFieldValidationType
+    case object GreaterThanEqual extends DoubleFieldValidationType("GE")
 
-    case object LessThanEqual extends DoubleFieldValidationType
+    case object LessThanEqual extends DoubleFieldValidationType("LTE")
 
-    case object LessThan extends DoubleFieldValidationType
+    case object LessThan extends DoubleFieldValidationType("LT")
 
     def fromString(validationType: String): DoubleFieldValidationType = validationType match {
-      case "GT" => GreaterThan
-      case "GE" => GreaterThanEqual
-      case "LT" => LessThan
-      case "LE" => LessThanEqual
+      case GreaterThan.jsonKey => GreaterThan
+      case GreaterThanEqual.jsonKey => GreaterThanEqual
+      case LessThan.jsonKey => LessThan
+      case LessThanEqual.jsonKey => LessThanEqual
     }
   }
 
-  case class ChooseFieldConfig(name: String, validation: ChooseFieldValidationType, values: List[String], default: Option[String]) extends FieldConfig
+  case class ChooseFieldConfig(name: String, validation: ChooseFieldValidationType, values: List[String], default: Option[String]) extends FieldConfig {
+    def toJson: JSONObject = JSONObject(Map(
+      "name" -> name,
+      "type" -> "choose",
+      "validationType" -> validation.jsonKey,
+      "validationValue" -> values.mkString(","),
+      "default" -> default.orNull
+    ))
 
-  abstract class ChooseFieldValidationType
+  }
+
+  abstract class ChooseFieldValidationType(val jsonKey: String)
 
   object ChooseFieldValidationType {
 
-    case object OneOf extends ChooseFieldValidationType
+    case object OneOf extends ChooseFieldValidationType("OneOf")
 
-    case object ManyOf extends ChooseFieldValidationType
+    case object ManyOf extends ChooseFieldValidationType("ManyOf")
 
     def fromString(validationType: String): ChooseFieldValidationType = validationType match {
-      case "OneOf" => OneOf
-      case "ManyOf" => ManyOf
+      case OneOf.jsonKey => OneOf
+      case ManyOf.jsonKey => ManyOf
     }
 
   }
@@ -82,7 +115,20 @@ object BarrierConfig {
   }
 }
 
-case class OptionConfig(quantity: RichExpression, optionType: String, setup: String, strike: RichExpression, basis: RichExpression, notional: RichExpression, barrier: BarrierConfig)
+case class OptionConfig(quantity: RichExpression, optionType: String, setup: String, strike: RichExpression,
+                        basis: RichExpression, notional: RichExpression, barrier: BarrierConfig) {
+  def toJson: JSONObject = JSONObject(Map(
+    "quantity" -> quantity.originalString,
+    "type" -> optionType,
+    "setup" -> setup,
+    "strike" -> strike.originalString,
+    "basis" -> basis.originalString,
+    "notional" -> notional.originalString,
+    "barrier" -> JSONObject(Map(
+      "type" -> barrier.barrierType,
+      "level" -> barrier.level.originalString
+    ))))
+}
 
 object OptionConfig {
   def apply(quantity: String, optionType: String, setup: String, strike: String, basis: String, notional: String, barrier: BarrierConfig): OptionConfig = {
@@ -90,7 +136,15 @@ object OptionConfig {
   }
 }
 
-case class BondConfig(quantity: RichExpression, notional: RichExpression, frequency: RichExpression, fixedRate: RichExpression)
+case class BondConfig(quantity: RichExpression, notional: RichExpression, frequency: RichExpression, fixedRate: RichExpression) {
+  def toJson: JSONObject = JSONObject(Map(
+    "quantity" -> quantity.originalString,
+    "notional" -> notional.originalString,
+    "frequency" -> frequency.originalString,
+    "fixedRate" -> fixedRate.originalString
+  ))
+
+}
 
 object BondConfig {
   def apply(quantity: String, notional: String, frequency: String, fixedRate: String): BondConfig = {
@@ -100,7 +154,25 @@ object BondConfig {
 
 case class ProductConfig(productTypeId: String, payoffType: String, quotationType: String, underlyingType: String,
                          autocallalbe: String, allotment: String,
-                         fields: List[FieldConfig], options: List[OptionConfig], bonds: List[BondConfig]) extends Serializable
+                         fields: List[FieldConfig], options: List[OptionConfig], bonds: List[BondConfig]) extends Serializable {
+  def toJson: String = {
+
+
+    val map = Map("product-config" -> JSONObject(Map(
+      "productTypeId" -> productTypeId,
+      "payoffType" -> payoffType,
+      "quotationType" -> quotationType,
+      "underlyingType" -> underlyingType,
+      "autocallable" -> autocallalbe,
+      "allotment" -> allotment,
+      "field" -> JSONArray(fields.map(_.toJson)),
+      "option" -> JSONArray(options.map(_.toJson)),
+      "bond" -> JSONArray(bonds.map(_.toJson))
+    )))
+
+    JSONObject(map).toString(JSONFormat.defaultFormatter)
+  }
+}
 
 object ProductConfig {
 

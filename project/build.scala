@@ -24,7 +24,7 @@ object build extends Build {
     id = "config",
     base = file("config"),
     settings = standardSettings ++ Seq(
-      libraryDependencies ++= Seq(EfgMeasuresAndUnits, SpringWrapper)
+      libraryDependencies ++= Seq(EfgMeasuresAndUnits, SpringWrapper, Specs2)
     )
   )
 
@@ -64,5 +64,8 @@ object build extends Build {
   lazy val SpringWrapper = "com.efgfp.commons" % "spring-wrapper" % "0.15"
 
   lazy val commonsScalaSwing = "com.github.fng" % "commons-scala-swing" % "0.1.0-SNAPSHOT"
+
+  lazy val Specs2 = "org.specs2" %% "specs2" % "1.6.1" % "test"
+  //"org.specs2" %% "specs2-scalaz-core" % "6.0.1" % "test"
 
 }
