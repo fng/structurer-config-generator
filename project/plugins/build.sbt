@@ -1,5 +1,8 @@
+
+resolvers += Resolver.url("Typesafe repository", new java.net.URL("http://typesafe.artifactoryonline.com/typesafe/ivy-releases/"))(Resolver.defaultIvyPatterns)
+
+resolvers += Resolver.url("Typesafe snapshot repository", new java.net.URL("http://typesafe.artifactoryonline.com/typesafe/ivy-snapshots/"))(Resolver.defaultIvyPatterns)
+
 resolvers += "sbt-idea-repo" at "http://mpeltonen.github.com/maven/"
 
-// See: https://github.com/mpeltonen/sbt-idea/tree/sbt-0.10
-// Provides the `gen-idea` command to sync the IDEA project structure.
-libraryDependencies += "com.github.mpeltonen" %% "sbt-idea" % "0.10.0"
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "0.11.0")
